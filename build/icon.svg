@@ -1,0 +1,57 @@
+<?xml version="1.0" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%" id="app-icon-svg">
+            <defs>
+                <linearGradient id="bgGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#2D2A26"/>
+                    <stop offset="100%" stop-color="#1A1816"/>
+                </linearGradient>
+                <linearGradient id="brandGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#D97757"/>
+                    <stop offset="100%" stop-color="#A54B33"/>
+                </linearGradient>
+                <linearGradient id="glassGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.15"/>
+                    <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.0"/>
+                </linearGradient>
+                <filter id="shadow">
+                    <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000000" flood-opacity="0.5"/>
+                </filter>
+                <filter id="glow">
+                    <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
+                    <feMerge>
+                        <feMergeNode in="coloredBlur"/>
+                        <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                </filter>
+            </defs>
+
+            <!-- App Icon Base Squircle -->
+            <rect x="32" y="32" width="448" height="448" rx="100" fill="url(#bgGrad)" filter="url(#shadow)"/>
+            <rect x="32" y="32" width="448" height="448" rx="100" fill="none" stroke="#4A4540" stroke-width="3"/>
+
+            <!-- Chat Session Background (Document/Card) -->
+            <rect x="110" y="130" width="220" height="240" rx="24" fill="#3D3833" filter="url(#shadow)"/>
+
+            <!-- Lines representing conversation user -->
+            <rect x="140" y="170" width="140" height="16" rx="8" fill="#665E56"/>
+            <rect x="140" y="206" width="90" height="16" rx="8" fill="#665E56"/>
+
+            <!-- Lines representing AI response -->
+            <rect x="180" y="256" width="120" height="16" rx="8" fill="url(#brandGrad)"/>
+            <rect x="230" y="292" width="70" height="16" rx="8" fill="url(#brandGrad)"/>
+
+            <!-- Magnifying Glass / Viewer overlapping -->
+            <g filter="url(#shadow)">
+                <!-- Glass Lens -->
+                <circle cx="320" cy="320" r="80" fill="url(#glassGrad)" stroke="url(#brandGrad)" stroke-width="24"/>
+                <!-- Glass Handle -->
+                <line x1="376" y1="376" x2="440" y2="440" stroke="url(#brandGrad)" stroke-width="28" stroke-linecap="round"/>
+                <!-- Glass reflection -->
+                <path d="M266 276 A 64 64 0 0 1 320 252" fill="none" stroke="#FFFFFF" stroke-opacity="0.4" stroke-width="8" stroke-linecap="round"/>
+            </g>
+
+            <!-- Little spark/AI star to signify Claude/AI -->
+            <path d="M120 70 Q120 100 90 100 Q120 100 120 130 Q120 100 150 100 Q120 100 120 70 Z" fill="#D97757" filter="url(#glow)"/>
+            <path d="M400 110 Q400 125 385 125 Q400 125 400 140 Q400 125 415 125 Q400 125 400 110 Z" fill="#D97757" opacity="0.8" filter="url(#glow)"/>
+
+        </svg>

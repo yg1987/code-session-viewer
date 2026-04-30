@@ -1,0 +1,458 @@
+@import "tailwindcss";
+
+/* =========================================================
+   Design tokens — Linear / Notion inspired
+   ========================================================= */
+
+:root, [data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Base surfaces (cool dark with a touch of warmth) */
+  --bg:        #0b0d10;          /* page background */
+  --bg-soft:   #0e1116;          /* subtle elevated areas */
+  --surface:   #14181f;          /* cards, sidebar items */
+  --surface2:  #1b212b;          /* hover / inset blocks */
+  --surface3:  #232a36;          /* press / active */
+
+  /* Borders */
+  --border:        #232a36;
+  --border-strong: #2e3744;
+  --border-soft:   rgba(255,255,255,0.04);
+
+  /* Text */
+  --text:    #e7ecf3;
+  --text2:   #9aa4b2;
+  --text3:   #6b7480;            /* tertiary / muted */
+
+  /* Accent ramp (indigo/blue) */
+  --accent:        #6ea8ff;
+  --accent-hover:  #8bbcff;
+  --accent-press:  #5793f0;
+  --accent-soft:   rgba(110,168,255,0.12);
+  --accent-ring:   rgba(110,168,255,0.32);
+
+  /* Role accents */
+  --user-bg:       rgba(110,168,255,0.14);
+  --user-border:   rgba(110,168,255,0.30);
+  --user-rail:     #6ea8ff;
+  --assistant-rail: #b58dff;
+
+  /* Semantic */
+  --error:   #f56e6e;
+  --error-soft: rgba(245,110,110,0.12);
+  --green:   #4ec98e;
+  --green-soft: rgba(78,201,142,0.12);
+  --yellow:  #e8b75a;
+  --yellow-soft: rgba(232,183,90,0.12);
+
+  /* Elevation (layered shadows) */
+  --shadow-1: 0 1px 2px rgba(0,0,0,0.30);
+  --shadow-2: 0 2px 6px rgba(0,0,0,0.35), 0 1px 2px rgba(0,0,0,0.25);
+  --shadow-3: 0 8px 24px rgba(0,0,0,0.45), 0 2px 6px rgba(0,0,0,0.30);
+  --shadow-4: 0 24px 56px rgba(0,0,0,0.55), 0 8px 16px rgba(0,0,0,0.35);
+
+  /* Motion */
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --dur-fast: 120ms;
+  --dur:      180ms;
+  --dur-slow: 280ms;
+
+  /* Radius */
+  --r-sm: 6px;
+  --r:    8px;
+  --r-md: 10px;
+  --r-lg: 14px;
+
+  /* Background flourish — subtle radial wash for the app shell */
+  --bg-flourish:
+    radial-gradient(1200px 600px at 0% 0%,   rgba(110,168,255,0.06) 0%, transparent 60%),
+    radial-gradient(1000px 600px at 100% 100%, rgba(181,141,255,0.05) 0%, transparent 60%);
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+
+  --bg:        #ffffff;
+  --bg-soft:   #fafbfc;
+  --surface:   #f5f7fa;
+  --surface2:  #eef1f5;
+  --surface3:  #e6eaf0;
+
+  --border:        #e2e6ec;
+  --border-strong: #d0d6de;
+  --border-soft:   rgba(0,0,0,0.04);
+
+  --text:    #14181f;
+  --text2:   #565f6b;
+  --text3:   #8a929c;
+
+  --accent:        #2e6ce0;
+  --accent-hover:  #1f5acc;
+  --accent-press:  #154aab;
+  --accent-soft:   rgba(46,108,224,0.10);
+  --accent-ring:   rgba(46,108,224,0.30);
+
+  --user-bg:       rgba(46,108,224,0.10);
+  --user-border:   rgba(46,108,224,0.28);
+  --user-rail:     #2e6ce0;
+  --assistant-rail: #7b5bd1;
+
+  --error:   #c8362f;
+  --error-soft: rgba(200,54,47,0.10);
+  --green:   #1f8f4f;
+  --green-soft: rgba(31,143,79,0.10);
+  --yellow:  #b07a08;
+  --yellow-soft: rgba(176,122,8,0.12);
+
+  --shadow-1: 0 1px 2px rgba(15,20,30,0.06);
+  --shadow-2: 0 2px 6px rgba(15,20,30,0.08), 0 1px 2px rgba(15,20,30,0.04);
+  --shadow-3: 0 12px 28px rgba(15,20,30,0.12), 0 2px 6px rgba(15,20,30,0.05);
+  --shadow-4: 0 24px 56px rgba(15,20,30,0.18), 0 8px 16px rgba(15,20,30,0.08);
+
+  --bg-flourish:
+    radial-gradient(1200px 600px at 0% 0%,   rgba(46,108,224,0.05) 0%, transparent 60%),
+    radial-gradient(1000px 600px at 100% 100%, rgba(123,91,209,0.04) 0%, transparent 60%);
+}
+
+[data-theme="sepia"] {
+  color-scheme: light;
+
+  --bg:        #f7f1e3;
+  --bg-soft:   #f3ecd9;
+  --surface:   #ede4cc;
+  --surface2:  #e2d6b6;
+  --surface3:  #d6c79e;
+
+  --border:        #d6c79e;
+  --border-strong: #c2b07d;
+  --border-soft:   rgba(80,60,20,0.06);
+
+  --text:    #3a2d18;
+  --text2:   #6a5634;
+  --text3:   #8c764d;
+
+  --accent:        #b9651b;
+  --accent-hover:  #a35615;
+  --accent-press:  #8b4711;
+  --accent-soft:   rgba(185,101,27,0.12);
+  --accent-ring:   rgba(185,101,27,0.30);
+
+  --user-bg:       rgba(185,101,27,0.12);
+  --user-border:   rgba(185,101,27,0.30);
+  --user-rail:     #b9651b;
+  --assistant-rail: #6a5634;
+
+  --error:   #a8392b;
+  --error-soft: rgba(168,57,43,0.10);
+  --green:   #5b7a2a;
+  --green-soft: rgba(91,122,42,0.12);
+  --yellow:  #9a6d11;
+  --yellow-soft: rgba(154,109,17,0.14);
+
+  --shadow-1: 0 1px 2px rgba(80,60,20,0.06);
+  --shadow-2: 0 2px 6px rgba(80,60,20,0.10), 0 1px 2px rgba(80,60,20,0.05);
+  --shadow-3: 0 12px 28px rgba(80,60,20,0.14), 0 2px 6px rgba(80,60,20,0.07);
+  --shadow-4: 0 24px 56px rgba(80,60,20,0.20), 0 8px 16px rgba(80,60,20,0.10);
+
+  --bg-flourish:
+    radial-gradient(1200px 600px at 0% 0%,   rgba(185,101,27,0.06) 0%, transparent 60%),
+    radial-gradient(1000px 600px at 100% 100%, rgba(106,86,52,0.05) 0%, transparent 60%);
+}
+
+/* =========================================================
+   Base
+   ========================================================= */
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  font-feature-settings: "cv11", "ss01", "ss03";
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* App shell flourish — only show in chat surfaces, not modals */
+.app-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: var(--bg-flourish);
+  z-index: 0;
+}
+.app-shell > * { position: relative; z-index: 1; }
+
+/* =========================================================
+   Scrollbar — slim, fades in
+   ========================================================= */
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+*:hover::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--text3); background-clip: content-box; }
+
+/* =========================================================
+   Window chrome / drag region
+   ========================================================= */
+
+.app-drag-region { -webkit-app-region: drag; }
+.app-drag-region button,
+.app-drag-region input,
+.app-drag-region a,
+.app-drag-region select { -webkit-app-region: no-drag; }
+
+/* =========================================================
+   Custom titlebar (frameless window)
+   ========================================================= */
+
+.csv-titlebar {
+  position: relative;
+  z-index: 10;
+}
+
+/* App accent dot */
+.csv-titlebar-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: linear-gradient(135deg, var(--accent), var(--assistant-rail, var(--accent-hover)));
+  box-shadow: 0 0 0 1px var(--border-soft), inset 0 1px 0 rgba(255,255,255,0.18);
+}
+
+/* Window control buttons — height fills titlebar (32px), width 46px to match Windows */
+.csv-titlebar-btn {
+  height: 32px;
+  width: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text2);
+  background: transparent;
+  -webkit-app-region: no-drag;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+.csv-titlebar-btn:hover { background: var(--surface); color: var(--text); }
+.csv-titlebar-btn:active { background: var(--surface2); }
+.csv-titlebar-btn:focus-visible { box-shadow: none; outline: none; }
+.csv-titlebar-close:hover { background: #e81123; color: #fff; }
+.csv-titlebar-close:active { background: #c50f1f; color: #fff; }
+
+/* =========================================================
+   Selection / focus
+   ========================================================= */
+
+::selection { background: var(--accent-ring); color: var(--text); }
+
+button, input, select, textarea, a {
+  outline: none;
+}
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible {
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent-ring);
+  border-radius: var(--r);
+}
+
+/* =========================================================
+   Code blocks
+   ========================================================= */
+
+pre { white-space: pre-wrap; word-break: break-all; }
+
+.shiki-wrapper pre.shiki {
+  margin: 0;
+  padding: 14px 16px;
+  background: transparent !important;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.55;
+}
+.shiki-wrapper pre.shiki code {
+  font-family: 'Cascadia Code', 'JetBrains Mono', 'Fira Code', Consolas, 'Courier New', monospace;
+  white-space: pre;
+}
+.shiki-wrapper pre.shiki code .line { display: block; }
+
+/* =========================================================
+   Modal overlay (fade-in + backdrop blur)
+   ========================================================= */
+
+@keyframes csv-fade { from { opacity: 0 } to { opacity: 1 } }
+@keyframes csv-pop  { from { opacity: 0; transform: translateY(6px) scale(0.985) } to { opacity: 1; transform: none } }
+
+.csv-overlay {
+  animation: csv-fade var(--dur) var(--ease);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  background: rgba(0,0,0,0.45);
+}
+[data-theme="light"] .csv-overlay { background: rgba(20,24,31,0.30); }
+[data-theme="sepia"] .csv-overlay { background: rgba(58,45,24,0.30); }
+
+.csv-pop { animation: csv-pop var(--dur) var(--ease); }
+
+/* =========================================================
+   Legacy hardcoded hex → token bridge
+   Many components were written with literal #0d1117 / #161b22 / #30363d /
+   #e6edf3 / #58a6ff / #1a3a5c. Map them via attribute selectors so the
+   theme system controls them everywhere.
+   ========================================================= */
+
+[class*="bg-[#0d1117]"],
+[class*="bg-[#0D1117]"]   { background-color: var(--bg) !important; }
+[class*="bg-[#161b22]"],
+[class*="bg-[#161B22]"]   { background-color: var(--surface) !important; }
+[class*="bg-[#1c2333]"]   { background-color: var(--surface2) !important; }
+[class*="bg-[#30363d]"]   { background-color: var(--surface3) !important; }
+[class*="bg-[#1a3a5c]"]   { background-color: var(--user-bg) !important; }
+
+[class*="hover:bg-[#161b22]"]:hover { background-color: var(--surface) !important; }
+[class*="hover:bg-[#30363d]"]:hover { background-color: var(--surface3) !important; }
+[class*="hover:bg-[#484f58]"]:hover { background-color: var(--surface3) !important; }
+
+[class*="border-[#30363d]"] { border-color: var(--border) !important; }
+[class*="border-[#30363d]/50"] { border-color: var(--border-soft) !important; }
+[class*="border-l-[#58a6ff]"], [class*="border-[#58a6ff]"] { border-color: var(--accent) !important; }
+
+[class*="text-[#e6edf3]"]  { color: var(--text) !important; }
+[class*="text-[#58a6ff]"]  { color: var(--accent) !important; }
+[class*="text-[#79c0ff]"]  { color: var(--accent-hover) !important; }
+[class*="hover:text-[#79c0ff]"]:hover { color: var(--accent-hover) !important; }
+
+[class*="text-gray-400"]   { color: var(--text2); }
+[class*="text-gray-500"]   { color: var(--text3); }
+[class*="text-gray-600"]   { color: var(--text3); opacity: 0.85; }
+[class*="hover:text-gray-200"]:hover { color: var(--text); }
+
+[class*="placeholder-gray-500"]::placeholder { color: var(--text3); }
+
+[class*="focus:border-[#58a6ff]"]:focus { border-color: var(--accent) !important; }
+
+/* Subtle role rails on user/assistant bubbles (when rendered with hardcoded blue bg) */
+.csv-msg-user {
+  background: var(--user-bg) !important;
+  border: 1px solid var(--user-border) !important;
+  position: relative;
+}
+.csv-msg-user::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 10px; bottom: 10px;
+  width: 2px;
+  background: var(--user-rail);
+  border-radius: 2px;
+}
+.csv-msg-assistant {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  position: relative;
+}
+.csv-msg-assistant::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 10px; bottom: 10px;
+  width: 2px;
+  background: var(--assistant-rail);
+  border-radius: 2px;
+  opacity: 0.6;
+}
+
+/* =========================================================
+   Utility classes
+   ========================================================= */
+
+.csv-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-1);
+}
+
+.csv-elev-3 { box-shadow: var(--shadow-3); }
+.csv-elev-4 { box-shadow: var(--shadow-4); }
+
+.csv-hover-row {
+  transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+.csv-hover-row:hover { background: var(--surface); }
+
+.csv-rail-active {
+  position: relative;
+}
+.csv-rail-active::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 6px; bottom: 6px;
+  width: 2px;
+  background: var(--accent);
+  border-radius: 2px;
+}
+
+/* Buttons */
+.csv-btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border-radius: var(--r);
+  transition: background var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+}
+.csv-btn-primary:hover { background: var(--accent-hover); }
+.csv-btn-primary:active { background: var(--accent-press); transform: translateY(1px); }
+
+/* Animated reveal for messages */
+@keyframes csv-msg-in { from { opacity: 0; transform: translateY(4px) } to { opacity: 1; transform: none } }
+.csv-msg-in { animation: csv-msg-in var(--dur) var(--ease); }
+
+/* Tag chips (tool-name labels) — soft tinted instead of saturated */
+.csv-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+/* Tool name chips — soft tinted colors per tool family */
+.csv-tool-chip {
+  border: 1px solid transparent;
+}
+.csv-tool-bash    { background: rgba( 78,201,142, 0.12); color: var(--green);  border-color: rgba( 78,201,142, 0.25); }
+.csv-tool-read    { background: rgba(110,168,255, 0.14); color: var(--accent); border-color: rgba(110,168,255, 0.28); }
+.csv-tool-write   { background: rgba(181,141,255, 0.14); color: #b58dff;       border-color: rgba(181,141,255, 0.28); }
+.csv-tool-edit    { background: rgba(232,150, 80, 0.14); color: #e89650;       border-color: rgba(232,150, 80, 0.28); }
+.csv-tool-glob    { background: rgba( 80,200,220, 0.14); color: #50c8dc;       border-color: rgba( 80,200,220, 0.28); }
+.csv-tool-grep    { background: rgba( 60,200,180, 0.14); color: #3cc8b4;       border-color: rgba( 60,200,180, 0.28); }
+.csv-tool-web     { background: rgba(140,140,250, 0.14); color: #8c8cfa;       border-color: rgba(140,140,250, 0.28); }
+.csv-tool-agent   { background: rgba(232,110,170, 0.14); color: #e86eaa;       border-color: rgba(232,110,170, 0.28); }
+.csv-tool-ask     { background: var(--yellow-soft);      color: var(--yellow); border-color: rgba(232,183, 90, 0.28); }
+.csv-tool-todo    { background: rgba( 80,200,140, 0.14); color: #50c88c;       border-color: rgba( 80,200,140, 0.28); }
+.csv-tool-lsp     { background: rgba( 90,160,230, 0.14); color: #5aa0e6;       border-color: rgba( 90,160,230, 0.28); }
+.csv-tool-skill   { background: rgba(220,170, 70, 0.14); color: #dcaa46;       border-color: rgba(220,170, 70, 0.28); }
+.csv-tool-notebook{ background: rgba(160,120,230, 0.14); color: #a078e6;       border-color: rgba(160,120,230, 0.28); }
+
+/* Smooth global transitions (selectors that frequently get class flips) */
+button, [role="button"], a {
+  transition:
+    background-color var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease),
+    box-shadow var(--dur-fast) var(--ease),
+    opacity var(--dur-fast) var(--ease);
+}

@@ -1,0 +1,23 @@
+export const IPC_CHANNELS = {
+  SESSIONS_LIST: 'sessions:list',
+  SESSION_LOAD: 'session:load',
+  SESSION_LOAD_RAW: 'session:load-raw',
+  SESSION_EXPORT: 'session:export',
+  SESSION_EXPORT_MD: 'session:export-md',
+  SESSION_RENAME: 'session:rename',
+  SESSION_DELETE: 'session:delete',
+  SESSION_INSIGHTS: 'session:insights',
+  SESSION_MODEL_USAGE: 'session:model-usage',
+  GLOBAL_STATS: 'stats:global',
+  CROSS_SEARCH: 'search:cross-session',
+  SUBAGENTS_LIST: 'subagents:list',
+  SUBAGENT_LOAD: 'subagent:load',
+  OPEN_IN_CLAUDE: 'session:open-in-claude',
+  OPEN_EXTERNAL: 'shell:open-external',
+  SHOW_IN_FOLDER: 'shell:show-in-folder',
+  OPEN_FOLDER: 'shell:open-folder',
+  WINDOW_MINIMIZE: 'window:minimize',
+  WINDOW_MAXIMIZE_TOGGLE: 'window:maximize-toggle',
+  WINDOW_CLOSE: 'window:close',
+  WINDOW_IS_MAXIMIZED: 'window:is-maximized'
+} as const
