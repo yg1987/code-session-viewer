@@ -1,6 +1,6 @@
 {
   "name": "claude-session-browser",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Browse and share Claude Code sessions with a beautiful UI",
   "author": "Liction",
   "license": "MIT",

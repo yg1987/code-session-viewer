@@ -6,6 +6,24 @@ All notable changes to this project will be recorded here.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project follows [Semantic Versioning](https://semver.org/).
 
+## [1.1.0] - 2026-05-30
+
+### Added
+
+#### Agent Teams / swarm support
+- Dedicated renderers for multi-agent (Agent Teams) tool calls that previously fell through to a raw JSON dump: `TeamCreate`, `TeamDelete`, `SendMessage`, `Agent`, `TaskOutput`, `TaskStop`
+- Structured task rows for `TaskList` / `TaskGet` (status icon, id, owner badge, blocked-by indicator)
+- `SendMessage` shows sender → target routing, summary, message body, and structured protocol messages (shutdown / plan-approval)
+- `Agent` shows sub-agent type, status, token / tool-call / duration stats, prompt and result
+- Teammate messages: `<teammate-message>` blocks delivered as user text are now parsed and rendered as task-assignment, plan-approval, shutdown, and task-completed cards; idle / terminated / shutdown-approved lifecycle noise is silently hidden
+- New chip colors and header summaries for the above tools
+- HTML export mirrors all of the above
+
+### Changed
+- Parser now preserves the structured `toolUseResult` object on tool results so rich renderers can read routing / tasks / team metadata
+
+[1.1.0]: https://github.com/Lition13/claude-session-viewer/releases/tag/v1.1.0
+
 ## [1.0.0] - 2026-04-30
 
 Initial public release.
