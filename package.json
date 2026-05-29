@@ -1,6 +1,6 @@
 {
   "name": "claude-session-browser",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Browse and share Claude Code sessions with a beautiful UI",
   "author": "Liction",
   "license": "MIT",
@@ -94,7 +94,7 @@
     "@tanstack/react-virtual": "^3.13.6",
     "ansi-to-html": "^0.7.2",
     "date-fns": "^4.1.0",
-    "electron": "^33.4.0",
+    "electron": "^42.3.0",
     "marked": "^15.0.6",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

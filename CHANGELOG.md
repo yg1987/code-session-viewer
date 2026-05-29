@@ -6,6 +6,13 @@ All notable changes to this project will be recorded here.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project follows [Semantic Versioning](https://semver.org/).
 
+## [1.1.1] - 2026-05-30
+
+### Security
+- Upgraded Electron from `^33.4.0` to `^42.3.0`, clearing all known Electron runtime advisories (`GHSA-vmqv-hx8q-j7mg` and related). Production install (`npm audit --omit=dev`) now reports 0 vulnerabilities.
+
+[1.1.1]: https://github.com/Lition13/claude-session-viewer/releases/tag/v1.1.1
+
 ## [1.1.0] - 2026-05-30
 
 ### Added
