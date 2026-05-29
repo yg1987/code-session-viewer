@@ -6,6 +6,13 @@ All notable changes to this project will be recorded here.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project follows [Semantic Versioning](https://semver.org/).
 
+## [1.1.2] - 2026-05-30
+
+### Fixed
+- CLI launcher now self-heals when the Electron runtime binary failed to download during install (interrupted `postinstall` left `electron/path.txt` missing, causing a cryptic `ENOENT` crash on launch). The launcher detects the missing binary, runs Electron's installer once, and then starts the app — with a clear message and actionable fallback instructions if the download still fails.
+
+[1.1.2]: https://github.com/Lition13/claude-session-viewer/releases/tag/v1.1.2
+
 ## [1.1.1] - 2026-05-30
 
 ### Security
