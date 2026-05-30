@@ -6,6 +6,13 @@ All notable changes to this project will be recorded here.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project follows [Semantic Versioning](https://semver.org/).
 
+## [1.1.4] - 2026-05-30
+
+### Fixed
+- CLI launcher now clears a half-extracted Electron runtime before each install attempt. The download itself rarely fails — the common Windows failure is the ~226MB `electron.exe` being interrupted mid-extraction (AV scan, file lock, or an earlier aborted run), leaving `dist/` partially populated with no `path.txt`. Electron's installer tripped over that leftover state instead of self-correcting, so both the default and mirror retries reported "Downloading Electron binary..." and failed. The launcher now wipes `dist/`/`path.txt` first so `extract-zip` always starts clean; the cached download zip is kept, so it re-extracts without re-downloading.
+
+[1.1.4]: https://github.com/Lition13/claude-session-viewer/releases/tag/v1.1.4
+
 ## [1.1.3] - 2026-05-30
 
 ### Fixed

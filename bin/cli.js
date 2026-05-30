@@ -23,8 +23,28 @@ function resolveElectron() {
 
 const installScript = path.join(electronPkgDir, 'install.js');
 
+/**
+ * Remove any half-extracted runtime. The download itself rarely fails — the
+ * common failure on Windows is the ~226MB `electron.exe` being interrupted
+ * mid-extraction (AV scan, file lock, an earlier aborted run), which leaves
+ * `dist/` partially populated and no `path.txt`. Electron's installer trips
+ * over that leftover state on the next run instead of self-correcting, so we
+ * wipe it first to guarantee `extract-zip` starts clean. The cached download
+ * zip is kept, so this does not re-download — only re-extracts.
+ */
+function clearPartialRuntime() {
+  for (const target of [path.join(electronPkgDir, 'dist'), path.join(electronPkgDir, 'path.txt')]) {
+    try {
+      fs.rmSync(target, { recursive: true, force: true });
+    } catch {
+      // Best effort — install.js will surface a real error if it still can't extract.
+    }
+  }
+}
+
 /** Run Electron's installer once with the given extra env; returns true on success. */
 function runInstall(extraEnv) {
+  clearPartialRuntime();
   const result = spawnSync(process.execPath, [installScript], {
     stdio: 'inherit',
     cwd: electronPkgDir,
