@@ -7,6 +7,7 @@
 
 import { useMemo } from 'react'
 import type { ParsedMessage } from '../../types/message'
+import { useLocale } from '../../hooks/useLocale'
 
 interface Props {
   messages: ParsedMessage[]
@@ -23,6 +24,7 @@ interface TimelineEvent {
 }
 
 export function AgentTimeline({ messages }: Props) {
+  const { t } = useLocale()
   const events = useMemo(() => {
     const result: TimelineEvent[] = []
     let lastAgent: string | undefined
@@ -66,8 +68,8 @@ export function AgentTimeline({ messages }: Props) {
           <svg className="w-8 h-8 mx-auto mb-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
           </svg>
-          <p className="text-sm text-gray-500">No agent or model changes detected</p>
-          <p className="text-xs text-gray-600 mt-1">Agent/model switch events appear here when the session switches between different agents or models.</p>
+          <p className="text-sm text-gray-500">{t('timeline.noChanges')}</p>
+          <p className="text-xs text-gray-600 mt-1">{t('timeline.noChangesHint')}</p>
         </div>
       </div>
     )
@@ -82,8 +84,8 @@ export function AgentTimeline({ messages }: Props) {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
           </svg>
           <span className="text-sm font-medium text-gray-300">
-            Agent / Model Timeline
-            <span className="text-gray-500 font-normal ml-1">({events.length} switches)</span>
+            {t('timeline.title')}
+            <span className="text-gray-500 font-normal ml-1">({events.length}{t('timeline.switches')})</span>
           </span>
         </div>
 
@@ -97,16 +99,16 @@ export function AgentTimeline({ messages }: Props) {
                 <div className="w-0.5 flex-1 bg-[#30363d] mt-1" />
               </div>
               <div className="flex-1 min-w-0 pt-0.5">
-                <div className="text-xs font-medium text-blue-400">Session Started</div>
+                <div className="text-xs font-medium text-blue-400">{t('timeline.sessionStarted')}</div>
                 <div className="flex flex-wrap gap-2 mt-1">
                   {firstMsg.agent && (
                     <span className="text-[11px] bg-blue-900/20 text-blue-300 px-2 py-0.5 rounded border border-blue-800/30">
-                      Agent: {firstMsg.agent}
+                      {t('timeline.agentPrefix')}{firstMsg.agent}
                     </span>
                   )}
                   {firstMsg.model && (
                     <span className="text-[11px] bg-purple-900/20 text-purple-300 px-2 py-0.5 rounded border border-purple-800/30 font-mono">
-                      Model: {firstMsg.model}
+                      {t('timeline.modelPrefix')}{firstMsg.model}
                     </span>
                   )}
                 </div>
@@ -116,7 +118,7 @@ export function AgentTimeline({ messages }: Props) {
 
           {events.length === 0 && hasFirstEvent && (
             <div className="text-center py-6 text-xs text-gray-500">
-              No switches — single agent/model throughout the session.
+              {t('timeline.noSwitches')}
             </div>
           )}
 
@@ -148,7 +150,7 @@ export function AgentTimeline({ messages }: Props) {
                           ? 'text-purple-400'
                           : 'text-green-400'
                     }`}>
-                      {evt.type === 'agent' ? 'Agent Switch' : evt.type === 'model' ? 'Model Switch' : 'Agent + Model Switch'}
+                      {evt.type === 'agent' ? t('timeline.agentSwitch') : evt.type === 'model' ? t('timeline.modelSwitch') : t('timeline.bothSwitch')}
                     </span>
                     {timeStr && <span className="text-[10px] text-gray-600">{timeStr}</span>}
                   </div>

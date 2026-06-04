@@ -178,7 +178,7 @@ export function Sidebar({
       )}
 
       <div className="flex items-center gap-1 px-3 pt-3 pb-2">
-        <div className="flex-1"><SearchBar value={search} onChange={setSearch} /></div>
+        <div className="flex-1"><SearchBar value={search} onChange={setSearch} placeholder={t('search.defaultPlaceholder')} /></div>
         {onToggleBatchMode && !batchMode && (
           <button type="button" onClick={onToggleBatchMode}
             className="p-1.5 rounded-md text-[var(--text2)] hover:text-[var(--text)] hover:bg-[var(--surface)] transition-colors flex-shrink-0"

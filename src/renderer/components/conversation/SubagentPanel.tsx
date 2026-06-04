@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import type { ParsedMessage } from '../../types/message'
 import { UserMessage } from './UserMessage'
 import { AssistantMessage } from './AssistantMessage'
+import { useLocale } from '../../hooks/useLocale'
 
 interface SubagentInfo {
   agentId: string
@@ -21,6 +22,7 @@ export function SubagentPanel({ sessionFilePath, agentDescription, onClose }: Pr
   const [loading, setLoading] = useState(true)
   const [messages, setMessages] = useState<ParsedMessage[]>([])
   const [notFound, setNotFound] = useState(false)
+  const { t } = useLocale()
 
   useEffect(() => {
     setLoading(true)
@@ -51,7 +53,7 @@ export function SubagentPanel({ sessionFilePath, agentDescription, onClose }: Pr
         <div className="flex items-center justify-between px-4 py-3 border-b border-[#30363d] flex-shrink-0">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <h3 className="text-sm font-semibold text-[#e6edf3]">Sub-Agent</h3>
+              <h3 className="text-sm font-semibold text-[#e6edf3]">{t('subagent.title')}</h3>
               {agent && (
                 <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-pink-900/40 text-pink-300">
                   {agent.agentType}
@@ -80,7 +82,7 @@ export function SubagentPanel({ sessionFilePath, agentDescription, onClose }: Pr
 
           {notFound && (
             <div className="flex items-center justify-center h-full text-gray-500 text-sm">
-              Sub-agent not found for: "{agentDescription}"
+              {t('subagent.notFound', { agent: agentDescription })}
             </div>
           )}
 
@@ -93,7 +95,7 @@ export function SubagentPanel({ sessionFilePath, agentDescription, onClose }: Pr
                     <span className="text-xs font-semibold px-2 py-0.5 rounded bg-pink-900/40 text-pink-300">
                       {agent.agentType}
                     </span>
-                    <span className="text-xs text-gray-500">{messages.length} messages</span>
+                    <span className="text-xs text-gray-500">{messages.length}{t('subagent.messages')}</span>
                   </div>
                   <div className="text-xs text-gray-400">{agent.description}</div>
                 </div>
@@ -108,7 +110,7 @@ export function SubagentPanel({ sessionFilePath, agentDescription, onClose }: Pr
               )}
 
               {messages.length === 0 && !loading && (
-                <div className="text-center py-8 text-gray-500 text-sm">No messages</div>
+                <div className="text-center py-8 text-gray-500 text-sm">{t('subagent.noMessages')}</div>
               )}
             </div>
           )}

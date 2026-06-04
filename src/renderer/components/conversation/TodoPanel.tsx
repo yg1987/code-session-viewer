@@ -7,6 +7,7 @@
  */
 
 import { useState, useEffect, useMemo } from 'react'
+import { useLocale } from '../../hooks/useLocale'
 
 export interface OpenCodeTodo {
   id: string
@@ -49,6 +50,7 @@ const STATUS_CONFIG = {
 export function TodoPanel({ dbPath, sessionId }: Props) {
   const [todos, setTodos] = useState<OpenCodeTodo[]>([])
   const [loading, setLoading] = useState(true)
+  const { t } = useLocale()
 
   useEffect(() => {
     let cancelled = false
@@ -65,9 +67,9 @@ export function TodoPanel({ dbPath, sessionId }: Props) {
 
   const grouped = useMemo(() => {
     const groups: { label: string; todos: OpenCodeTodo[] }[] = [
-      { label: 'In Progress', todos: [] },
-      { label: 'Pending', todos: [] },
-      { label: 'Completed', todos: [] }
+      { label: t('todos.inProgress'), todos: [] },
+      { label: t('todos.pending'), todos: [] },
+      { label: t('todos.completed'), todos: [] }
     ]
     for (const t of todos) {
       if (t.status === 'in_progress') groups[0].todos.push(t)
@@ -92,8 +94,8 @@ export function TodoPanel({ dbPath, sessionId }: Props) {
           <svg className="w-8 h-8 mx-auto mb-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
           </svg>
-          <p className="text-sm text-gray-500">No todos for this session</p>
-          <p className="text-xs text-gray-600 mt-1">OpenCode tasks (pending / in_progress / completed) appear here.</p>
+          <p className="text-sm text-gray-500">{t('todos.noTodos')}</p>
+          <p className="text-xs text-gray-600 mt-1">{t('todos.emptyHint')}</p>
         </div>
       </div>
     )
@@ -108,7 +110,7 @@ export function TodoPanel({ dbPath, sessionId }: Props) {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
           </svg>
           <span className="text-sm font-medium text-gray-300">
-            Todos <span className="text-gray-500 font-normal">({todos.length})</span>
+            {t('todos.title')} <span className="text-gray-500 font-normal">({todos.length})</span>
           </span>
         </div>
 

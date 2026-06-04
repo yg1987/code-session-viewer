@@ -4,6 +4,7 @@ import type { SessionEntry, ProjectGroup } from '../types/session'
 import { UserMessage } from './conversation/UserMessage'
 import { AssistantMessage } from './conversation/AssistantMessage'
 import { ErrorBoundary } from './common/ErrorBoundary'
+import { useLocale } from '../hooks/useLocale'
 
 interface Props {
   groups: ProjectGroup[]
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export function SessionCompare({ groups, initialSession, onClose }: Props) {
+  const { t } = useLocale()
   const allSessions = groups.flatMap((g) => g.sessions)
 
   const [leftId, setLeftId] = useState(initialSession?.sessionId || '')
@@ -47,7 +49,7 @@ export function SessionCompare({ groups, initialSession, onClose }: Props) {
     <div className="fixed inset-0 z-50 bg-[var(--bg)] flex flex-col">
       {/* Header */}
       <div className="flex-shrink-0 border-b border-[var(--border)] px-4 py-3 flex items-center justify-between">
-        <h1 className="text-sm font-semibold text-[var(--text)]">Session Compare</h1>
+        <h1 className="text-sm font-semibold text-[var(--text)]">{t('compare.title')}</h1>
         <button type="button" onClick={onClose}
           className="p-1.5 rounded-md text-[var(--text2)] hover:text-[var(--text)] hover:bg-[var(--surface2)]">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -58,16 +60,16 @@ export function SessionCompare({ groups, initialSession, onClose }: Props) {
 
       {/* Session selectors */}
       <div className="flex-shrink-0 grid grid-cols-2 gap-0 border-b border-[var(--border)]">
-        <SessionSelector label="Left" value={leftId} onChange={setLeftId}
+        <SessionSelector label={t('compare.left')} value={leftId} onChange={setLeftId}
           sessions={allSessions} getTitle={getTitle} />
-        <SessionSelector label="Right" value={rightId} onChange={setRightId}
+        <SessionSelector label={t('compare.right')} value={rightId} onChange={setRightId}
           sessions={allSessions} getTitle={getTitle} />
       </div>
 
       {/* Side by side messages */}
       <div className="flex-1 grid grid-cols-2 gap-0 min-h-0">
-        <MessagePane messages={leftMsgs} loading={loadingL} placeholder={!leftId} />
-        <MessagePane messages={rightMsgs} loading={loadingR} placeholder={!rightId} />
+        <MessagePane messages={leftMsgs} loading={loadingL} placeholder={!leftId} t={t} />
+        <MessagePane messages={rightMsgs} loading={loadingR} placeholder={!rightId} t={t} />
       </div>
     </div>
   )
@@ -100,14 +102,14 @@ function SessionSelector({ label, value, onChange, sessions, getTitle }: {
         <div className="relative flex-1">
           <button type="button" onClick={() => setOpen(!open)}
             className="w-full text-left px-2 py-1 text-xs bg-[var(--bg)] border border-[var(--border)] rounded truncate text-[var(--text)]">
-            {value ? getTitle(value) : 'Select session...'}
+            {value ? getTitle(value) : t('compare.selectSession')}
           </button>
           {open && (
             <>
               <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
               <div className="absolute left-0 top-full mt-1 w-full bg-[var(--surface)] border border-[var(--border)] rounded-lg shadow-xl z-20 max-h-60 flex flex-col">
                 <input type="text" value={search} onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search..." autoFocus
+                  placeholder={t('compare.searchPlaceholder')} autoFocus
                   className="w-full px-2 py-1.5 text-xs bg-transparent border-b border-[var(--border)] text-[var(--text)] placeholder-[var(--text2)] focus:outline-none" />
                 <div className="overflow-y-auto">
                   {filtered.map((s) => (
@@ -127,7 +129,7 @@ function SessionSelector({ label, value, onChange, sessions, getTitle }: {
   )
 }
 
-function MessagePane({ messages, loading, placeholder }: {
+function MessagePane({ messages, loading, placeholder, t }: {
   messages: ParsedMessage[]
   loading: boolean
   placeholder: boolean
@@ -135,7 +137,7 @@ function MessagePane({ messages, loading, placeholder }: {
   if (placeholder) {
     return (
       <div className="flex items-center justify-center text-[var(--text2)] text-sm border-r border-[var(--border)]">
-        Select a session
+        {t('compare.selectSessionPrompt')}
       </div>
     )
   }
@@ -151,7 +153,7 @@ function MessagePane({ messages, loading, placeholder }: {
   return (
     <div className="overflow-y-auto border-r border-[var(--border)] px-3 py-3">
       {messages.length === 0 && (
-        <div className="text-center py-8 text-[var(--text2)] text-xs">No messages</div>
+        <div className="text-center py-8 text-[var(--text2)] text-xs">{t('compare.noMessages')}</div>
       )}
       {messages.map((msg) => (
         <ErrorBoundary key={msg.id} context={`Compare ${msg.id?.slice(0, 8)}`}>

@@ -4,7 +4,8 @@ interface Props {
   placeholder?: string
 }
 
-export function SearchBar({ value, onChange, placeholder = 'Search sessions...' }: Props) {
+// SearchBar is minimal on purpose — caller passes placeholder via i18n
+export function SearchBar({ value, onChange, placeholder = '' }: Props) {
   return (
     <div className="px-1 py-1">
       <div className="relative">

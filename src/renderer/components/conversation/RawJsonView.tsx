@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { CopyButton } from '../common/CopyButton'
+import { useLocale } from '../../hooks/useLocale'
 
 interface Props {
   filePath: string
@@ -18,24 +19,25 @@ const TYPE_COLORS: Record<string, string> = {
   'permission-mode': 'border-l-green-700'
 }
 
-const TYPE_LABELS: Record<string, string> = {
-  user: 'USER',
-  assistant: 'ASSISTANT',
-  attachment: 'ATTACH',
-  system: 'SYSTEM',
-  'file-history-snapshot': 'SNAPSHOT',
-  progress: 'PROGRESS',
-  'queue-operation': 'QUEUE',
-  'last-prompt': 'LAST-PROMPT',
-  'permission-mode': 'PERM'
-}
-
 export function RawJsonView({ filePath, searchActive }: Props) {
   const [entries, setEntries] = useState<unknown[]>([])
   const [loading, setLoading] = useState(false)
   const [filter, setFilter] = useState<string>('all')
   const [expandedSet, setExpandedSet] = useState<Set<number>>(new Set())
   const scrollRef = useRef<HTMLDivElement>(null)
+  const { t } = useLocale()
+
+  const TYPE_LABELS: Record<string, string> = useMemo(() => ({
+    user: t('rawJson.user'),
+    assistant: t('rawJson.assistant'),
+    attachment: t('rawJson.attach'),
+    system: t('rawJson.system'),
+    'file-history-snapshot': t('rawJson.snapshot'),
+    progress: t('rawJson.progress'),
+    'queue-operation': t('rawJson.queue'),
+    'last-prompt': t('rawJson.lastPrompt'),
+    'permission-mode': t('rawJson.perm')
+  }), [t])
 
   // Search state
   const [searchText, setSearchText] = useState('')
@@ -128,7 +130,7 @@ export function RawJsonView({ filePath, searchActive }: Props) {
       <div className="flex items-center justify-center py-20">
         <div className="text-center">
           <div className="animate-spin w-8 h-8 border-2 border-[#58a6ff] border-t-transparent rounded-full mx-auto mb-3" />
-          <p className="text-gray-500 text-sm">Loading raw data...</p>
+          <p className="text-gray-500 text-sm">{t('rawJson.loading')}</p>
         </div>
       </div>
     )
@@ -138,24 +140,24 @@ export function RawJsonView({ filePath, searchActive }: Props) {
     <div className="h-full flex flex-col">
       {/* Toolbar */}
       <div className="flex-shrink-0 flex items-center gap-2 px-4 py-2 border-b border-[#30363d] bg-[#161b22]">
-        <span className="text-xs text-gray-500">{entries.length} entries</span>
+        <span className="text-xs text-gray-500">{entries.length}{t('rawJson.entries')}</span>
         <span className="text-xs text-gray-600">|</span>
 
         <select value={filter}
           onChange={(e) => { setFilter(e.target.value); setExpandedSet(new Set()) }}
           className="text-xs bg-[#0d1117] border border-[#30363d] text-[#e6edf3] rounded px-2 py-1 focus:outline-none focus:border-[#58a6ff]">
-          <option value="all">All types ({entries.length})</option>
+          <option value="all">{t('rawJson.allTypes', { count: entries.length })}</option>
           {allTypes.map((t) => (
             <option key={t} value={t}>{t} ({entries.filter((e: any) => e.type === t).length})</option>
           ))}
         </select>
 
         <span className="text-xs text-gray-600">|</span>
-        <button onClick={expandAll} className="text-xs text-gray-400 hover:text-gray-200">Expand All</button>
-        <button onClick={collapseAll} className="text-xs text-gray-400 hover:text-gray-200">Collapse All</button>
+        <button onClick={expandAll} className="text-xs text-gray-400 hover:text-gray-200">{t('rawJson.expandAll')}</button>
+        <button onClick={collapseAll} className="text-xs text-gray-400 hover:text-gray-200">{t('rawJson.collapseAll')}</button>
 
         <span className="text-xs text-gray-500 ml-auto">
-          {filtered.length !== entries.length && `Showing ${filtered.length} of ${entries.length}`}
+          {filtered.length !== entries.length && t('rawJson.showing', { filtered: filtered.length, total: entries.length })}
         </span>
       </div>
 
@@ -166,7 +168,7 @@ export function RawJsonView({ filePath, searchActive }: Props) {
             <input ref={searchInputRef} autoFocus type="text" value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               onKeyDown={handleSearchKeyDown}
-              placeholder="Search raw JSON... (Enter: next, Shift+Enter: prev)"
+              placeholder={t('rawJson.searchPlaceholder')}
               className="w-full bg-[#161b22] border border-[#30363d] rounded-lg pl-8 pr-3 py-1.5 text-sm text-[#e6edf3] placeholder-gray-500 focus:outline-none focus:border-[#58a6ff]" />
             <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -175,7 +177,7 @@ export function RawJsonView({ filePath, searchActive }: Props) {
           {searchText && (
             <>
               <span className="text-xs text-gray-500 whitespace-nowrap">
-                {matchedIndices.length > 0 ? `${currentMatchIdx + 1} / ${matchedIndices.length}` : '0 results'}
+                {matchedIndices.length > 0 ? t('rawJson.searchCount', { current: currentMatchIdx + 1, total: matchedIndices.length }) : t('rawJson.searchNoResults')}
               </span>
               <button type="button" onClick={() => jumpToMatch(currentMatchIdx - 1)} disabled={matchedIndices.length === 0}
                 className="p-1 rounded hover:bg-[#30363d] text-gray-400 hover:text-gray-200 disabled:opacity-30">

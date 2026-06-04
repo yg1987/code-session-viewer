@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useLocale } from '../../hooks/useLocale'
 
 interface Props {
   totalMessages: number
@@ -20,6 +21,7 @@ export function ReplayControls({ totalMessages, messageRoles, onPositionChange, 
   const [position, setPosition] = useState(0)
   const [speedIdx, setSpeedIdx] = useState(1) // default 1x
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const { t } = useLocale()
 
   const speed = SPEED_OPTIONS[speedIdx]
 
@@ -136,19 +138,19 @@ export function ReplayControls({ totalMessages, messageRoles, onPositionChange, 
         <div className="flex items-center gap-1">
           {/* Jump to prev user */}
           <button type="button" onClick={jumpPrevUser}
-            className="p-1.5 rounded-md text-gray-400 hover:text-blue-400 hover:bg-[#161b22] transition-colors" title="Previous User (Shift+Left)">
+            className="p-1.5 rounded-md text-gray-400 hover:text-blue-400 hover:bg-[#161b22] transition-colors" title={t('replay.previousUser')}>
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 19l-7-7 7-7" /></svg>
           </button>
 
           {/* Step back */}
           <button type="button" onClick={stepBackward}
-            className="p-1.5 rounded-md text-gray-400 hover:text-[#e6edf3] hover:bg-[#161b22] transition-colors" title="Previous (Left / J)">
+            className="p-1.5 rounded-md text-gray-400 hover:text-[#e6edf3] hover:bg-[#161b22] transition-colors" title={t('replay.previous')}>
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
           </button>
 
           {/* Play/Pause */}
           <button type="button" onClick={togglePlay}
-            className="p-2 rounded-full bg-[#58a6ff] hover:bg-[#79c0ff] text-white transition-colors" title="Play/Pause (Space)">
+            className="p-2 rounded-full bg-[#58a6ff] hover:bg-[#79c0ff] text-white transition-colors" title={t('replay.playPause')}>
             {playing ? (
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" rx="1" /><rect x="14" y="4" width="4" height="16" rx="1" /></svg>
             ) : position >= totalMessages - 1 ? (
@@ -160,13 +162,13 @@ export function ReplayControls({ totalMessages, messageRoles, onPositionChange, 
 
           {/* Step forward */}
           <button type="button" onClick={stepForward}
-            className="p-1.5 rounded-md text-gray-400 hover:text-[#e6edf3] hover:bg-[#161b22] transition-colors" title="Next (Right / L)">
+            className="p-1.5 rounded-md text-gray-400 hover:text-[#e6edf3] hover:bg-[#161b22] transition-colors" title={t('replay.next')}>
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
           </button>
 
           {/* Jump to next user */}
           <button type="button" onClick={jumpNextUser}
-            className="p-1.5 rounded-md text-gray-400 hover:text-blue-400 hover:bg-[#161b22] transition-colors" title="Next User (Shift+Right)">
+            className="p-1.5 rounded-md text-gray-400 hover:text-blue-400 hover:bg-[#161b22] transition-colors" title={t('replay.nextUser')}>
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 5l7 7-7 7" /></svg>
           </button>
         </div>
@@ -178,8 +180,8 @@ export function ReplayControls({ totalMessages, messageRoles, onPositionChange, 
             {speed.label}
           </button>
           <button type="button" onClick={onExit}
-            className="px-3 py-1 text-xs text-gray-400 hover:text-[#e6edf3] rounded hover:bg-[#161b22] transition-colors" title="Exit Replay (Esc)">
-            Exit
+            className="px-3 py-1 text-xs text-gray-400 hover:text-[#e6edf3] rounded hover:bg-[#161b22] transition-colors" title={t('replay.exitTooltip')}>
+            {t('replay.exit')}
           </button>
         </div>
       </div>

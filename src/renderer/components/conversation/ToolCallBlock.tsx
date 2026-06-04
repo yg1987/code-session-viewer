@@ -3,11 +3,14 @@ import { Collapsible } from '../common/Collapsible'
 import { CopyButton } from '../common/CopyButton'
 import { HighlightedCode } from './HighlightedCode'
 import type { ToolUseBlock } from '../../types/message'
+import { useLocale } from '../../hooks/useLocale'
+
+import { useLocale } from '../../hooks/useLocale'
 
 const TRUNCATE_THRESHOLD = 15000 // characters
 
 /** Truncate large content with a "Show all" button */
-function useTruncated(content: string) {
+function useTruncated(content: string, t: (key: string, params?: Record<string, string | number>) => string) {
   const [expanded, setExpanded] = useState(false)
   const needsTruncation = content.length > TRUNCATE_THRESHOLD
   const displayContent = needsTruncation && !expanded ? content.slice(0, TRUNCATE_THRESHOLD) : content
@@ -17,7 +20,7 @@ function useTruncated(content: string) {
     <div className="text-center py-1.5 border-t border-[#30363d]/50 bg-[#161b22]">
       <button type="button" onClick={() => setExpanded(true)}
         className="text-xs text-[#58a6ff] hover:text-[#79c0ff]">
-        Show all ({(content.length / 1000).toFixed(0)}K chars, truncated at {(TRUNCATE_THRESHOLD / 1000).toFixed(0)}K)
+        {t('toolCall.showAll', { size: (content.length / 1000).toFixed(0), threshold: (TRUNCATE_THRESHOLD / 1000).toFixed(0) })}
       </button>
     </div>
   ) : () => null
@@ -137,6 +140,7 @@ export function ToolCallBlock({ block, onViewSubagent }: Props) {
   const colorClass = TOOL_COLORS[block.name] || 'bg-gray-600'
   const summary = getToolSummary(block)
   const hasError = block.result?.is_error
+  const { t } = useLocale()
 
   return (
     <Collapsible
@@ -154,45 +158,45 @@ export function ToolCallBlock({ block, onViewSubagent }: Props) {
               onClick={(e) => { e.stopPropagation(); onViewSubagent(String((block as any).input?.description || '')) }}
               className="text-[10px] px-2 py-0.5 rounded-md bg-[var(--accent-soft)] text-[var(--accent)] hover:bg-[var(--accent)]/20 transition-colors flex-shrink-0 ml-auto"
             >
-              View Sub-Agent
+              {t('toolCall.viewSubAgent')}
             </button>
           )}
           {hasError && (
-            <span className="text-[10px] px-2 py-0.5 rounded-md bg-[var(--error-soft)] text-[var(--error)] font-medium flex-shrink-0 ml-auto">Error</span>
+            <span className="text-[10px] px-2 py-0.5 rounded-md bg-[var(--error-soft)] text-[var(--error)] font-medium flex-shrink-0 ml-auto">{t('toolCall.error')}</span>
           )}
         </span>
       }
     >
       <div className="border-t border-[var(--border)]">
-        {renderToolContent(block)}
+        {renderToolContent(block, t)}
       </div>
     </Collapsible>
   )
 }
 
-function renderToolContent(block: ToolUseBlock) {
+function renderToolContent(block: ToolUseBlock, t: (key: string, params?: Record<string, string | number>) => string) {
   switch (block.name) {
-    case 'Edit': return <EditToolContent block={block} />
-    case 'Read': return <ReadToolContent block={block} />
-    case 'Write': return <WriteToolContent block={block} />
-    case 'Bash': return <BashToolContent block={block} />
-    case 'Grep': return <GrepToolContent block={block} />
-    case 'Glob': return <GlobToolContent block={block} />
+    case 'Edit': return <EditToolContent block={block} t={t} />
+    case 'Read': return <ReadToolContent block={block} t={t} />
+    case 'Write': return <WriteToolContent block={block} t={t} />
+    case 'Bash': return <BashToolContent block={block} t={t} />
+    case 'Grep': return <GrepToolContent block={block} t={t} />
+    case 'Glob': return <GlobToolContent block={block} t={t} />
     case 'WebFetch':
-    case 'WebSearch': return <WebToolContent block={block} />
-    case 'AskUserQuestion': return <AskUserContent block={block} />
-    case 'TodoWrite': return <TodoWriteContent block={block} />
+    case 'WebSearch': return <WebToolContent block={block} t={t} />
+    case 'AskUserQuestion': return <AskUserContent block={block} t={t} />
+    case 'TodoWrite': return <TodoWriteContent block={block} t={t} />
     case 'TaskCreate':
     case 'TaskUpdate':
     case 'TaskList':
-    case 'TaskGet': return <TaskContent block={block} />
+    case 'TaskGet': return <TaskContent block={block} t={t} />
     case 'TaskOutput':
-    case 'TaskStop': return <BackgroundTaskContent block={block} />
-    case 'TeamCreate': return <TeamCreateContent block={block} />
-    case 'TeamDelete': return <TeamDeleteContent block={block} />
-    case 'SendMessage': return <SendMessageContent block={block} />
-    case 'Agent': return <AgentContent block={block} />
-    default: return <GenericToolContent block={block} />
+    case 'TaskStop': return <BackgroundTaskContent block={block} t={t} />
+    case 'TeamCreate': return <TeamCreateContent block={block} t={t} />
+    case 'TeamDelete': return <TeamDeleteContent block={block} t={t} />
+    case 'SendMessage': return <SendMessageContent block={block} t={t} />
+    case 'Agent': return <AgentContent block={block} t={t} />
+    default: return <GenericToolContent block={block} t={t} />
   }
 }
 
@@ -209,7 +213,7 @@ function EditToolContent({ block }: { block: ToolUseBlock }) {
     <div className="px-3 py-2 space-y-2">
       {/* File path */}
       <div className="flex items-center gap-2">
-        <span className="text-xs text-gray-500">File:</span>
+        <span className="text-xs text-gray-500">{t('toolCall.file')}</span>
         <span className="text-xs text-[#58a6ff] font-mono">{filePath}</span>
         {replaceAll && <span className="text-xs text-yellow-500">{replaceAll}</span>}
       </div>
@@ -219,7 +223,7 @@ function EditToolContent({ block }: { block: ToolUseBlock }) {
         {/* Old string - deletions */}
         <div className="border-b border-[#30363d]">
           <div className="flex items-center justify-between px-3 py-1 bg-red-900/20 border-b border-[#30363d]">
-            <span className="text-xs font-medium text-red-400">- old_string</span>
+            <span className="text-xs font-medium text-red-400">- {t('toolCall.oldString')}</span>
             <CopyButton text={oldStr} />
           </div>
           <div className="bg-red-900/5 relative">
@@ -232,7 +236,7 @@ function EditToolContent({ block }: { block: ToolUseBlock }) {
         {/* New string - additions */}
         <div>
           <div className="flex items-center justify-between px-3 py-1 bg-green-900/20 border-b border-[#30363d]">
-            <span className="text-xs font-medium text-green-400">+ new_string</span>
+            <span className="text-xs font-medium text-green-400">+ {t('toolCall.newString')}</span>
             <CopyButton text={newStr} />
           </div>
           <div className="bg-green-900/5 relative">
@@ -266,7 +270,7 @@ function stripLineNumbers(content: string): { code: string; startLine: number } 
 }
 
 /** Read tool: show file content with language highlighting hint */
-function ReadToolContent({ block }: { block: ToolUseBlock }) {
+function ReadToolContent({ block, t }: { block: ToolUseBlock; t: (key: string, params?: Record<string, string | number>) => string }) {
   const input = block.input || {}
   const filePath = String(input.file_path || '')
   const lang = getLangFromPath(filePath)
@@ -284,7 +288,7 @@ function ReadToolContent({ block }: { block: ToolUseBlock }) {
   return (
     <div className="px-3 py-2 space-y-2">
       <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-xs text-gray-500">File:</span>
+        <span className="text-xs text-gray-500">{t('toolCall.file')}</span>
         <span className="text-xs text-[#58a6ff] font-mono">{filePath}</span>
         {rangeInfo && <span className="text-xs text-gray-500">({rangeInfo})</span>}
       </div>
@@ -313,7 +317,7 @@ function ReadToolContent({ block }: { block: ToolUseBlock }) {
 }
 
 /** Write tool: show written content */
-function WriteToolContent({ block }: { block: ToolUseBlock }) {
+function WriteToolContent({ block, t }: { block: ToolUseBlock; t: (key: string, params?: Record<string, string | number>) => string }) {
   const input = block.input || {}
   const filePath = String(input.file_path || '')
   const content = String(input.content || '')
@@ -323,14 +327,14 @@ function WriteToolContent({ block }: { block: ToolUseBlock }) {
   return (
     <div className="px-3 py-2 space-y-2">
       <div className="flex items-center gap-2">
-        <span className="text-xs text-gray-500">File:</span>
+        <span className="text-xs text-gray-500">{t('toolCall.file')}</span>
         <span className="text-xs text-[#58a6ff] font-mono">{filePath}</span>
       </div>
 
       <div className="rounded-lg overflow-hidden border border-[#30363d] bg-[#0d1117]">
         <div className="flex items-center justify-between px-3 py-1 bg-[#161b22] border-b border-[#30363d]">
           <div className="flex items-center gap-2">
-            <span className="text-xs text-green-400">CREATE</span>
+            <span className="text-xs text-green-400">{t('toolCall.create')}</span>
             <span className="text-xs text-gray-400">{fileName}</span>
             <span className="text-[10px] text-gray-600">{lang}</span>
           </div>
@@ -345,7 +349,7 @@ function WriteToolContent({ block }: { block: ToolUseBlock }) {
 }
 
 /** Bash tool: show command prominently + stdout/stderr */
-function BashToolContent({ block }: { block: ToolUseBlock }) {
+function BashToolContent({ block, t }: { block: ToolUseBlock; t: (key: string, params?: Record<string, string | number>) => string }) {
   const input = block.input || {}
   const command = String(input.command || '')
   const description = input.description ? String(input.description) : ''
@@ -362,7 +366,7 @@ function BashToolContent({ block }: { block: ToolUseBlock }) {
       {/* Command */}
       <div className="rounded-lg overflow-hidden border border-[#30363d] bg-[#0d1117]">
         <div className="flex items-center justify-between px-3 py-1 bg-[#161b22] border-b border-[#30363d]">
-          <span className="text-xs text-green-400 font-mono">$</span>
+          <span className="text-xs text-green-400 font-mono">{t('toolCall.shellPrompt')}</span>
           <CopyButton text={command} />
         </div>
         <pre className="p-2 text-xs overflow-x-auto text-green-300 font-mono">
@@ -375,18 +379,18 @@ function BashToolContent({ block }: { block: ToolUseBlock }) {
         <div className="rounded-lg overflow-hidden border border-[#30363d] bg-[#0d1117]">
           <div className="flex items-center justify-between px-3 py-1 bg-[#161b22] border-b border-[#30363d]">
             <span className={`text-xs ${hasError ? 'text-red-400' : 'text-gray-500'}`}>
-              {hasError ? 'Error Output' : 'Output'}
+              {hasError ? t('toolCall.errorOutput') : t('toolCall.output')}
             </span>
             <CopyButton text={rawResult} />
           </div>
           <pre className={`p-2 text-xs overflow-x-auto max-h-80 overflow-y-auto ${hasError ? 'text-red-400' : 'text-[#e6edf3]'}`}>
-            <code>{resultContent || '(no output)'}</code>
+            <code>{resultContent || t('toolCall.noOutput')}</code>
           </pre>
           <TruncateBar />
           {block.result.stderr && (
             <div className="border-t border-[#30363d]">
               <div className="px-3 py-1 bg-red-900/10">
-                <span className="text-xs text-red-400">stderr</span>
+                <span className="text-xs text-red-400">{t('toolCall.stderr')}</span>
               </div>
               <pre className="p-2 text-xs overflow-x-auto max-h-40 overflow-y-auto text-red-400">
                 <code>{block.result.stderr}</code>
@@ -400,7 +404,7 @@ function BashToolContent({ block }: { block: ToolUseBlock }) {
 }
 
 /** Grep tool: show pattern, path and results */
-function GrepToolContent({ block }: { block: ToolUseBlock }) {
+function GrepToolContent({ block, t }: { block: ToolUseBlock; t: (key: string, params?: Record<string, string | number>) => string }) {
   const input = block.input || {}
   const pattern = String(input.pattern || '')
   const path = input.path ? String(input.path) : ''
@@ -411,7 +415,7 @@ function GrepToolContent({ block }: { block: ToolUseBlock }) {
   return (
     <div className="px-3 py-2 space-y-2">
       <div className="flex items-center gap-3 flex-wrap text-xs">
-        <span className="text-gray-500">Pattern:</span>
+        <span className="text-gray-500">{t('toolCall.pattern')}</span>
         <code className="text-yellow-300 bg-yellow-900/20 px-1.5 py-0.5 rounded font-mono">{pattern}</code>
         {path && <><span className="text-gray-500">in</span><span className="text-[#58a6ff] font-mono">{path}</span></>}
         {glob && <><span className="text-gray-500">glob:</span><span className="text-gray-300 font-mono">{glob}</span></>}
@@ -421,11 +425,11 @@ function GrepToolContent({ block }: { block: ToolUseBlock }) {
       {block.result && (
         <div className="rounded-lg overflow-hidden border border-[#30363d] bg-[#0d1117]">
           <div className="flex items-center justify-between px-3 py-1 bg-[#161b22] border-b border-[#30363d]">
-            <span className="text-xs text-gray-500">Results</span>
+            <span className="text-xs text-gray-500">{t('toolCall.results')}</span>
             <CopyButton text={resultContent} />
           </div>
           <pre className="p-2 text-xs overflow-x-auto max-h-80 overflow-y-auto text-[#e6edf3]">
-            <code>{resultContent || '(no matches)'}</code>
+            <code>{resultContent || t('toolCall.noMatches')}</code>
           </pre>
         </div>
       )}
@@ -434,7 +438,7 @@ function GrepToolContent({ block }: { block: ToolUseBlock }) {
 }
 
 /** Glob tool: show pattern and matched files */
-function GlobToolContent({ block }: { block: ToolUseBlock }) {
+function GlobToolContent({ block, t }: { block: ToolUseBlock; t: (key: string, params?: Record<string, string | number>) => string }) {
   const input = block.input || {}
   const pattern = String(input.pattern || '')
   const path = input.path ? String(input.path) : ''
@@ -445,7 +449,7 @@ function GlobToolContent({ block }: { block: ToolUseBlock }) {
   return (
     <div className="px-3 py-2 space-y-2">
       <div className="flex items-center gap-3 text-xs">
-        <span className="text-gray-500">Pattern:</span>
+        <span className="text-gray-500">{t('toolCall.pattern')}</span>
         <code className="text-cyan-300 bg-cyan-900/20 px-1.5 py-0.5 rounded font-mono">{pattern}</code>
         {path && <><span className="text-gray-500">in</span><span className="text-[#58a6ff] font-mono">{path}</span></>}
       </div>
@@ -453,7 +457,7 @@ function GlobToolContent({ block }: { block: ToolUseBlock }) {
       {block.result && (
         <div className="rounded-lg overflow-hidden border border-[#30363d] bg-[#0d1117]">
           <div className="flex items-center justify-between px-3 py-1 bg-[#161b22] border-b border-[#30363d]">
-            <span className="text-xs text-gray-500">{fileList.length} files matched</span>
+            <span className="text-xs text-gray-500">{fileList.length}{t('toolCall.filesMatched')}</span>
             <CopyButton text={resultContent} />
           </div>
           <div className="p-2 text-xs max-h-60 overflow-y-auto">
@@ -468,7 +472,7 @@ function GlobToolContent({ block }: { block: ToolUseBlock }) {
 }
 
 /** WebFetch / WebSearch */
-function WebToolContent({ block }: { block: ToolUseBlock }) {
+function WebToolContent({ block, t }: { block: ToolUseBlock; t: (key: string, params?: Record<string, string | number>) => string }) {
   const input = block.input || {}
   const url = input.url ? String(input.url) : ''
   const query = input.query ? String(input.query) : ''
@@ -478,17 +482,17 @@ function WebToolContent({ block }: { block: ToolUseBlock }) {
   return (
     <div className="px-3 py-2 space-y-2">
       <div className="flex items-center gap-2 flex-wrap text-xs">
-        {url && <><span className="text-gray-500">URL:</span><span className="text-[#58a6ff]">{url}</span></>}
-        {query && <><span className="text-gray-500">Query:</span><span className="text-yellow-300">{query}</span></>}
+        {url && <><span className="text-gray-500">{t('toolCall.url')}</span><span className="text-[#58a6ff]">{url}</span></>}
+        {query && <><span className="text-gray-500">{t('toolCall.query')}</span><span className="text-yellow-300">{query}</span></>}
       </div>
       {prompt && (
-        <div className="text-xs text-gray-400 italic">Prompt: {prompt}</div>
+        <div className="text-xs text-gray-400 italic">{t('toolCall.prompt')} {prompt}</div>
       )}
 
       {block.result && (
         <div className="rounded-lg overflow-hidden border border-[#30363d] bg-[#0d1117]">
           <div className="flex items-center justify-between px-3 py-1 bg-[#161b22] border-b border-[#30363d]">
-            <span className="text-xs text-gray-500">Response</span>
+            <span className="text-xs text-gray-500">{t('toolCall.response')}</span>
             <CopyButton text={resultContent} />
           </div>
           <pre className="p-2 text-xs overflow-x-auto max-h-80 overflow-y-auto text-[#e6edf3]">
@@ -501,7 +505,7 @@ function WebToolContent({ block }: { block: ToolUseBlock }) {
 }
 
 /** AskUserQuestion: show questions and answers nicely */
-function AskUserContent({ block }: { block: ToolUseBlock }) {
+function AskUserContent({ block, t }: { block: ToolUseBlock; t: (key: string, params?: Record<string, string | number>) => string }) {
   const input = block.input || {}
   const questions = (input.questions as Array<{ question: string; header?: string; options?: Array<{ label: string; description?: string }> }>) || []
   const resultContent = block.result?.content || ''
@@ -573,14 +577,14 @@ const STATUS_STYLES: Record<string, { icon: string; color: string }> = {
 }
 
 /** TodoWrite: show as a task checklist */
-function TodoWriteContent({ block }: { block: ToolUseBlock }) {
+function TodoWriteContent({ block, t }: { block: ToolUseBlock; t: (key: string, params?: Record<string, string | number>) => string }) {
   const input = block.input || {}
   const todos = (input.todos as Array<{ content?: string; status?: string; activeForm?: string }>) || []
 
   return (
     <div className="px-3 py-2">
       {todos.length === 0 ? (
-        <div className="text-xs text-gray-500">No items</div>
+        <div className="text-xs text-gray-500">{t('toolCall.noItems')}</div>
       ) : (
         <div className="space-y-1">
           {todos.map((todo, i) => {
@@ -590,7 +594,7 @@ function TodoWriteContent({ block }: { block: ToolUseBlock }) {
                 <span className="text-sm flex-shrink-0">{st.icon}</span>
                 <div className="min-w-0 flex-1">
                   <div className={`text-xs ${st.color}`}>
-                    {todo.content || todo.activeForm || 'Untitled'}
+                    {todo.content || todo.activeForm || t('toolCall.untitled')}
                   </div>
                   {todo.activeForm && todo.content && todo.activeForm !== todo.content && (
                     <div className="text-[10px] text-gray-600">{todo.activeForm}</div>
@@ -608,7 +612,7 @@ function TodoWriteContent({ block }: { block: ToolUseBlock }) {
 }
 
 /** TaskCreate / TaskUpdate / TaskList / TaskGet */
-function TaskContent({ block }: { block: ToolUseBlock }) {
+function TaskContent({ block, t }: { block: ToolUseBlock; t: (key: string, params?: Record<string, string | number>) => string }) {
   const input = block.input || {}
 
   if (block.name === 'TaskCreate') {
@@ -662,7 +666,7 @@ function TaskContent({ block }: { block: ToolUseBlock }) {
       {tasks && tasks.length > 0 ? (
         tasks.map((t) => <TaskRow key={t.id} task={t} />)
       ) : tasks && tasks.length === 0 ? (
-        <div className="text-xs text-gray-500">No tasks</div>
+        <div className="text-xs text-gray-500">{t('toolCall.noTasks')}</div>
       ) : (
         block.result && <ToolResultDisplay result={block.result} />
       )}
@@ -718,7 +722,7 @@ function TaskRow({ task }: { task: TaskItem }) {
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5 flex-wrap">
           <span className="text-[10px] text-[var(--accent)] font-mono">#{task.id}</span>
-          <span className="text-xs text-[var(--text)]">{task.subject || 'Untitled'}</span>
+          <span className="text-xs text-[var(--text)]">{task.subject || t('toolCall.untitled')}</span>
         </div>
         {task.description && <div className="text-[10px] text-gray-500 mt-0.5">{task.description}</div>}
       </div>
@@ -738,7 +742,7 @@ function TaskRow({ task }: { task: TaskItem }) {
 }
 
 /** TaskOutput / TaskStop — background task status */
-function BackgroundTaskContent({ block }: { block: ToolUseBlock }) {
+function BackgroundTaskContent({ block, t }: { block: ToolUseBlock; t: (key: string, params?: Record<string, string | number>) => string }) {
   const result = getStructured<{
     message?: string
     task_id?: string
@@ -785,7 +789,7 @@ function BackgroundTaskContent({ block }: { block: ToolUseBlock }) {
 }
 
 /** TeamCreate — show the new team with its lead agent */
-function TeamCreateContent({ block }: { block: ToolUseBlock }) {
+function TeamCreateContent({ block, t }: { block: ToolUseBlock; t: (key: string, params?: Record<string, string | number>) => string }) {
   const input = block.input || {}
   const teamName = String(input.team_name || '')
   const description = input.description ? String(input.description) : ''
@@ -798,7 +802,7 @@ function TeamCreateContent({ block }: { block: ToolUseBlock }) {
         <span className="text-sm">{'👥'}</span>
         <span className="text-xs text-[var(--text)] font-medium">{result?.team_name || teamName}</span>
         {result?.lead_agent_id && (
-          <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#ff8c5a]/15 text-[#ff8c5a]">lead: {result.lead_agent_id}</span>
+          <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#ff8c5a]/15 text-[#ff8c5a]">{t('toolCall.lead')} {result.lead_agent_id}</span>
         )}
       </div>
       {description && <div className="text-[10px] text-gray-500">{description}</div>}
@@ -811,7 +815,7 @@ function TeamCreateContent({ block }: { block: ToolUseBlock }) {
 }
 
 /** TeamDelete — show cleanup outcome (often a refusal while members are active) */
-function TeamDeleteContent({ block }: { block: ToolUseBlock }) {
+function TeamDeleteContent({ block, t }: { block: ToolUseBlock; t: (key: string, params?: Record<string, string | number>) => string }) {
   const result = getStructured<{ success?: boolean; message?: string; team_name?: string }>(block)
   if (!result) {
     return <div className="px-3 py-2">{block.result && <ToolResultDisplay result={block.result} />}</div>
@@ -833,7 +837,7 @@ function TeamDeleteContent({ block }: { block: ToolUseBlock }) {
 }
 
 /** SendMessage — inter-agent message with routing (sender → target) */
-function SendMessageContent({ block }: { block: ToolUseBlock }) {
+function SendMessageContent({ block, t }: { block: ToolUseBlock; t: (key: string, params?: Record<string, string | number>) => string }) {
   const input = block.input || {}
   const to = input.to ? String(input.to) : ''
   const rawMsg = input.message
@@ -896,7 +900,7 @@ function SendMessageContent({ block }: { block: ToolUseBlock }) {
 }
 
 /** Agent — sub-agent dispatch with prompt + result summary */
-function AgentContent({ block }: { block: ToolUseBlock }) {
+function AgentContent({ block, t }: { block: ToolUseBlock; t: (key: string, params?: Record<string, string | number>) => string }) {
   const input = block.input || {}
   const description = input.description ? String(input.description) : ''
   const subagentType = input.subagent_type ? String(input.subagent_type) : ''
@@ -938,8 +942,8 @@ function AgentContent({ block }: { block: ToolUseBlock }) {
       {/* stats */}
       {result && (result.totalTokens || result.totalToolUseCount || result.totalDurationMs) && (
         <div className="flex items-center gap-3 text-[10px] text-gray-500">
-          {result.totalToolUseCount != null && <span>{result.totalToolUseCount} tool calls</span>}
-          {result.totalTokens != null && <span>{result.totalTokens.toLocaleString()} tokens</span>}
+          {result.totalToolUseCount != null && <span>{result.totalToolUseCount} {t('toolCall.toolCalls')}</span>}
+          {result.totalTokens != null && <span>{result.totalTokens.toLocaleString()} {t('toolCall.tokens')}</span>}
           {result.totalDurationMs != null && <span>{(result.totalDurationMs / 1000).toFixed(1)}s</span>}
         </div>
       )}
@@ -962,7 +966,7 @@ function AgentContent({ block }: { block: ToolUseBlock }) {
       {resultText && (
         <div className="rounded-lg overflow-hidden border border-[#30363d] bg-[#0d1117]">
           <div className="flex items-center justify-between px-3 py-1 bg-[#161b22] border-b border-[#30363d]">
-            <span className="text-xs text-gray-500">Result{result?.agentId ? ` · ${result.agentId}` : ''}</span>
+            <span className="text-xs text-gray-500">{t('toolCall.result')}{result?.agentId ? ` · ${result.agentId}` : ''}</span>
             <CopyButton text={resultText} />
           </div>
           <pre className="p-2 text-xs overflow-x-auto max-h-80 overflow-y-auto text-[#e6edf3] whitespace-pre-wrap break-words">
@@ -976,7 +980,7 @@ function AgentContent({ block }: { block: ToolUseBlock }) {
 }
 
 /** Generic fallback for unknown tools */
-function GenericToolContent({ block }: { block: ToolUseBlock }) {
+function GenericToolContent({ block, t }: { block: ToolUseBlock; t: (key: string, params?: Record<string, string | number>) => string }) {
   const inputStr = JSON.stringify(block.input, null, 2)
   const resultContent = block.result?.stdout || block.result?.content || ''
 
@@ -984,7 +988,7 @@ function GenericToolContent({ block }: { block: ToolUseBlock }) {
     <div className="px-3 py-2 space-y-2">
       <div>
         <div className="flex items-center justify-between mb-1">
-          <span className="text-xs font-medium text-gray-500">Input</span>
+          <span className="text-xs font-medium text-gray-500">{t('toolCall.input')}</span>
           <CopyButton text={inputStr} />
         </div>
         <pre className="bg-[#0d1117] rounded p-2 text-xs overflow-x-auto max-h-60 overflow-y-auto">
@@ -998,7 +1002,7 @@ function GenericToolContent({ block }: { block: ToolUseBlock }) {
 }
 
 /** Shared result display component */
-function ToolResultDisplay({ result }: { result: NonNullable<ToolUseBlock['result']> }) {
+function ToolResultDisplay({ result, t }: { result: NonNullable<ToolUseBlock['result']>; t: (key: string, params?: Record<string, string | number>) => string }) {
   const rawContent = result.stdout || result.content || ''
   const hasError = result.is_error
   const { displayContent: content, TruncateBar } = useTruncated(rawContent)
@@ -1011,7 +1015,7 @@ function ToolResultDisplay({ result }: { result: NonNullable<ToolUseBlock['resul
         <>
           <div className="flex items-center justify-between px-3 py-1 bg-[#161b22] border-b border-[#30363d]">
             <span className={`text-xs ${hasError ? 'text-red-400' : 'text-gray-500'}`}>
-              {hasError ? 'Error' : 'Result'}
+              {hasError ? t('toolCall.error') : t('toolCall.result')}
             </span>
             <CopyButton text={rawContent} />
           </div>
@@ -1024,7 +1028,7 @@ function ToolResultDisplay({ result }: { result: NonNullable<ToolUseBlock['resul
       {result.stderr && (
         <div className={content ? 'border-t border-[#30363d]' : ''}>
           <div className="px-3 py-1 bg-red-900/10">
-            <span className="text-xs text-red-400">stderr</span>
+            <span className="text-xs text-red-400">{t('toolCall.stderr')}</span>
           </div>
           <pre className="p-2 text-xs overflow-x-auto max-h-40 overflow-y-auto text-red-400">
             <code>{result.stderr}</code>

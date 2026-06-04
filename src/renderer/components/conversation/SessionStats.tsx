@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import type { ParsedMessage } from '../../types/message'
 import { Tooltip } from '../common/Tooltip'
 import { useSettings, getModelPricing, calculateCost } from '../../hooks/useSettings'
+import { useLocale } from '../../hooks/useLocale'
 
 interface Props {
   messages: ParsedMessage[]
@@ -44,6 +45,7 @@ function fmtDuration(minutes: number): string {
 
 export function SessionStats({ messages, sessionFilePath, onJumpToMessage }: Props) {
   const { settings } = useSettings()
+  const { t } = useLocale()
   const [expandedTools, setExpandedTools] = useState<Set<string>>(new Set())
   const [expandedAllCalls, setExpandedAllCalls] = useState<Set<string>>(new Set())
   const [usageFromFile, setUsageFromFile] = useState<SessionUsageResult | null>(null)
@@ -154,17 +156,17 @@ export function SessionStats({ messages, sessionFilePath, onJumpToMessage }: Pro
     <div className="max-w-4xl mx-auto px-6 py-6">
       {/* Summary cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-        <StatCard label="Messages" value={messages.length} sub={`${userMsgs.length} user / ${assistantMsgs.length} assistant`} />
-        <StatCard label="Duration" value={fmtDuration(durationMin)} sub={firstTime ? `${firstTime.toLocaleTimeString()} ~ ${lastTime?.toLocaleTimeString()}` : ''} />
-        <StatCard label="Tool Calls" value={totalToolCalls} sub={errorCount > 0 ? `${errorCount} errors` : 'no errors'} color={errorCount > 0 ? 'text-red-400' : undefined} />
-        <StatCard label="Thinking" value={thinkingCount} sub={thinkingChars > 0 ? `${fmt(thinkingChars)} chars` : ''} />
+        <StatCard label={t('stats.messages')} value={messages.length} sub={`${userMsgs.length}${t('stats.userMsgs')} / ${assistantMsgs.length}${t('stats.assistantMsgs')}`} />
+        <StatCard label={t('stats.duration')} value={fmtDuration(durationMin)} sub={firstTime ? `${firstTime.toLocaleTimeString()} ~ ${lastTime?.toLocaleTimeString()}` : ''} />
+        <StatCard label={t('stats.toolCalls')} value={totalToolCalls} sub={errorCount > 0 ? `${errorCount}${t('stats.errors')}` : t('stats.noErrors')} color={errorCount > 0 ? 'text-red-400' : undefined} />
+        <StatCard label={t('stats.thinking')} value={thinkingCount} sub={thinkingChars > 0 ? `${fmt(thinkingChars)}${t('stats.chars')}` : ''} />
       </div>
 
       {/* Token usage */}
       {(totalAllInput > 0 || totalOutput > 0) && (
         <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-4 mb-4">
           <h3 className="text-xs font-semibold text-gray-400 uppercase mb-3">
-            Token Usage
+            {t('stats.tokenUsage')}
             <span className="font-normal text-gray-600 ml-1">
               (from JSONL{usageFromFile && usageFromFile.subagentFiles.length > 0 ? ` + ${usageFromFile.subagentFiles.length} subagent${usageFromFile.subagentFiles.length > 1 ? 's' : ''}` : ''}, may differ from /cost)
             </span>
@@ -172,41 +174,41 @@ export function SessionStats({ messages, sessionFilePath, onJumpToMessage }: Pro
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
             <div>
               <div className="text-lg font-semibold text-blue-400">{fmt(totalInput)}</div>
-              <div className="text-[10px] text-gray-500">Input <span className="text-gray-600">({totalInput.toLocaleString()})</span></div>
+              <div className="text-[10px] text-gray-500">{t('stats.input')} <span className="text-gray-600">({totalInput.toLocaleString()})</span></div>
             </div>
             <div>
               <div className="text-lg font-semibold text-green-400">{fmt(totalOutput)}</div>
-              <div className="text-[10px] text-gray-500">Output <span className="text-gray-600">({totalOutput.toLocaleString()})</span></div>
+              <div className="text-[10px] text-gray-500">{t('stats.output')} <span className="text-gray-600">({totalOutput.toLocaleString()})</span></div>
             </div>
             <div>
               <div className="text-lg font-semibold text-yellow-400">{fmt(totalCacheRead)}</div>
-              <div className="text-[10px] text-gray-500">Cache Read <span className="text-gray-600">({totalCacheRead.toLocaleString()})</span></div>
+              <div className="text-[10px] text-gray-500">{t('stats.cacheRead')} <span className="text-gray-600">({totalCacheRead.toLocaleString()})</span></div>
             </div>
             <div>
               <div className="text-lg font-semibold text-orange-400">{fmt(totalCacheCreate)}</div>
-              <div className="text-[10px] text-gray-500">Cache Write <span className="text-gray-600">({totalCacheCreate.toLocaleString()})</span></div>
+              <div className="text-[10px] text-gray-500">{t('stats.cacheWrite')} <span className="text-gray-600">({totalCacheCreate.toLocaleString()})</span></div>
             </div>
           </div>
 
           {/* Visual bar */}
           <div className="flex h-3 rounded-full overflow-hidden bg-[#0d1117]">
-            <div className="bg-blue-500" style={{ flex: totalInput }} title={`Input: ${fmt(totalInput)}`} />
-            <div className="bg-orange-500" style={{ flex: totalCacheCreate }} title={`Cache Write: ${fmt(totalCacheCreate)}`} />
-            <div className="bg-yellow-500" style={{ flex: totalCacheRead }} title={`Cache Read: ${fmt(totalCacheRead)}`} />
-            <div className="bg-green-500" style={{ flex: totalOutput }} title={`Output: ${fmt(totalOutput)}`} />
+            <div className="bg-blue-500" style={{ flex: totalInput }} title={`${t('stats.inputColon')} ${fmt(totalInput)}`} />
+            <div className="bg-orange-500" style={{ flex: totalCacheCreate }} title={`${t('stats.cacheWriteColon')} ${fmt(totalCacheCreate)}`} />
+            <div className="bg-yellow-500" style={{ flex: totalCacheRead }} title={`${t('stats.cacheReadColon')} ${fmt(totalCacheRead)}`} />
+            <div className="bg-green-500" style={{ flex: totalOutput }} title={`${t('stats.outputColon')} ${fmt(totalOutput)}`} />
           </div>
           <div className="flex gap-4 mt-1.5">
-            <span className="text-[10px] text-blue-400">Input</span>
-            <span className="text-[10px] text-orange-400">Cache Write</span>
-            <span className="text-[10px] text-yellow-400">Cache Read</span>
-            <span className="text-[10px] text-green-400">Output</span>
+            <span className="text-[10px] text-blue-400">{t('stats.input')}</span>
+            <span className="text-[10px] text-orange-400">{t('stats.cacheWrite')}</span>
+            <span className="text-[10px] text-yellow-400">{t('stats.cacheRead')}</span>
+            <span className="text-[10px] text-green-400">{t('stats.output')}</span>
           </div>
 
           {/* Cost */}
           {totalCost > 0 && (
             <div className="mt-3 pt-3 border-t border-[#30363d]/50">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs text-gray-500">Estimated Cost <span className="text-gray-600">(approximate, based on JSONL data)</span></span>
+                <span className="text-xs text-gray-500">{t('stats.estimatedCost')} <span className="text-gray-600">{t('stats.estimatedCostSub')}</span></span>
                 <span className="text-sm font-semibold text-green-400">${totalCost.toFixed(4)}</span>
               </div>
               {modelCosts.length > 1 && (
@@ -224,10 +226,10 @@ export function SessionStats({ messages, sessionFilePath, onJumpToMessage }: Pro
               )}
               {modelCosts.length === 1 && (
                 <div className="flex gap-3 text-[10px] text-gray-600">
-                  <span>Input: ${modelCosts[0].cost.inputCost.toFixed(4)}</span>
-                  <span>Cache Read: ${modelCosts[0].cost.cacheReadCost.toFixed(4)}</span>
-                  <span>Cache Write: ${modelCosts[0].cost.cacheWriteCost.toFixed(4)}</span>
-                  <span>Output: ${modelCosts[0].cost.outputCost.toFixed(4)}</span>
+                  <span>{t('stats.inputColon')} ${modelCosts[0].cost.inputCost.toFixed(4)}</span>
+                  <span>{t('stats.cacheReadColon')} ${modelCosts[0].cost.cacheReadCost.toFixed(4)}</span>
+                  <span>{t('stats.cacheWriteColon')} ${modelCosts[0].cost.cacheWriteCost.toFixed(4)}</span>
+                  <span>{t('stats.outputColon')} ${modelCosts[0].cost.outputCost.toFixed(4)}</span>
                 </div>
               )}
             </div>
@@ -238,8 +240,8 @@ export function SessionStats({ messages, sessionFilePath, onJumpToMessage }: Pro
       {/* Tool breakdown — ranked by result size (token proxy) */}
       {toolStats.length > 0 && (
         <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-4 mb-4">
-          <h3 className="text-xs font-semibold text-gray-400 uppercase mb-1">Tool Usage</h3>
-          <p className="text-[10px] text-gray-600 mb-3">Ranked by result size (input token proxy). Click a row to jump.</p>
+          <h3 className="text-xs font-semibold text-gray-400 uppercase mb-1">{t('stats.toolUsage')}</h3>
+          <p className="text-[10px] text-gray-600 mb-3">{t('stats.toolUsageSub')}</p>
           <div className="space-y-1.5">
             {toolStats.map(({ name, calls, totalChars, count }) => {
               const pct = grandTotalChars > 0 ? Math.round((totalChars / grandTotalChars) * 100) : 0
@@ -288,7 +290,7 @@ export function SessionStats({ messages, sessionFilePath, onJumpToMessage }: Pro
                             className={`w-full flex items-center gap-2 py-0.5 rounded text-left group ${onJumpToMessage ? 'hover:bg-[#1c2333] cursor-pointer' : ''}`}
                           >
                             <span className="text-[10px] text-gray-400 w-48 truncate font-mono flex-shrink-0 group-hover:text-[#58a6ff] transition-colors" title={call.key || '(no label)'}>
-                              {call.key || <span className="italic text-gray-600">(no label)</span>}
+                              {call.key || <span className="italic text-gray-600">{t('stats.noLabel')}</span>}
                             </span>
                             <div className="flex-1 h-2.5 bg-[#0d1117] rounded overflow-hidden">
                               <div className="h-full bg-[#58a6ff]/20 rounded"
@@ -307,7 +309,7 @@ export function SessionStats({ messages, sessionFilePath, onJumpToMessage }: Pro
                           onClick={() => setExpandedAllCalls((prev) => new Set([...prev, name]))}
                           className="text-[9px] text-[#58a6ff] hover:text-blue-300 py-0.5 transition-colors"
                         >
-                          +{sortedCalls.length - 20} more calls…
+                          {t('stats.moreCallsButton', { count: sortedCalls.length - 20 })}
                         </button>
                       )}
                     </div>
@@ -342,7 +344,7 @@ export function SessionStats({ messages, sessionFilePath, onJumpToMessage }: Pro
         return (
           <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-4 mb-4">
             <h3 className="text-xs font-semibold text-gray-400 uppercase mb-3">
-              Output Tokens Per Turn <span className="font-normal text-gray-600">({turns.length} turns, max {fmt(maxOutput)})</span>
+              {t('stats.outputPerTurn')} <span className="font-normal text-gray-600">{t('stats.turnsMax', { turns: turns.length, max: fmt(maxOutput) })}</span>
             </h3>
             <div className="overflow-x-auto pb-2">
               <div className="flex items-end" style={{ height: 160, minWidth: Math.max(turns.length * 6, 300) }}>
@@ -351,12 +353,12 @@ export function SessionStats({ messages, sessionFilePath, onJumpToMessage }: Pro
                   return (
                     <Tooltip key={t.turn} className="flex-1" content={
                       <>
-                        <div className="text-[#e6edf3] font-medium">Turn {t.turn} {t.time}</div>
-                        <div className="text-green-400">Output: {fmt(t.output)}</div>
-                        <div className="text-blue-400">Input: {fmt(t.input)}</div>
-                        <div className="text-yellow-400">Cache Read: {fmt(t.cacheRead)}</div>
-                        {t.cacheCreate > 0 && <div className="text-orange-400">Cache Write: {fmt(t.cacheCreate)}</div>}
-                        {onJumpToMessage && <div className="text-gray-500 border-t border-gray-700 mt-1 pt-1">Click to jump</div>}
+                        <div className="text-[#e6edf3] font-medium">{t('stats.turn', { n: t.turn })} {t.time}</div>
+                        <div className="text-green-400">{t('stats.outputColon')} {fmt(t.output)}</div>
+                        <div className="text-blue-400">{t('stats.inputColon')} {fmt(t.input)}</div>
+                        <div className="text-yellow-400">{t('stats.cacheReadColon')} {fmt(t.cacheRead)}</div>
+                        {t.cacheCreate > 0 && <div className="text-orange-400">{t('stats.cacheWriteColon')} {fmt(t.cacheCreate)}</div>}
+                        {onJumpToMessage && <div className="text-gray-500 border-t border-gray-700 mt-1 pt-1">{t('stats.clickToJump')}</div>}
                       </>
                     }>
                       <div className={`w-full flex items-end ${onJumpToMessage ? 'cursor-pointer' : ''}`}
@@ -371,8 +373,8 @@ export function SessionStats({ messages, sessionFilePath, onJumpToMessage }: Pro
             </div>
             <div className="flex justify-between mt-1 text-[10px] text-gray-600">
               <span>Turn 1</span>
-              <span className="text-green-400">Output Tokens (scroll to see all)</span>
-              <span>Turn {turns.length}</span>
+              <span className="text-green-400">{t('stats.outputTokensLabel')}</span>
+              <span>{t('stats.turn', { n: turns.length })}</span>
             </div>
           </div>
         )
@@ -381,7 +383,7 @@ export function SessionStats({ messages, sessionFilePath, onJumpToMessage }: Pro
       {/* Models */}
       {models.length > 0 && (
         <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-4">
-          <h3 className="text-xs font-semibold text-gray-400 uppercase mb-2">Models</h3>
+          <h3 className="text-xs font-semibold text-gray-400 uppercase mb-2">{t('stats.models')}</h3>
           <div className="flex flex-wrap gap-2">
             {models.map((m) => (
               <span key={m} className="text-xs bg-[#0d1117] px-2 py-1 rounded text-[#58a6ff] border border-[#30363d]">{m}</span>

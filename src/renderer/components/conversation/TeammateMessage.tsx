@@ -1,4 +1,5 @@
 import { MarkdownRenderer } from './MarkdownRenderer'
+import { useLocale } from '../../hooks/useLocale'
 
 /**
  * Teammate (swarm inter-agent) messages are delivered to the team lead as
@@ -83,6 +84,7 @@ function TeammateRow({ msg }: RowProps) {
   const name = msg.teammateId
   const json = tryParseJson(msg.content)
   const type = json?.type as string | undefined
+  const { t } = useLocale()
 
   const header = (
     <div className="flex items-center gap-2 mb-1">
@@ -99,8 +101,8 @@ function TeammateRow({ msg }: RowProps) {
       <div className="rounded-lg border-l-2 pl-3 pr-3 py-2 bg-[var(--surface)] border border-[var(--border)]" style={{ borderLeftColor: '#56d4dd' }}>
         {header}
         <div className="text-xs text-[var(--text)]">
-          <span className="text-[#56d4dd] font-medium">Task #{String(json?.taskId ?? '')}</span>
-          {json?.assignedBy ? <span className="text-[var(--text3)]"> assigned by {String(json.assignedBy)}</span> : null}
+          <span className="text-[#56d4dd] font-medium">{t('teammate.taskPrefix')}{String(json?.taskId ?? '')}</span>
+          {json?.assignedBy ? <span className="text-[var(--text3)]">{t('teammate.assignedBy')} {String(json.assignedBy)}</span> : null}
         </div>
         {json?.subject ? <div className="text-xs text-[var(--text)] font-medium mt-1">{String(json.subject)}</div> : null}
         {json?.description ? <div className="text-[11px] text-[var(--text3)] mt-0.5">{String(json.description)}</div> : null}
@@ -114,9 +116,9 @@ function TeammateRow({ msg }: RowProps) {
       <div className="rounded-lg border-l-2 pl-3 pr-3 py-2 bg-[var(--surface)] border border-[var(--border)]" style={{ borderLeftColor: approved ? '#3fb950' : '#f85149' }}>
         {header}
         <div className={`text-xs font-medium ${approved ? 'text-green-400' : 'text-red-400'}`}>
-          {approved ? '✓ Plan approved' : '✗ Plan rejected'}
+          {approved ? t('teammate.planApproved') : t('teammate.planRejected')}
         </div>
-        {json?.feedback ? <div className="text-[11px] text-[var(--text3)] mt-1">Feedback: {String(json.feedback)}</div> : null}
+        {json?.feedback ? <div className="text-[11px] text-[var(--text3)] mt-1">{t('teammate.feedback')} {String(json.feedback)}</div> : null}
       </div>
     )
   }
@@ -125,7 +127,7 @@ function TeammateRow({ msg }: RowProps) {
     return (
       <div className="rounded-lg border-l-2 pl-3 pr-3 py-2 bg-[var(--surface)] border border-[var(--border)]" style={{ borderLeftColor: '#d29922' }}>
         {header}
-        <div className="text-xs text-[var(--accent)] font-medium">Plan approval requested</div>
+        <div className="text-xs text-[var(--accent)] font-medium">{t('teammate.planRequested')}</div>
         {json?.planContent ? (
           <div className="text-[11px] text-[var(--text2)] mt-1 max-h-60 overflow-y-auto">
             <MarkdownRenderer content={String(json.planContent)} />
@@ -137,9 +139,9 @@ function TeammateRow({ msg }: RowProps) {
 
   if (type === 'shutdown_request' || type === 'shutdown_rejected' || type === 'shutdown_approved') {
     const palette: Record<string, { c: string; label: string }> = {
-      shutdown_request: { c: '#d29922', label: 'Shutdown requested' },
-      shutdown_rejected: { c: '#8b949e', label: 'Shutdown rejected' },
-      shutdown_approved: { c: '#3fb950', label: 'Shutdown approved' }
+      shutdown_request: { c: '#d29922', label: t('teammate.shutdownRequested') },
+      shutdown_rejected: { c: '#8b949e', label: t('teammate.shutdownRejected') },
+      shutdown_approved: { c: '#3fb950', label: t('teammate.shutdownApproved') }
     }
     const p = palette[type]
     return (
@@ -149,7 +151,7 @@ function TeammateRow({ msg }: RowProps) {
           {p.label}
           {json?.from ? <span className="text-[var(--text3)] font-normal"> — {String(json.from)}</span> : null}
         </div>
-        {json?.reason ? <div className="text-[11px] text-[var(--text3)] mt-1">Reason: {String(json.reason)}</div> : null}
+        {json?.reason ? <div className="text-[11px] text-[var(--text3)] mt-1">{t('teammate.reason')} {String(json.reason)}</div> : null}
       </div>
     )
   }
@@ -159,7 +161,7 @@ function TeammateRow({ msg }: RowProps) {
       <div className="rounded-lg border-l-2 pl-3 pr-3 py-2 bg-[var(--surface)] border border-[var(--border)]" style={{ borderLeftColor: '#3fb950' }}>
         {header}
         <div className="text-xs text-green-400">
-          ✓ Completed task #{String(json?.taskId ?? '')}
+          {t('teammate.completedTask')}{String(json?.taskId ?? '')}
           {json?.taskSubject ? <span className="text-[var(--text3)]"> ({String(json.taskSubject)})</span> : null}
         </div>
       </div>
@@ -204,7 +206,7 @@ export function TeammateMessage({ messages, timestamp }: Props) {
     <div className="flex justify-start mb-4 csv-msg-in">
       <div className="max-w-[85%] w-full">
         <div className="flex items-center gap-2 mb-1.5">
-          <span className="text-[10px] font-semibold tracking-wider uppercase text-[#56d4dd]">Teammate</span>
+          <span className="text-[10px] font-semibold tracking-wider uppercase text-[#56d4dd]">{t('teammate.teammate')}</span>
           {time && <span className="text-xs text-[var(--text3)] ml-auto tabular-nums">{time}</span>}
         </div>
         <div className="space-y-2">

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useLocale } from '../../hooks/useLocale'
 
 interface SessionInsights {
   healthScore: number
@@ -43,6 +44,7 @@ interface Props {
 export function InsightsPanel({ filePath }: Props) {
   const [insights, setInsights] = useState<SessionInsights | null>(null)
   const [loading, setLoading] = useState(true)
+  const { t } = useLocale()
 
   useEffect(() => {
     setLoading(true)
@@ -68,7 +70,7 @@ export function InsightsPanel({ filePath }: Props) {
     <div className="space-y-4">
       {/* Health score */}
       <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-4">
-        <h3 className="text-xs font-semibold text-gray-400 uppercase mb-3">Session Health</h3>
+        <h3 className="text-xs font-semibold text-gray-400 uppercase mb-3">{t('insights.sessionHealth')}</h3>
         <div className="flex items-center gap-4">
           {/* Score circle */}
           <div className={`w-16 h-16 rounded-full flex items-center justify-center ring-4 ${hc.ring}/30`}>
@@ -78,12 +80,12 @@ export function InsightsPanel({ filePath }: Props) {
             <div className={`text-sm font-semibold ${hc.text} capitalize`}>{insights.healthLabel}</div>
             <div className="text-xs text-gray-500 mt-1">
               {insights.errorCount === 0
-                ? 'No tool errors detected'
-                : `${insights.errorCount} errors in ${insights.totalToolCalls} tool calls (${(insights.errorRate * 100).toFixed(1)}%)`}
+                ? t('insights.noToolErrors')
+                : `${insights.errorCount}${t('insights.errorsIn')}${insights.totalToolCalls}${t('insights.toolCalls')} (${(insights.errorRate * 100).toFixed(1)}%)`}
             </div>
             {insights.inefficiencies.length > 0 && (
               <div className="text-xs text-gray-500">
-                {insights.inefficiencies.length} potential inefficienc{insights.inefficiencies.length === 1 ? 'y' : 'ies'} detected
+                {insights.inefficiencies.length}{t('insights.potentialInefficiencies', { suffix: insights.inefficiencies.length === 1 ? t('insights.inefficiencySingular') : t('insights.inefficiencyPlural') })}
               </div>
             )}
           </div>
@@ -92,7 +94,7 @@ export function InsightsPanel({ filePath }: Props) {
         {/* Error breakdown */}
         {insights.errorTools.length > 0 && (
           <div className="mt-3 pt-3 border-t border-[#30363d]/50">
-            <div className="text-[10px] text-gray-500 uppercase mb-1">Errors by tool</div>
+            <div className="text-[10px] text-gray-500 uppercase mb-1">{t('insights.errorsByTool')}</div>
             <div className="flex flex-wrap gap-1">
               {insights.errorTools.map((et) => (
                 <span key={et.name} className="text-[10px] px-2 py-0.5 rounded bg-red-900/20 text-red-400 border border-red-900/30">
@@ -106,14 +108,14 @@ export function InsightsPanel({ filePath }: Props) {
 
       {/* Complexity metrics */}
       <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-4">
-        <h3 className="text-xs font-semibold text-gray-400 uppercase mb-3">Complexity Metrics</h3>
+        <h3 className="text-xs font-semibold text-gray-400 uppercase mb-3">{t('insights.complexityMetrics')}</h3>
         <div className="grid grid-cols-2 gap-3">
-          <MetricItem label="Conversation Depth" value={`${insights.conversationDepth} rounds`} />
-          <MetricItem label="Avg Output/Turn" value={`${insights.avgOutputPerTurn} tokens`} />
-          <MetricItem label="Thinking Usage" value={`${insights.thinkingRatio}%`} />
-          <MetricItem label="Tool Density" value={`${insights.toolDensity} calls/turn`} />
-          <MetricItem label="Peak Output" value={`Turn ${insights.maxOutputTurn.turn} (${insights.maxOutputTurn.tokens} tokens)`} />
-          <MetricItem label="Error Rate" value={`${(insights.errorRate * 100).toFixed(1)}%`}
+          <MetricItem label={t('insights.conversationDepth')} value={`${insights.conversationDepth}${t('insights.rounds')}`} />
+          <MetricItem label={t('insights.avgOutputTurn')} value={`${insights.avgOutputPerTurn} tokens`} />
+          <MetricItem label={t('insights.thinkingUsage')} value={`${insights.thinkingRatio}%`} />
+          <MetricItem label={t('insights.toolDensity')} value={`${insights.toolDensity}${t('insights.callsPerTurn')}`} />
+          <MetricItem label={t('insights.peakOutput')} value={`${t('insights.peakTurn')} ${insights.maxOutputTurn.turn} (${insights.maxOutputTurn.tokens} tokens)`} />
+          <MetricItem label={t('insights.errorRate')} value={`${(insights.errorRate * 100).toFixed(1)}%`}
             color={insights.errorRate > 0.1 ? 'text-red-400' : insights.errorRate > 0.05 ? 'text-yellow-400' : 'text-green-400'} />
         </div>
       </div>
@@ -122,7 +124,7 @@ export function InsightsPanel({ filePath }: Props) {
       {insights.inefficiencies.length > 0 && (
         <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-4">
           <h3 className="text-xs font-semibold text-gray-400 uppercase mb-3">
-            Detected Inefficiencies
+            {t('insights.detectedInefficiencies')}
             <span className="font-normal text-gray-600 ml-1">({insights.inefficiencies.length})</span>
           </h3>
           <div className="space-y-2">
@@ -136,7 +138,7 @@ export function InsightsPanel({ filePath }: Props) {
                   </span>
                   <span className="text-[10px] text-gray-600 font-mono">{ineff.type}</span>
                   {ineff.turnRange && (
-                    <span className="text-[10px] text-gray-600 ml-auto">Turn {ineff.turnRange[0]}-{ineff.turnRange[1]}</span>
+                    <span className="text-[10px] text-gray-600 ml-auto">{t('insights.turnRange', { start: ineff.turnRange[0], end: ineff.turnRange[1] })}</span>
                   )}
                 </div>
                 <div className="text-xs text-[var(--text)]">{ineff.message}</div>
@@ -148,7 +150,7 @@ export function InsightsPanel({ filePath }: Props) {
 
       {insights.inefficiencies.length === 0 && (
         <div className="bg-green-900/10 border border-green-900/20 rounded-lg p-3 text-center">
-          <span className="text-xs text-green-400">No inefficiencies detected. This session looks clean!</span>
+          <span className="text-xs text-green-400">{t('insights.noInefficiencies')}</span>
         </div>
       )}
     </div>

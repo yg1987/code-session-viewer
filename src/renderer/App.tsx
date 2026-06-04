@@ -26,6 +26,7 @@ function LocaleEffect() {
 
 export function App() {
   const settingsCtx = useSettingsProvider()
+  const { t } = useLocale()
 
   // ── Source toggle ──
   const [source, setSource] = useState<SessionSource>('claude')
@@ -109,7 +110,7 @@ export function App() {
           const result = await window.api.loadOpenCodeSession(s.dbPath, s.sessionId)
           setOpenCodeMessages(result)
         } catch (e) {
-          setOpenCodeMsgError(e instanceof Error ? e.message : 'Failed to load OpenCode session')
+          setOpenCodeMsgError(e instanceof Error ? e.message : t('app.failedLoadOpenCode'))
           setOpenCodeMessages([])
         } finally {
           setOpenCodeMsgLoading(false)
@@ -255,7 +256,7 @@ export function App() {
         <div className="flex-shrink-0 flex h-full">
           <button type="button" onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
             className="w-5 flex items-center justify-center text-[var(--text2)] hover:text-[var(--text)] hover:bg-[var(--surface)] transition-colors"
-            title={sidebarCollapsed ? 'Show sidebar' : 'Hide sidebar'}>
+            title={sidebarCollapsed ? t('conversation.sidebarShow') : t('conversation.sidebarHide')}>
             <svg className="w-3 h-3 transition-transform" style={{ transform: sidebarCollapsed ? 'rotate(180deg)' : '' }}
               fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -298,8 +299,8 @@ export function App() {
                   </svg>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-base font-semibold text-[var(--text)]">Delete Session</h3>
-                  <p className="text-xs text-[var(--text2)] mt-0.5">This action cannot be undone.</p>
+                  <h3 className="text-base font-semibold text-[var(--text)]">{t('app.deleteSession')}</h3>
+                  <p className="text-xs text-[var(--text2)] mt-0.5">{t('app.deleteCannotUndo')}</p>
                 </div>
               </div>
               <div className="bg-[var(--bg)] rounded-lg p-3 mb-3 border border-[var(--border)]">
@@ -309,17 +310,17 @@ export function App() {
                 <div className="text-xs text-[var(--text3)] mt-1 font-mono">{deleteConfirm.sessionId}</div>
               </div>
               <p className="text-xs text-[var(--text3)] mb-4">
-                Permanently deletes session, sub-agents, file history, telemetry, and tasks.
+                {t('app.deletePermanently')}
               </p>
               <div className="flex justify-end gap-2">
                 <button type="button" onClick={() => setDeleteConfirm(null)} disabled={deleting}
                   className="px-4 py-2 text-sm text-[var(--text2)] hover:text-[var(--text)] hover:bg-[var(--surface2)] rounded-lg transition-colors disabled:opacity-50">
-                  Cancel
+                  {t('app.cancel')}
                 </button>
                 <button type="button" onClick={handleDeleteSession} disabled={deleting}
                   className="px-4 py-2 text-sm bg-[var(--error)] hover:opacity-90 text-white rounded-lg transition-all disabled:opacity-50 inline-flex items-center gap-2">
                   {deleting && <div className="animate-spin w-3 h-3 border-2 border-white border-t-transparent rounded-full" />}
-                  {deleting ? 'Deleting...' : 'Delete'}
+                  {deleting ? t('app.deleting') : t('app.delete')}
                 </button>
               </div>
             </div>
