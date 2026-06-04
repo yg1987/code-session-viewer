@@ -13,6 +13,14 @@ import { InsightsPanel } from './InsightsPanel'
 import { ReplayControls } from './ReplayControls'
 import { useExport } from '../../hooks/useExport'
 import { CollapseContext, useCollapseProvider } from '../../hooks/useCollapseControl'
+import { TodoPanel } from './TodoPanel'
+import { AgentTimeline } from './AgentTimeline'
+
+function formatTokens(n: number): string {
+  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M'
+  if (n >= 1_000) return (n / 1_000).toFixed(1) + 'K'
+  return n.toString()
+}
 
 function cleanPrompt(prompt: string): string {
   if (!prompt || prompt === 'No prompt') return ''
@@ -21,7 +29,7 @@ function cleanPrompt(prompt: string): string {
   return cleaned || ''
 }
 
-type ViewMode = 'chat' | 'raw' | 'stats' | 'insights'
+type ViewMode = 'chat' | 'raw' | 'stats' | 'insights' | 'todos' | 'timeline'
 
 interface Props {
   messages: ParsedMessage[]
@@ -139,7 +147,7 @@ export function ConversationView({ messages, loading, error, session, jumpToTime
       }
       if ((e.ctrlKey || e.metaKey) && e.key === 'f') { e.preventDefault(); setShowSearch((p) => !p) }
       if ((e.ctrlKey || e.metaKey) && e.key === 'e') { e.preventDefault(); handleExportHtml() }
-      if ((e.ctrlKey || e.metaKey) && e.key === 'o' && session) {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'o' && session && (!session.source || session.source === 'claude')) {
         e.preventDefault()
         window.api.openInClaude({ sessionId: session.sessionId, projectPath: session.projectPath })
       }
@@ -207,10 +215,10 @@ export function ConversationView({ messages, loading, error, session, jumpToTime
             <div className="flex items-center gap-1.5 flex-shrink-0 ml-4">
               {/* View mode toggle */}
               <div className="flex rounded-lg border border-[var(--border)] overflow-hidden bg-[var(--surface)]">
-                {(['chat', 'stats', 'insights', 'raw'] as ViewMode[]).map((mode) => (
+                {(['chat', 'stats', 'insights', ...(session?.source === 'opencode' ? ['todos', 'timeline'] : []), 'raw'] as ViewMode[]).map((mode) => (
                   <button key={mode} type="button" onClick={() => setViewMode(mode)}
                     className={`px-3 py-1.5 text-xs font-medium transition-colors ${viewMode === mode ? 'bg-[var(--accent-soft)] text-[var(--accent)]' : 'text-[var(--text2)] hover:text-[var(--text)] hover:bg-[var(--surface2)]'}`}>
-                    {mode === 'chat' ? 'Chat' : mode === 'stats' ? 'Stats' : mode === 'insights' ? 'Insights' : 'Raw JSON'}
+                    {mode === 'chat' ? 'Chat' : mode === 'stats' ? 'Stats' : mode === 'insights' ? 'Insights' : mode === 'todos' ? 'Todos' : mode === 'timeline' ? 'Timeline' : 'Raw JSON'}
                   </button>
                 ))}
               </div>
@@ -236,12 +244,14 @@ export function ConversationView({ messages, loading, error, session, jumpToTime
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
               </button>
 
-              {/* Open in folder */}
+              {/* Open in folder — only for Claude sessions */}
+              {(!session.source || session.source === 'claude') && (
               <button type="button" onClick={() => window.api.showInFolder(session.fullPath)}
                 className="p-1.5 rounded-md text-[var(--text2)] hover:text-[var(--text)] hover:bg-[var(--surface)] transition-colors"
                 title="Show in file explorer">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" /></svg>
               </button>
+              )}
 
               {/* Replay */}
               <button type="button" onClick={() => { setReplayMode(true); setReplayPos(0); setViewMode('chat'); setRenderCount(messages.length) }}
@@ -250,7 +260,8 @@ export function ConversationView({ messages, loading, error, session, jumpToTime
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
               </button>
 
-              {/* Open in Claude */}
+              {/* Open in Claude — only for Claude sessions */}
+              {(!session.source || session.source === 'claude') && (
               <button type="button"
                 onClick={() => window.api.openInClaude({ sessionId: session.sessionId, projectPath: session.projectPath })}
                 className="csv-btn-primary px-3 py-1.5 text-xs font-medium inline-flex items-center gap-1"
@@ -258,6 +269,7 @@ export function ConversationView({ messages, loading, error, session, jumpToTime
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                 Resume
               </button>
+              )}
 
               {/* Export dropdown */}
               <div className="relative">
@@ -316,6 +328,32 @@ export function ConversationView({ messages, loading, error, session, jumpToTime
               </span>
             )}
             <span className="font-mono text-[var(--text3)] opacity-60">ID: {session.sessionId}</span>
+            {session.source === 'opencode' && (
+              <>
+                {session.agent && (
+                  <span className="inline-flex items-center gap-1">
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                    <span className="text-[var(--accent)]">{session.agent}</span>
+                  </span>
+                )}
+                {session.model && (
+                  <span className="inline-flex items-center gap-1">
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                    <span className="text-[var(--accent)] font-mono">{session.model}</span>
+                  </span>
+                )}
+                {session.cost != null && session.cost > 0 && (
+                  <span className="inline-flex items-center gap-1">
+                    <span className="text-green-400">${session.cost.toFixed(4)}</span>
+                  </span>
+                )}
+                {session.tokensInput != null && (
+                  <span className="text-[var(--text3)] tabular-nums">
+                    {formatTokens(session.tokensInput)} in / {session.tokensOutput != null ? formatTokens(session.tokensOutput) : '?'} out
+                  </span>
+                )}
+              </>
+            )}
           </div>
 
           {/* Search bar */}
@@ -367,6 +405,14 @@ export function ConversationView({ messages, loading, error, session, jumpToTime
             <div className="max-w-4xl mx-auto px-6 py-6">
               <InsightsPanel filePath={session.fullPath} />
             </div>
+          </div>
+        ) : viewMode === 'todos' && session.source === 'opencode' && session.dbPath ? (
+          <div className="flex-1 overflow-y-auto">
+            <TodoPanel dbPath={session.dbPath} sessionId={session.sessionId} />
+          </div>
+        ) : viewMode === 'timeline' && session.source === 'opencode' ? (
+          <div className="flex-1 overflow-y-auto">
+            <AgentTimeline messages={messages} />
           </div>
         ) : (
           <div ref={scrollRef} className="flex-1 overflow-y-auto relative" onScroll={handleScroll}>

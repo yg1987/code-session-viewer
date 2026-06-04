@@ -43,6 +43,7 @@ export interface ParsedMessage {
   timestamp: string
   content: ContentBlock[]
   model?: string
+  agent?: string
   tokenUsage?: {
     inputTokens?: number
     outputTokens?: number

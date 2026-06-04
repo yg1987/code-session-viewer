@@ -11,6 +11,13 @@ import { deleteSession } from './session-delete'
 import { computeGlobalStats } from './global-stats'
 import { crossSessionSearch } from './cross-search'
 import { analyzeSession } from './session-insights'
+import { discoverOpenCodeSessions } from './opencode-discovery'
+import { parseOpenCodeSession, getOpenCodeTodos } from './opencode-parser'
+import { deleteOpenCodeSession } from './opencode-delete'
+import { openCodeCrossSearch } from './opencode-cross-search'
+import { openCodeGlobalStats } from './opencode-global-stats'
+import { detectOpenCodeDbPath, closeOpenCodeDb } from './opencode-db'
+import { loadSettings, saveSettings } from './settings-store'
 
 function getIconPath(): string {
   // Packaged: icons are copied to resources/ via extraResources.
@@ -38,6 +45,10 @@ function createWindow(): BrowserWindow {
       sandbox: false
     }
   })
+
+  // Set a unique cache path to avoid conflicts with other Electron instances
+  const cacheDir = join(app.getPath('userData'), 'Cache')
+  app.setPath('cache', cacheDir)
 
   // Notify renderer when maximize state changes (so the titlebar icon can flip)
   const sendMaxState = () => {
@@ -197,6 +208,54 @@ app.whenReady().then(() => {
     return parseSessionFile(filePath, { includeSidechain: true })
   })
 
+  // ─── OpenCode IPC Handlers (NEW) ──────────────────────────────
+
+  // Detect opencode.db path
+  ipcMain.handle(IPC_CHANNELS.OPENCODE_DETECT_DB, async () => {
+    return detectOpenCodeDbPath()
+  })
+
+  // List OpenCode sessions
+  ipcMain.handle(IPC_CHANNELS.OPENCODE_SESSIONS_LIST, async (_event, dbPath: string) => {
+    return discoverOpenCodeSessions(dbPath)
+  })
+
+  // Load OpenCode session
+  ipcMain.handle(IPC_CHANNELS.OPENCODE_SESSION_LOAD, async (_event, dbPath: string, sessionId: string) => {
+    return parseOpenCodeSession(dbPath, sessionId)
+  })
+
+  // Delete OpenCode session
+  ipcMain.handle(IPC_CHANNELS.OPENCODE_SESSION_DELETE, async (_event, dbPath: string, sessionId: string) => {
+    return deleteOpenCodeSession(dbPath, sessionId)
+  })
+
+  // OpenCode cross-session search
+  ipcMain.handle(IPC_CHANNELS.OPENCODE_CROSS_SEARCH, async (_event, dbPath: string, query: string) => {
+    return openCodeCrossSearch(dbPath, query)
+  })
+
+  // OpenCode global stats
+  ipcMain.handle(IPC_CHANNELS.OPENCODE_GLOBAL_STATS, async (_event, dbPath: string) => {
+    return openCodeGlobalStats(dbPath)
+  })
+
+  // OpenCode session todos
+  ipcMain.handle(IPC_CHANNELS.OPENCODE_SESSION_TODOS, async (_event, dbPath: string, sessionId: string) => {
+    return getOpenCodeTodos(dbPath, sessionId)
+  })
+
+  // Settings load/save
+  ipcMain.handle(IPC_CHANNELS.SETTINGS_LOAD, async () => {
+    return loadSettings()
+  })
+
+  ipcMain.handle(IPC_CHANNELS.SETTINGS_SAVE, async (_event, settings: any) => {
+    return saveSettings(settings)
+  })
+
+  // ─── End OpenCode Handlers ──────────────────────────────────────
+
   // Open session in Claude Code terminal
   ipcMain.on(IPC_CHANNELS.OPEN_IN_CLAUDE, (_event, data: { sessionId: string; projectPath: string }) => {
     const { sessionId, projectPath } = data
@@ -280,7 +339,12 @@ app.whenReady().then(() => {
 })
 
 app.on('window-all-closed', () => {
+  closeOpenCodeDb()
   if (process.platform !== 'darwin') {
     app.quit()
   }
+})
+
+app.on('before-quit', () => {
+  closeOpenCodeDb()
 })

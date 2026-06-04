@@ -94,14 +94,15 @@
     "@tanstack/react-virtual": "^3.13.6",
     "ansi-to-html": "^0.7.2",
     "date-fns": "^4.1.0",
-    "electron": "^42.3.0",
+    "electron": "^35.0.0",
     "marked": "^15.0.6",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-markdown": "^10.1.0",
     "rehype-raw": "^7.0.0",
     "remark-gfm": "^4.0.1",
-    "shiki": "^3.4.2"
+    "shiki": "^3.4.2",
+    "sql.js": "^1.14.1"
   },
   "devDependencies": {
     "@electron-toolkit/preload": "^3.0.1",

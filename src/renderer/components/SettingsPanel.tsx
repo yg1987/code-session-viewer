@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSettings, BUILTIN_PRICING, getAllPricing, type ModelPricing } from '../hooks/useSettings'
 
 const FONT_OPTIONS = [
@@ -10,11 +10,16 @@ const FONT_OPTIONS = [
   { label: 'Microsoft YaHei', value: '"Microsoft YaHei", sans-serif' }
 ]
 
-interface Props { onClose: () => void }
+interface Props {
+  onClose: () => void
+  /** OpenCode DB path for display in settings */
+  openCodeDbPath?: string | null
+  openCodeDbNotFound?: boolean
+}
 
-export function SettingsPanel({ onClose }: Props) {
+export function SettingsPanel({ onClose, openCodeDbPath, openCodeDbNotFound }: Props) {
   const { settings, updateSettings } = useSettings()
-  const [tab, setTab] = useState<'appearance' | 'pricing'>('appearance')
+  const [tab, setTab] = useState<'appearance' | 'pricing' | 'opencode'>('appearance')
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -30,10 +35,10 @@ export function SettingsPanel({ onClose }: Props) {
 
         {/* Tabs */}
         <div className="flex gap-1 px-6 mb-4">
-          {(['appearance', 'pricing'] as const).map((t) => (
+          {(['appearance', 'pricing', 'opencode'] as const).map((t) => (
             <button key={t} type="button" onClick={() => setTab(t)}
               className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${tab === t ? 'bg-[var(--accent)]/10 text-[var(--accent)]' : 'text-[var(--text2)] hover:bg-[var(--surface2)]'}`}>
-              {t === 'appearance' ? 'Appearance' : 'Model Pricing'}
+              {t === 'appearance' ? 'Appearance' : t === 'pricing' ? 'Model Pricing' : 'OpenCode'}
             </button>
           ))}
         </div>
@@ -42,8 +47,10 @@ export function SettingsPanel({ onClose }: Props) {
         <div className="flex-1 overflow-y-auto px-6 pb-6">
           {tab === 'appearance' ? (
             <AppearanceTab />
-          ) : (
+          ) : tab === 'pricing' ? (
             <PricingTab />
+          ) : (
+            <OpenCodeTab dbPath={openCodeDbPath} dbNotFound={openCodeDbNotFound} />
           )}
         </div>
       </div>
@@ -293,6 +300,114 @@ function PriceInput({ label, value, onChange }: { label: string; value: number; 
       <input type="number" step="0.01" min="0" value={value}
         onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
         className="w-full bg-[var(--surface)] border border-[var(--border)] rounded px-2 py-1 text-xs text-[var(--text)] focus:outline-none focus:border-[var(--accent)]" />
+    </div>
+  )
+}
+
+// ─── OpenCode Tab ───────────────────────────────────────────────
+
+function OpenCodeTab({ dbPath, dbNotFound }: { dbPath?: string | null; dbNotFound?: boolean }) {
+  const [customPath, setCustomPath] = useState('')
+  const [detectedPath, setDetectedPath] = useState<string | null>(null)
+  const [checking, setChecking] = useState(false)
+  const [saved, setSaved] = useState(false)
+
+  useEffect(() => {
+    if (dbPath) setDetectedPath(dbPath)
+  }, [dbPath])
+
+  const handleRedetect = async () => {
+    setChecking(true)
+    try {
+      const path = await window.api.detectOpenCodeDb()
+      setDetectedPath(path)
+    } catch {
+      setDetectedPath(null)
+    } finally {
+      setChecking(false)
+    }
+  }
+
+  const handleSaveCustomPath = async () => {
+    if (!customPath.trim()) return
+    try {
+      await window.api.setSettings({ openCodeDbPath: customPath.trim() })
+      setDetectedPath(customPath.trim())
+      setSaved(true)
+      setTimeout(() => setSaved(false), 2000)
+    } catch { /* ignore */ }
+  }
+
+  return (
+    <div className="space-y-5">
+      {/* Detected path */}
+      <div>
+        <label className="text-xs font-semibold text-[var(--text2)] uppercase block mb-2">
+          OpenCode Database Location
+        </label>
+
+        <div className="bg-[var(--bg)] border border-[var(--border)] rounded-lg p-3">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] text-[var(--text2)] uppercase tracking-wider">
+              Auto-detected Path
+            </span>
+            <button type="button" onClick={handleRedetect} disabled={checking}
+              className="text-xs text-[var(--accent)] hover:underline disabled:opacity-50">
+              {checking ? 'Detecting...' : 'Re-detect'}
+            </button>
+          </div>
+          <div className="flex items-center gap-2">
+            {detectedPath ? (
+              <>
+                <span className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0" />
+                <span className="text-xs text-[var(--text)] font-mono break-all">{detectedPath}</span>
+              </>
+            ) : dbNotFound ? (
+              <>
+                <span className="w-2 h-2 rounded-full bg-yellow-500 flex-shrink-0" />
+                <span className="text-xs text-[var(--text2)]">
+                  No opencode.db found in default locations. Specify a custom path below.
+                </span>
+              </>
+            ) : (
+              <span className="text-xs text-[var(--text2)]">Loading...</span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Custom path */}
+      <div>
+        <label className="text-xs font-semibold text-[var(--text2)] uppercase block mb-2">
+          Custom Database Path
+        </label>
+        <p className="text-[10px] text-[var(--text2)] mb-2">
+          If OpenCode stores its database in a non-standard location, enter the full path here.
+        </p>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={customPath}
+            onChange={(e) => setCustomPath(e.target.value)}
+            placeholder="e.g. D:\opencode\opencode.db"
+            className="flex-1 bg-[var(--surface)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-xs text-[var(--text)] placeholder-[var(--text3)] focus:outline-none focus:border-[var(--accent)]"
+          />
+          <button type="button" onClick={handleSaveCustomPath} disabled={!customPath.trim()}
+            className="px-3 py-1.5 text-xs bg-[var(--accent)] text-white rounded-lg disabled:opacity-30 hover:opacity-90 transition-colors">
+            {saved ? 'Saved!' : 'Save'}
+          </button>
+        </div>
+      </div>
+
+      {/* Help text */}
+      <div className="bg-[var(--bg)] border border-[var(--border)] rounded-lg p-3">
+        <h4 className="text-xs font-medium text-[var(--text)] mb-1">Where to find opencode.db</h4>
+        <ul className="text-[10px] text-[var(--text2)] space-y-0.5">
+          <li>• Windows: <code className="text-[var(--text3)]">%LOCALAPPDATA%\opencode\opencode.db</code></li>
+          <li>• Linux: <code className="text-[var(--text3)]">~/.local/share/opencode/opencode.db</code></li>
+          <li>• macOS: <code className="text-[var(--text3)]">~/Library/Application Support/opencode/opencode.db</code></li>
+        </ul>
+      </div>
     </div>
   )
 }

@@ -7,13 +7,44 @@ import { CrossSearch } from './components/CrossSearch'
 import { SettingsPanel } from './components/SettingsPanel'
 import { SessionCompare } from './components/SessionCompare'
 import { useSessionList } from './hooks/useSessionList'
+import { useOpenCodeSessionList } from './hooks/useOpenCodeSessionList'
 import { useSessionMessages } from './hooks/useSessionMessages'
 import { SettingsContext, useSettingsProvider } from './hooks/useSettings'
 import type { SessionEntry } from './types/session'
+import type { SessionSource } from '../shared/constants'
+import type { ParsedMessage } from './types/message'
 
 export function App() {
   const settingsCtx = useSettingsProvider()
-  const { groups, loading: listLoading, refresh } = useSessionList()
+
+  // ── Source toggle ──
+  const [source, setSource] = useState<SessionSource>('claude')
+
+  // ── Claude Code pipeline ──
+  const {
+    groups: claudeGroups,
+    loading: claudeLoading,
+    refresh: claudeRefresh
+  } = useSessionList()
+
+  // ── OpenCode pipeline ──
+  const {
+    groups: openCodeGroups,
+    loading: openCodeLoading,
+    dbPath: openCodeDbPath,
+    dbNotFound: openCodeDbNotFound,
+    refresh: openCodeRefresh
+  } = useOpenCodeSessionList()
+
+  // Select active pipeline based on source
+  const groups = source === 'claude' ? claudeGroups : openCodeGroups
+  const listLoading = source === 'claude' ? claudeLoading : openCodeLoading
+
+  const refresh = useCallback(() => {
+    if (source === 'claude') claudeRefresh()
+    else openCodeRefresh()
+  }, [source, claudeRefresh, openCodeRefresh])
+
   const { messages, loading: msgLoading, error, loadSession } = useSessionMessages()
   const [selectedSession, setSelectedSession] = useState<SessionEntry | null>(null)
 
@@ -34,27 +65,77 @@ export function App() {
   const [batchSelected, setBatchSelected] = useState<Set<string>>(new Set())
 
   const allSessions = useMemo(() => groups.flatMap((g) => g.sessions), [groups])
+  const claudeTotalSessions = useMemo(
+    () => claudeGroups.reduce((sum, g) => sum + g.sessions.length, 0),
+    [claudeGroups]
+  )
+  const openCodeTotalSessions = useMemo(
+    () => openCodeGroups.reduce((sum, g) => sum + g.sessions.length, 0),
+    [openCodeGroups]
+  )
 
   const [jumpToTimestamp, setJumpToTimestamp] = useState<string | null>(null)
 
-  const handleSelectSession = useCallback(
-    (session: SessionEntry | (Partial<SessionEntry> & { sessionId: string; fullPath: string }), timestamp?: string) => {
-      setSelectedSession(session as SessionEntry)
-      loadSession(session.fullPath)
+  // ── OpenCode message state (separate from Claude pipeline) ──
+  const [openCodeMessages, setOpenCodeMessages] = useState<ParsedMessage[]>([])
+  const [openCodeMsgLoading, setOpenCodeMsgLoading] = useState(false)
+  const [openCodeMsgError, setOpenCodeMsgError] = useState<string | null>(null)
+
+  const handleSelectSession2 = useCallback(
+    async (
+      session: SessionEntry | (Partial<SessionEntry> & { sessionId: string; fullPath: string }),
+      timestamp?: string
+    ) => {
+      const s = session as SessionEntry
+      setSelectedSession(s)
       setJumpToTimestamp(timestamp ?? null)
       setShowCrossSearch(false)
+
+      // Route to correct pipeline
+      if (s.source === 'opencode' && s.dbPath) {
+        setOpenCodeMsgLoading(true)
+        setOpenCodeMsgError(null)
+        try {
+          const result = await window.api.loadOpenCodeSession(s.dbPath, s.sessionId)
+          setOpenCodeMessages(result)
+        } catch (e) {
+          setOpenCodeMsgError(e instanceof Error ? e.message : 'Failed to load OpenCode session')
+          setOpenCodeMessages([])
+        } finally {
+          setOpenCodeMsgLoading(false)
+        }
+      } else {
+        loadSession(s.fullPath)
+      }
     },
     [loadSession]
   )
+
+  // Use the correct messages based on source
+  const displayMessages = selectedSession?.source === 'opencode' ? openCodeMessages : messages
+  const displayLoading = selectedSession?.source === 'opencode' ? openCodeMsgLoading : msgLoading
+  const displayError = selectedSession?.source === 'opencode' ? openCodeMsgError : error
+
+  const handleSourceChange = useCallback((newSource: SessionSource) => {
+    setSource(newSource)
+    setSelectedSession(null)
+    setOpenCodeMessages([])
+    setBatchMode(false)
+    setBatchSelected(new Set())
+  }, [])
 
   const handleDeleteSession = useCallback(async () => {
     if (!deleteConfirm) return
     setDeleting(true)
     try {
-      await window.api.deleteSession({
-        filePath: deleteConfirm.fullPath,
-        sessionId: deleteConfirm.sessionId
-      })
+      if (deleteConfirm.source === 'opencode' && deleteConfirm.dbPath) {
+        await window.api.deleteOpenCodeSession(deleteConfirm.dbPath, deleteConfirm.sessionId)
+      } else {
+        await window.api.deleteSession({
+          filePath: deleteConfirm.fullPath,
+          sessionId: deleteConfirm.sessionId
+        })
+      }
       if (selectedSession?.sessionId === deleteConfirm.sessionId) setSelectedSession(null)
       refresh()
     } finally {
@@ -70,7 +151,11 @@ export function App() {
       for (const sid of batchSelected) {
         const session = allSessions.find((s) => s.sessionId === sid)
         if (session) {
-          await window.api.deleteSession({ filePath: session.fullPath, sessionId: session.sessionId })
+          if (session.source === 'opencode' && session.dbPath) {
+            await window.api.deleteOpenCodeSession(session.dbPath, session.sessionId)
+          } else {
+            await window.api.deleteSession({ filePath: session.fullPath, sessionId: session.sessionId })
+          }
         }
       }
       if (selectedSession && batchSelected.has(selectedSession.sessionId)) setSelectedSession(null)
@@ -91,7 +176,7 @@ export function App() {
         const next = e.key === 'ArrowDown'
           ? (idx < allSessions.length - 1 ? idx + 1 : 0)
           : (idx > 0 ? idx - 1 : allSessions.length - 1)
-        handleSelectSession(allSessions[next])
+        handleSelectSession2(allSessions[next])
       }
       // Ctrl+Shift+F: cross-session search
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'F') {
@@ -106,7 +191,7 @@ export function App() {
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [allSessions, selectedSession, handleSelectSession])
+  }, [allSessions, selectedSession, handleSelectSession2])
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault()
@@ -130,7 +215,7 @@ export function App() {
             groups={groups}
             loading={listLoading}
             selectedSessionId={selectedSession?.sessionId ?? null}
-            onSelectSession={handleSelectSession}
+            onSelectSession={handleSelectSession2}
             onRefresh={refresh}
             onDeleteSession={(s) => setDeleteConfirm(s)}
             batchMode={batchMode}
@@ -148,6 +233,10 @@ export function App() {
             onOpenCrossSearch={() => setShowCrossSearch(true)}
             onOpenSettings={() => setShowSettings(true)}
             onOpenCompare={() => setShowCompare(true)}
+            source={source}
+            onSourceChange={handleSourceChange}
+            claudeCount={claudeTotalSessions}
+            openCodeCount={openCodeTotalSessions}
           />
         </div>
 
@@ -169,14 +258,21 @@ export function App() {
 
         {/* Main */}
         <div className="flex-1 min-w-0 h-full">
-          <ConversationView messages={messages} loading={msgLoading} error={error} session={selectedSession} jumpToTimestamp={jumpToTimestamp} onJumpDone={() => setJumpToTimestamp(null)} />
+          <ConversationView
+            messages={displayMessages}
+            loading={displayLoading}
+            error={displayError}
+            session={selectedSession}
+            jumpToTimestamp={jumpToTimestamp}
+            onJumpDone={() => setJumpToTimestamp(null)}
+          />
         </div>
         </div>
 
         {/* Overlays */}
-        {showDashboard && <GlobalDashboard onClose={() => setShowDashboard(false)} />}
-        {showCrossSearch && <CrossSearch onClose={() => setShowCrossSearch(false)} onOpenSession={(session, timestamp) => handleSelectSession(session, timestamp)} />}
-        {showSettings && <SettingsPanel onClose={() => setShowSettings(false)} />}
+        {showDashboard && <GlobalDashboard onClose={() => setShowDashboard(false)} source={source} openCodeDbPath={openCodeDbPath} />}
+        {showCrossSearch && <CrossSearch onClose={() => setShowCrossSearch(false)} onOpenSession={(session, timestamp) => handleSelectSession2(session, timestamp)} source={source} openCodeDbPath={openCodeDbPath} />}
+        {showSettings && <SettingsPanel onClose={() => setShowSettings(false)} openCodeDbPath={openCodeDbPath} openCodeDbNotFound={openCodeDbNotFound} />}
         {showCompare && <SessionCompare groups={groups} initialSession={selectedSession} onClose={() => setShowCompare(false)} />}
 
         {/* Delete confirmation */}

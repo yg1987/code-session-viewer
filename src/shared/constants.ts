@@ -19,5 +19,18 @@ export const IPC_CHANNELS = {
   WINDOW_MINIMIZE: 'window:minimize',
   WINDOW_MAXIMIZE_TOGGLE: 'window:maximize-toggle',
   WINDOW_CLOSE: 'window:close',
-  WINDOW_IS_MAXIMIZED: 'window:is-maximized'
+  WINDOW_IS_MAXIMIZED: 'window:is-maximized',
+  // OpenCode channels (NEW)
+  OPENCODE_SESSIONS_LIST: 'opencode:sessions-list',
+  OPENCODE_SESSION_LOAD: 'opencode:session-load',
+  OPENCODE_DETECT_DB: 'opencode:detect-db',
+  OPENCODE_SESSION_DELETE: 'opencode:session-delete',
+  OPENCODE_CROSS_SEARCH: 'opencode:cross-search',
+  OPENCODE_GLOBAL_STATS: 'opencode:global-stats',
+  OPENCODE_SESSION_TODOS: 'opencode:session-todos',
+  SETTINGS_LOAD: 'settings:load',
+  SETTINGS_SAVE: 'settings:save'
 } as const
+
+/** Union of session data sources */
+export type SessionSource = 'claude' | 'opencode'

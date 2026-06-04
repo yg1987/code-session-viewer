@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import type { SessionEntry } from '../types/session'
+import type { SessionSource } from '../../shared/constants'
 
 interface SearchResult {
   sessionId: string
@@ -10,11 +11,18 @@ interface SearchResult {
   timestamp: string
   matchType: 'user' | 'assistant' | 'tool'
   preview: string
+  // For OpenCode cross-search results
+  dbPath?: string
+  source?: SessionSource
 }
 
 interface Props {
   onClose: () => void
   onOpenSession: (session: Partial<SessionEntry> & { sessionId: string; fullPath: string }, timestamp?: string) => void
+  /** Current data source — used to decide which cross-search API to call */
+  source?: SessionSource
+  /** OpenCode DB path — required when searching OpenCode sessions */
+  openCodeDbPath?: string | null
 }
 
 const MATCH_COLORS = {
@@ -23,7 +31,7 @@ const MATCH_COLORS = {
   tool: 'bg-green-900/30 text-green-300'
 }
 
-export function CrossSearch({ onClose, onOpenSession }: Props) {
+export function CrossSearch({ onClose, onOpenSession, source, openCodeDbPath }: Props) {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SearchResult[]>([])
   const [loading, setLoading] = useState(false)
@@ -31,7 +39,7 @@ export function CrossSearch({ onClose, onOpenSession }: Props) {
   const [expandedSessions, setExpandedSessions] = useState<Set<string>>(new Set())
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const doSearch = (q: string) => {
+  const doSearch = async (q: string) => {
     if (!q.trim()) {
       setResults([])
       setSearched(false)
@@ -41,10 +49,38 @@ export function CrossSearch({ onClose, onOpenSession }: Props) {
     setLoading(true)
     setSearched(true)
     setExpandedSessions(new Set())
-    window.api.crossSearch(q).then((data: SearchResult[]) => {
-      setResults(data)
+
+    try {
+      if (source === 'opencode' && openCodeDbPath) {
+        // Use OpenCode cross-search
+        const data = await window.api.openCodeCrossSearch(openCodeDbPath, q)
+        const mapped: SearchResult[] = data.map((r: any) => ({
+          sessionId: r.sessionId,
+          projectPath: r.projectPath,
+          fullPath: `opencode://${openCodeDbPath}/${r.sessionId}`,
+          customTitle: r.sessionTitle || '',
+          firstPrompt: '',
+          timestamp: r.timestamp,
+          matchType: r.matchField === 'reasoning' ? 'assistant' : r.matchField === 'tool' ? 'tool' : 'user',
+          preview: r.snippet,
+          dbPath: openCodeDbPath,
+          source: 'opencode' as SessionSource
+        }))
+        setResults(mapped)
+      } else {
+        // Use Claude Code cross-search
+        const data = await window.api.crossSearch(q)
+        const mapped: SearchResult[] = data.map((r: any) => ({
+          ...r,
+          source: 'claude' as SessionSource
+        }))
+        setResults(mapped)
+      }
+    } catch {
+      setResults([])
+    } finally {
       setLoading(false)
-    })
+    }
   }
 
   const handleInput = (value: string) => {
@@ -62,18 +98,36 @@ export function CrossSearch({ onClose, onOpenSession }: Props) {
     grouped.get(r.sessionId)!.matches.push(r)
   }
 
+  const makeSession = (s: SearchResult): Partial<SessionEntry> & { sessionId: string; fullPath: string } => ({
+    sessionId: s.sessionId,
+    fullPath: s.fullPath,
+    customTitle: s.customTitle,
+    firstPrompt: s.firstPrompt,
+    projectPath: s.projectPath,
+    summary: '',
+    messageCount: 0,
+    created: '',
+    modified: '',
+    gitBranch: '',
+    isSidechain: false,
+    dbPath: s.dbPath,
+    source: s.source
+  })
+
   return (
     <div className="fixed inset-0 z-50 bg-[var(--bg)] flex flex-col app-shell">
       {/* Header */}
       <div className="flex-shrink-0 border-b border-[#30363d] px-6 py-3 flex items-center gap-4">
-        <h1 className="text-sm font-semibold text-[#e6edf3] flex-shrink-0">Cross-Session Search</h1>
+        <h1 className="text-sm font-semibold text-[#e6edf3] flex-shrink-0">
+          Cross-Session Search{source === 'opencode' ? ' (OpenCode)' : ''}
+        </h1>
         <div className="relative flex-1 max-w-xl">
           <input
             autoFocus
             type="text"
             value={query}
             onChange={(e) => handleInput(e.target.value)}
-            placeholder="Search across all sessions..."
+            placeholder={`Search across all ${source === 'opencode' ? 'OpenCode' : 'Claude'} sessions...`}
             className="w-full bg-[#161b22] border border-[#30363d] rounded-lg pl-9 pr-3 py-2 text-sm text-[#e6edf3] placeholder-gray-500 focus:outline-none focus:border-[#58a6ff]"
           />
           <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -116,19 +170,7 @@ export function CrossSearch({ onClose, onOpenSession }: Props) {
             <div key={sessionId} className="bg-[#161b22] border border-[#30363d] rounded-lg overflow-hidden">
               {/* Session header */}
               <button type="button"
-                onClick={() => onOpenSession({
-                  sessionId: session.sessionId,
-                  fullPath: session.fullPath,
-                  customTitle: session.customTitle,
-                  firstPrompt: session.firstPrompt,
-                  projectPath: session.projectPath,
-                  summary: '',
-                  messageCount: 0,
-                  created: '',
-                  modified: '',
-                  gitBranch: '',
-                  isSidechain: false
-                })}
+                onClick={() => onOpenSession(makeSession(session))}
                 className="w-full text-left px-4 py-2.5 hover:bg-[#1c2333] transition-colors border-b border-[#30363d]">
                 <div className="text-sm text-[#e6edf3]">
                   {session.customTitle || session.firstPrompt || sessionId.slice(0, 8)}
@@ -136,6 +178,9 @@ export function CrossSearch({ onClose, onOpenSession }: Props) {
                 <div className="flex items-center gap-2 mt-0.5 text-xs text-gray-500">
                   <span>{session.projectPath}</span>
                   <span>{matches.length} matches</span>
+                  {session.source === 'opencode' && (
+                    <span className="text-[10px] px-1 py-0.5 rounded bg-purple-900/30 text-purple-300">OC</span>
+                  )}
                 </div>
               </button>
 
@@ -143,19 +188,7 @@ export function CrossSearch({ onClose, onOpenSession }: Props) {
               <div className="divide-y divide-[#30363d]/50">
                 {(expandedSessions.has(sessionId) ? matches : matches.slice(0, 5)).map((m, i) => (
                   <button type="button" key={i}
-                    onClick={() => onOpenSession({
-                      sessionId: session.sessionId,
-                      fullPath: session.fullPath,
-                      customTitle: session.customTitle,
-                      firstPrompt: session.firstPrompt,
-                      projectPath: session.projectPath,
-                      summary: '',
-                      messageCount: 0,
-                      created: '',
-                      modified: '',
-                      gitBranch: '',
-                      isSidechain: false
-                    }, m.timestamp)}
+                    onClick={() => onOpenSession(makeSession(session), m.timestamp)}
                     className="w-full text-left px-4 py-2 text-xs hover:bg-[#1c2333] transition-colors">
                     <div className="flex items-center gap-2 mb-1">
                       <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${MATCH_COLORS[m.matchType]}`}>

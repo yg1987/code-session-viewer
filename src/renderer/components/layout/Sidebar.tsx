@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react'
 import type { ProjectGroup, SessionEntry } from '../../types/session'
+import type { SessionSource } from '../../../shared/constants'
 import { SearchBar } from './SearchBar'
 import { formatDistanceToNow } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
@@ -20,6 +21,11 @@ interface Props {
   onOpenCrossSearch?: () => void
   onOpenSettings?: () => void
   onOpenCompare?: () => void
+  /** Data source tabs support */
+  source?: SessionSource
+  onSourceChange?: (source: SessionSource) => void
+  openCodeCount?: number
+  claudeCount?: number
 }
 
 export function Sidebar({
@@ -37,7 +43,11 @@ export function Sidebar({
   onOpenDashboard,
   onOpenCrossSearch,
   onOpenSettings,
-  onOpenCompare
+  onOpenCompare,
+  source,
+  onSourceChange,
+  openCodeCount,
+  claudeCount
 }: Props) {
   const [search, setSearch] = useState('')
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set())
@@ -86,7 +96,9 @@ export function Sidebar({
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid var(--border)' }}>
         <div>
-          <h1 className="text-sm font-semibold" style={{ color: 'var(--text)' }}>Claude Sessions</h1>
+          <h1 className="text-sm font-semibold" style={{ color: 'var(--text)' }}>
+            {source === 'opencode' ? 'OpenCode Sessions' : 'Claude Sessions'}
+          </h1>
           <span className="text-xs" style={{ color: 'var(--text2)' }}>{totalSessions} sessions</span>
         </div>
         <div className="flex items-center gap-0.5">
@@ -115,6 +127,34 @@ export function Sidebar({
           </button>
         </div>
       </div>
+
+      {/* Source tabs */}
+      {onSourceChange && (
+        <div className="flex px-4 py-2 gap-1" style={{ borderBottom: '1px solid var(--border)' }}>
+          <button
+            type="button"
+            onClick={() => onSourceChange('claude')}
+            className={`flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+              source === 'claude'
+                ? 'bg-[var(--accent-soft)] text-[var(--accent)] shadow-[var(--shadow-1)]'
+                : 'text-[var(--text2)] hover:text-[var(--text)] hover:bg-[var(--surface)]'
+            }`}
+          >
+            Claude{claudeCount !== undefined ? ` (${claudeCount})` : ''}
+          </button>
+          <button
+            type="button"
+            onClick={() => onSourceChange('opencode')}
+            className={`flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+              source === 'opencode'
+                ? 'bg-[var(--accent-soft)] text-[var(--accent)] shadow-[var(--shadow-1)]'
+                : 'text-[var(--text2)] hover:text-[var(--text)] hover:bg-[var(--surface)]'
+            }`}
+          >
+            OpenCode{openCodeCount !== undefined ? ` (${openCodeCount})` : ''}
+          </button>
+        </div>
+      )}
 
       {/* Batch mode toolbar */}
       {batchMode && (
@@ -152,7 +192,11 @@ export function Sidebar({
 
         {!loading && filteredGroups.length === 0 && (
           <div className="px-4 py-8 text-center text-[var(--text3)] text-sm">
-            {search ? 'No matching sessions' : 'No sessions found'}
+            {search
+              ? 'No matching sessions'
+              : source === 'opencode'
+                ? 'No OpenCode sessions found. Make sure opencode.db is accessible.'
+                : 'No sessions found'}
           </div>
         )}
 
@@ -336,7 +380,14 @@ function SessionItem({
         )}
       </div>
         <div className="flex items-center gap-2 mt-0.5">
-          <span className="text-[10px] text-[var(--text3)] tabular-nums">{fmtSize(session.fileSize)}</span>
+          {session.source === 'opencode' && session.model ? (
+            <span className="text-[10px] text-[var(--accent)] truncate max-w-[80px] font-mono">{session.model}</span>
+          ) : (
+            <span className="text-[10px] text-[var(--text3)] tabular-nums">{fmtSize(session.fileSize)}</span>
+          )}
+          {session.source === 'opencode' && session.cost != null && session.cost > 0 && (
+            <span className="text-[10px] text-[var(--text3)] tabular-nums">${session.cost.toFixed(2)}</span>
+          )}
           {session.gitBranch && (
             <span className="text-[10px] text-[var(--accent)] truncate max-w-[80px] font-mono">{session.gitBranch}</span>
           )}
@@ -359,24 +410,37 @@ function SessionItem({
               className="w-full text-left px-3 py-1.5 text-xs text-[var(--accent)] hover:bg-[var(--surface2)] transition-colors">
               Open in Claude
             </button>
-            <div className="border-t border-[var(--border)] my-1" />
-            <button type="button"
-              onClick={() => { setShowMenu(false); window.api.showInFolder(session.fullPath) }}
-              className="w-full text-left px-3 py-1.5 text-xs text-[var(--text)] hover:bg-[var(--surface2)] transition-colors">
-              Open file location
-            </button>
-            <button type="button"
-              onClick={() => { setShowMenu(false); if (session.projectPath) window.api.openFolder(session.projectPath) }}
-              className={`w-full text-left px-3 py-1.5 text-xs hover:bg-[var(--surface2)] transition-colors ${session.projectPath ? 'text-[var(--text)]' : 'text-[var(--text3)] cursor-not-allowed'}`}
-              disabled={!session.projectPath}
-              title={session.projectPath || 'Project path unknown'}>
-              Open project location
-            </button>
-            <button type="button"
-              onClick={() => { setShowMenu(false); onDelete() }}
-              className="w-full text-left px-3 py-1.5 text-xs text-[var(--error)] hover:bg-[var(--error-soft)] transition-colors">
-              Delete session
-            </button>
+            {session.source === 'opencode' ? (
+              <>
+                <div className="border-t border-[var(--border)] my-1" />
+                <button type="button"
+                  onClick={() => { setShowMenu(false); onDelete() }}
+                  className="w-full text-left px-3 py-1.5 text-xs text-[var(--error)] hover:bg-[var(--error-soft)] transition-colors">
+                  Delete session
+                </button>
+              </>
+            ) : (
+              <>
+                <div className="border-t border-[var(--border)] my-1" />
+                <button type="button"
+                  onClick={() => { setShowMenu(false); window.api.showInFolder(session.fullPath) }}
+                  className="w-full text-left px-3 py-1.5 text-xs text-[var(--text)] hover:bg-[var(--surface2)] transition-colors">
+                  Open file location
+                </button>
+                <button type="button"
+                  onClick={() => { setShowMenu(false); if (session.projectPath) window.api.openFolder(session.projectPath) }}
+                  className={`w-full text-left px-3 py-1.5 text-xs hover:bg-[var(--surface2)] transition-colors ${session.projectPath ? 'text-[var(--text)]' : 'text-[var(--text3)] cursor-not-allowed'}`}
+                  disabled={!session.projectPath}
+                  title={session.projectPath || 'Project path unknown'}>
+                  Open project location
+                </button>
+                <button type="button"
+                  onClick={() => { setShowMenu(false); onDelete() }}
+                  className="w-full text-left px-3 py-1.5 text-xs text-[var(--error)] hover:bg-[var(--error-soft)] transition-colors">
+                  Delete session
+                </button>
+              </>
+            )}
           </div>
         </>
       )}

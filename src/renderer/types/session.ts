@@ -1,3 +1,5 @@
+import type { SessionSource } from '../../shared/constants'
+
 export interface SessionEntry {
   sessionId: string
   fullPath: string
@@ -11,6 +13,22 @@ export interface SessionEntry {
   gitBranch: string
   projectPath: string
   isSidechain: boolean
+  /** Data source — 'claude' (JSONL) or 'opencode' (SQLite) */
+  source?: SessionSource
+  /** For OpenCode sessions: path to the opencode.db */
+  dbPath?: string
+  /** OpenCode: agent that handled this session */
+  agent?: string
+  /** OpenCode: model used */
+  model?: string
+  /** OpenCode: total cost in USD */
+  cost?: number
+  /** OpenCode: total input tokens */
+  tokensInput?: number
+  /** OpenCode: total output tokens */
+  tokensOutput?: number
+  /** OpenCode: total reasoning tokens */
+  tokensReasoning?: number
 }
 
 export interface ProjectGroup {

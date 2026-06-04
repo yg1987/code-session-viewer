@@ -15,6 +15,8 @@ export function TitleBar({ title = 'Claude Session Viewer', right }: Props) {
 
   useEffect(() => {
     let cancelled = false
+    // Guard: window.api might not be available when previewed in a plain browser
+    if (!window.api) return
     window.api.windowIsMaximized().then((v) => { if (!cancelled) setMaximized(v) })
     const off = window.api.onWindowStateChanged(({ isMaximized }) => {
       setMaximized(isMaximized)
@@ -44,7 +46,7 @@ export function TitleBar({ title = 'Claude Session Viewer', right }: Props) {
           type="button"
           aria-label="Minimize"
           title="Minimize"
-          onClick={() => window.api.windowMinimize()}
+          onClick={() => window.api?.windowMinimize?.()}
           className="csv-titlebar-btn"
         >
           <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden>
@@ -55,7 +57,7 @@ export function TitleBar({ title = 'Claude Session Viewer', right }: Props) {
           type="button"
           aria-label={maximized ? 'Restore' : 'Maximize'}
           title={maximized ? 'Restore' : 'Maximize'}
-          onClick={() => window.api.windowMaximizeToggle()}
+          onClick={() => window.api?.windowMaximizeToggle?.()}
           className="csv-titlebar-btn"
         >
           {maximized ? (
@@ -73,7 +75,7 @@ export function TitleBar({ title = 'Claude Session Viewer', right }: Props) {
           type="button"
           aria-label="Close"
           title="Close"
-          onClick={() => window.api.windowClose()}
+          onClick={() => window.api?.windowClose?.()}
           className="csv-titlebar-btn csv-titlebar-close"
         >
           <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden>

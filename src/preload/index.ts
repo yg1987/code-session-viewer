@@ -46,7 +46,40 @@ const api = {
     const handler = (_event: unknown, state: { isMaximized: boolean }) => callback(state)
     ipcRenderer.on('window:state-changed', handler)
     return () => { ipcRenderer.removeListener('window:state-changed', handler) }
-  }
+  },
+
+  // ─── OpenCode API (NEW) ──────────────────────────────────────
+
+  /** Detect the opencode.db path on disk */
+  detectOpenCodeDb: (): Promise<string> => ipcRenderer.invoke(IPC_CHANNELS.OPENCODE_DETECT_DB),
+
+  /** List all OpenCode sessions, grouped by project */
+  getOpenCodeSessions: (dbPath: string) => ipcRenderer.invoke(IPC_CHANNELS.OPENCODE_SESSIONS_LIST, dbPath),
+
+  /** Load messages for an OpenCode session */
+  loadOpenCodeSession: (dbPath: string, sessionId: string) =>
+    ipcRenderer.invoke(IPC_CHANNELS.OPENCODE_SESSION_LOAD, dbPath, sessionId),
+
+  /** Delete an OpenCode session */
+  deleteOpenCodeSession: (dbPath: string, sessionId: string) =>
+    ipcRenderer.invoke(IPC_CHANNELS.OPENCODE_SESSION_DELETE, dbPath, sessionId),
+
+  /** Cross-session search across OpenCode data */
+  openCodeCrossSearch: (dbPath: string, query: string) =>
+    ipcRenderer.invoke(IPC_CHANNELS.OPENCODE_CROSS_SEARCH, dbPath, query),
+
+  /** Global stats for OpenCode sessions */
+  openCodeGlobalStats: (dbPath: string) => ipcRenderer.invoke(IPC_CHANNELS.OPENCODE_GLOBAL_STATS, dbPath),
+
+  /** Todos for an OpenCode session */
+  getOpenCodeTodos: (dbPath: string, sessionId: string) =>
+    ipcRenderer.invoke(IPC_CHANNELS.OPENCODE_SESSION_TODOS, dbPath, sessionId),
+
+  /** Load viewer settings */
+  getSettings: () => ipcRenderer.invoke(IPC_CHANNELS.SETTINGS_LOAD),
+
+  /** Save viewer settings */
+  setSettings: (settings: any) => ipcRenderer.invoke(IPC_CHANNELS.SETTINGS_SAVE, settings)
 }
 
 contextBridge.exposeInMainWorld('api', api)
