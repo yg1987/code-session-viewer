@@ -1,6 +1,6 @@
 # Code Session Viewer
 
-> **简体中文** · [English](./README.zh-CN.md)
+> **简体中文** · [English](./README.en.md)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![Electron](https://img.shields.io/badge/Electron-33-47848F?logo=electron&logoColor=white)](https://www.electronjs.org/)
