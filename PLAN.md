@@ -235,3 +235,34 @@ OPENCODE_GLOBAL_STATS   → openCodeGlobalStats(dbPath)
 5. 导出功能对两种来源的会话都能正常工作
 6. 如果 OpenCode DB 未找到，OpenCode 标签页显示 "未找到 OpenCode 数据库" 提示，并引导到设置页面
 7. 在设置中可以手动指定 OpenCode DB 路径（适配不同安装位置）
+
+---
+
+## 后续：国际化 (i18n) 支持
+
+### 概述
+
+在双数据源功能完成后，增加了完整的 UI 国际化支持，支持 English 和中文两种语言，可在设置面板中实时切换。
+
+### 架构
+
+- **翻译文件**：`src/renderer/i18n/en.json` 和 `src/renderer/i18n/zh.json`
+- **查找逻辑**：`src/renderer/i18n/translations.ts` — 按 key 查找，fallback 到英文，最终 fallback 到原始 key
+- **React Hook**：`src/renderer/hooks/useLocale.ts` — 提供 `{ locale, t }` ，`t` 支持 `{{param}}` 模板替换
+- **持久化**：语言设置存储在 `localStorage`（`AppSettings.locale` 字段），跟随其他设置一起保存
+
+### 关键文件
+
+| 文件 | 说明 |
+|---|---|
+| `src/renderer/i18n/en.json` | 英文翻译（~390 keys） |
+| `src/renderer/i18n/zh.json` | 中文翻译 |
+| `src/renderer/i18n/translations.ts` | 查找 + fallback 逻辑 |
+| `src/renderer/hooks/useLocale.ts` | React hook |
+| `src/renderer/hooks/useSettings.ts` | `AppSettings` 含 `locale` 字段 |
+
+### 常见陷阱（踩过的坑）
+
+1. **独立函数中直接调用 `t()`**：`groupSessionsByDate()`、`ToolResultDisplay` 等非组件函数无法访问闭包中的 `t`，需要通过参数传入或在函数内调用 `useLocale()`
+2. **变量名遮蔽**：循环变量名 `t` 会遮蔽 `t()` 翻译函数，导致运行时找不到函数（如 `SettingsPanel.tsx` 中 `map((t) => ...)` 的 `t` 遮蔽了 `t()`）
+3. **子组件缺少 `useLocale()` 调用**：`ImageDisplay`、`TaskRow`、`TeammateRow` 等子组件直接使用 `t()` 但未声明，需要在组件内部调用 `useLocale()`

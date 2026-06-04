@@ -239,7 +239,7 @@ export function Sidebar({
 
               {isExpanded && (
                 <div className="pb-1">
-                  {groupSessionsByDate(group.sessions).map((dateGroup) => (
+                  {groupSessionsByDate(group.sessions, t).map((dateGroup) => (
                     <div key={dateGroup.label}>
                       <div className="px-4 pl-8 py-1 text-[10px] font-semibold text-[var(--text3)] uppercase tracking-wider">
                         {dateGroup.label}
@@ -253,6 +253,8 @@ export function Sidebar({
                           onDelete={() => onDeleteSession(session)}
                           batchMode={batchMode}
                           batchChecked={batchSelected?.has(session.sessionId)}
+                          t={t}
+                          settings={settings}
                         />
                       ))}
                     </div>
@@ -267,7 +269,7 @@ export function Sidebar({
   )
 }
 
-function groupSessionsByDate(sessions: SessionEntry[]): { label: string; sessions: SessionEntry[] }[] {
+function groupSessionsByDate(sessions: SessionEntry[], t: (key: string, params?: Record<string, string | number>) => string): { label: string; sessions: SessionEntry[] }[] {
   const now = new Date()
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
   const yesterday = new Date(today.getTime() - 86400000)
@@ -313,7 +315,9 @@ function SessionItem({
   onClick,
   onDelete,
   batchMode,
-  batchChecked
+  batchChecked,
+  t,
+  settings
 }: {
   session: SessionEntry
   isSelected: boolean
@@ -321,6 +325,8 @@ function SessionItem({
   onDelete: () => void
   batchMode?: boolean
   batchChecked?: boolean
+  t: (key: string, params?: Record<string, string | number>) => string
+  settings: { locale: string }
 }) {
   const [showMenu, setShowMenu] = useState(false)
   const [renaming, setRenaming] = useState(false)

@@ -196,6 +196,7 @@ interface Props {
 }
 
 export function TeammateMessage({ messages, timestamp }: Props) {
+  const { t } = useLocale()
   // Drop lifecycle noise (idle / terminated / shutdown-approved); if nothing
   // meaningful remains, render nothing — matches claude-code's silent handling.
   const visible = messages.filter((m) => !isNoise(m.content))

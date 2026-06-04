@@ -3,12 +3,12 @@ import { useSettings, BUILTIN_PRICING, getAllPricing, type ModelPricing } from '
 import { useLocale } from '../hooks/useLocale'
 
 const FONT_OPTIONS = [
-  { label: 'System Default', value: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif' },
-  { label: 'Consolas', value: 'Consolas, "Courier New", monospace' },
-  { label: 'Cascadia Code', value: '"Cascadia Code", Consolas, monospace' },
-  { label: 'Fira Code', value: '"Fira Code", Consolas, monospace' },
-  { label: 'JetBrains Mono', value: '"JetBrains Mono", Consolas, monospace' },
-  { label: 'Microsoft YaHei', value: '"Microsoft YaHei", sans-serif' }
+  { label: 'System Default', i18nKey: 'settings.font.systemDefault', value: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif' },
+  { label: 'Consolas', i18nKey: 'settings.font.consolas', value: 'Consolas, "Courier New", monospace' },
+  { label: 'Cascadia Code', i18nKey: 'settings.font.cascadia', value: '"Cascadia Code", Consolas, monospace' },
+  { label: 'Fira Code', i18nKey: 'settings.font.firaCode', value: '"Fira Code", Consolas, monospace' },
+  { label: 'JetBrains Mono', i18nKey: 'settings.font.jetbrains', value: '"JetBrains Mono", Consolas, monospace' },
+  { label: 'Microsoft YaHei', i18nKey: 'settings.font.yahei', value: '"Microsoft YaHei", sans-serif' }
 ]
 
 interface Props {
@@ -20,6 +20,7 @@ interface Props {
 
 export function SettingsPanel({ onClose, openCodeDbPath, openCodeDbNotFound }: Props) {
   const { settings, updateSettings } = useSettings()
+  const { t } = useLocale()
   const [tab, setTab] = useState<'appearance' | 'pricing' | 'opencode'>('appearance')
 
   return (
@@ -28,7 +29,7 @@ export function SettingsPanel({ onClose, openCodeDbPath, openCodeDbNotFound }: P
       <div className="relative csv-pop bg-[var(--surface)] border border-[var(--border)] rounded-xl shadow-[var(--shadow-4)] w-[560px] max-h-[85vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-6 pt-5 pb-3">
-          <h2 className="text-base font-semibold text-[var(--text)]">Settings</h2>
+          <h2 className="text-base font-semibold text-[var(--text)]">{t('settings.title')}</h2>
           <button type="button" onClick={onClose} className="p-1 rounded-md text-[var(--text2)] hover:text-[var(--text)] hover:bg-[var(--surface2)]">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
@@ -36,10 +37,10 @@ export function SettingsPanel({ onClose, openCodeDbPath, openCodeDbNotFound }: P
 
         {/* Tabs */}
         <div className="flex gap-1 px-6 mb-4">
-          {(['appearance', 'pricing', 'opencode'] as const).map((t) => (
-            <button key={t} type="button" onClick={() => setTab(t)}
-              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${tab === t ? 'bg-[var(--accent)]/10 text-[var(--accent)]' : 'text-[var(--text2)] hover:bg-[var(--surface2)]'}`}>
-              {t === 'appearance' ? 'Appearance' : t === 'pricing' ? 'Model Pricing' : 'OpenCode'}
+          {(['appearance', 'pricing', 'opencode'] as const).map((tabKey) => (
+            <button key={tabKey} type="button" onClick={() => setTab(tabKey)}
+              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${tab === tabKey ? 'bg-[var(--accent)]/10 text-[var(--accent)]' : 'text-[var(--text2)] hover:bg-[var(--surface2)]'}`}>
+              {tabKey === 'appearance' ? t('settings.tab.appearance') : tabKey === 'pricing' ? t('settings.tab.pricing') : t('settings.tab.opencode')}
             </button>
           ))}
         </div>
@@ -82,22 +83,22 @@ function AppearanceTab() {
 
       {/* Theme */}
       <div>
-        <label className="text-xs font-semibold text-[var(--text2)] uppercase block mb-2">Theme</label>
+        <label className="text-xs font-semibold text-[var(--text2)] uppercase block mb-2">{t('settings.theme')}</label>
         <div className="flex gap-2">
-          {(['dark', 'light', 'sepia'] as const).map((t) => (
-            <button key={t} type="button" onClick={() => updateSettings({ theme: t })}
-              className={`flex-1 px-3 py-2.5 rounded-lg border text-sm font-medium transition-all ${settings.theme === t ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)] shadow-[var(--shadow-1)]' : 'border-[var(--border)] text-[var(--text2)] hover:bg-[var(--surface2)] hover:border-[var(--border-strong)]'}`}>
+          {(['dark', 'light', 'sepia'] as const).map((theme) => (
+            <button key={theme} type="button" onClick={() => updateSettings({ theme })}
+              className={`flex-1 px-3 py-2.5 rounded-lg border text-sm font-medium transition-all ${settings.theme === theme ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)] shadow-[var(--shadow-1)]' : 'border-[var(--border)] text-[var(--text2)] hover:bg-[var(--surface2)] hover:border-[var(--border-strong)]'}`}>
               <span className="flex items-center justify-center gap-1.5">
-                {t === 'dark' && (
+                {theme === 'dark' && (
                   <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" /></svg>
                 )}
-                {t === 'light' && (
+                {theme === 'light' && (
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /><path strokeLinecap="round" d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32l1.41-1.41" /></svg>
                 )}
-                {t === 'sepia' && (
+                {theme === 'sepia' && (
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 19.5A2.5 2.5 0 016.5 17H20V5a2 2 0 00-2-2H6.5A2.5 2.5 0 004 5.5v14zM6.5 17H20v4H6.5a2.5 2.5 0 010-5z" /></svg>
                 )}
-                {t === 'dark' ? 'Dark' : t === 'light' ? 'Light' : 'Sepia'}
+                {theme === 'dark' ? t('settings.theme.dark') : theme === 'light' ? t('settings.theme.light') : t('settings.theme.sepia')}
               </span>
             </button>
           ))}
@@ -106,7 +107,7 @@ function AppearanceTab() {
 
       {/* Font size */}
       <div>
-        <label className="text-xs font-semibold text-[var(--text2)] uppercase block mb-2">Font Size: {settings.fontSize}px</label>
+        <label className="text-xs font-semibold text-[var(--text2)] uppercase block mb-2">{t('settings.fontSize')}: {settings.fontSize}px</label>
         <input type="range" min={12} max={18} step={1} value={settings.fontSize}
           onChange={(e) => updateSettings({ fontSize: parseInt(e.target.value) })} className="w-full accent-[var(--accent)]" />
         <div className="flex justify-between text-[10px] text-[var(--text2)]"><span>12px</span><span>15px</span><span>18px</span></div>
@@ -114,13 +115,13 @@ function AppearanceTab() {
 
       {/* Font family */}
       <div>
-        <label className="text-xs font-semibold text-[var(--text2)] uppercase block mb-2">Font Family</label>
+        <label className="text-xs font-semibold text-[var(--text2)] uppercase block mb-2">{t('settings.fontFamily')}</label>
         <div className="space-y-1.5">
           {FONT_OPTIONS.map((opt) => (
             <button key={opt.label} type="button" onClick={() => updateSettings({ fontFamily: opt.value })}
               className={`w-full text-left px-3 py-2 rounded-lg border text-sm transition-colors ${settings.fontFamily === opt.value ? 'border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)]' : 'border-[var(--border)] text-[var(--text2)] hover:bg-[var(--surface2)]'}`}
               style={{ fontFamily: opt.value }}>
-              {opt.label}
+              {t(opt.i18nKey)}
             </button>
           ))}
         </div>
@@ -128,9 +129,9 @@ function AppearanceTab() {
 
       {/* Preview */}
       <div className="bg-[var(--bg)] border border-[var(--border)] rounded-lg p-3">
-        <div className="text-xs text-[var(--text2)] mb-1">Preview</div>
+        <div className="text-xs text-[var(--text2)] mb-1">{t('settings.preview')}</div>
         <div className="text-[var(--text)]" style={{ fontSize: settings.fontSize, fontFamily: settings.fontFamily }}>
-          The quick brown fox jumps over the lazy dog.
+          {t('settings.preview.text')}
         </div>
       </div>
     </div>

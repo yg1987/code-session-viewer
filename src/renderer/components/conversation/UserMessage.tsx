@@ -169,6 +169,7 @@ export const UserMessage = memo(function UserMessage({ message }: Props) {
 function ImageDisplay({ block }: { block: ImageBlock }) {
   const [error, setError] = useState(false)
   const [expanded, setExpanded] = useState(false)
+  const { t } = useLocale()
 
   let src = ''
   if (block.source.type === 'base64' && block.source.data) {

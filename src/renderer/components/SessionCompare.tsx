@@ -61,9 +61,9 @@ export function SessionCompare({ groups, initialSession, onClose }: Props) {
       {/* Session selectors */}
       <div className="flex-shrink-0 grid grid-cols-2 gap-0 border-b border-[var(--border)]">
         <SessionSelector label={t('compare.left')} value={leftId} onChange={setLeftId}
-          sessions={allSessions} getTitle={getTitle} />
+          sessions={allSessions} getTitle={getTitle} t={t} />
         <SessionSelector label={t('compare.right')} value={rightId} onChange={setRightId}
-          sessions={allSessions} getTitle={getTitle} />
+          sessions={allSessions} getTitle={getTitle} t={t} />
       </div>
 
       {/* Side by side messages */}
@@ -75,12 +75,13 @@ export function SessionCompare({ groups, initialSession, onClose }: Props) {
   )
 }
 
-function SessionSelector({ label, value, onChange, sessions, getTitle }: {
+function SessionSelector({ label, value, onChange, sessions, getTitle, t }: {
   label: string
   value: string
   onChange: (id: string) => void
   sessions: SessionEntry[]
   getTitle: (id: string) => string
+  t: (key: string, params?: Record<string, string | number>) => string
 }) {
   const [search, setSearch] = useState('')
   const [open, setOpen] = useState(false)
@@ -133,6 +134,7 @@ function MessagePane({ messages, loading, placeholder, t }: {
   messages: ParsedMessage[]
   loading: boolean
   placeholder: boolean
+  t: (key: string, params?: Record<string, string | number>) => string
 }) {
   if (placeholder) {
     return (

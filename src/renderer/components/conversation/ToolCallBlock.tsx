@@ -5,13 +5,12 @@ import { HighlightedCode } from './HighlightedCode'
 import type { ToolUseBlock } from '../../types/message'
 import { useLocale } from '../../hooks/useLocale'
 
-import { useLocale } from '../../hooks/useLocale'
-
 const TRUNCATE_THRESHOLD = 15000 // characters
 
 /** Truncate large content with a "Show all" button */
-function useTruncated(content: string, t: (key: string, params?: Record<string, string | number>) => string) {
+function useTruncated(content: string) {
   const [expanded, setExpanded] = useState(false)
+  const { t } = useLocale()
   const needsTruncation = content.length > TRUNCATE_THRESHOLD
   const displayContent = needsTruncation && !expanded ? content.slice(0, TRUNCATE_THRESHOLD) : content
   const truncated = needsTruncation && !expanded
@@ -201,7 +200,7 @@ function renderToolContent(block: ToolUseBlock, t: (key: string, params?: Record
 }
 
 /** Edit tool: show file path, old_string vs new_string diff */
-function EditToolContent({ block }: { block: ToolUseBlock }) {
+function EditToolContent({ block, t }: { block: ToolUseBlock; t: (key: string, params?: Record<string, string | number>) => string }) {
   const input = block.input || {}
   const filePath = String(input.file_path || '')
   const oldStr = String(input.old_string || '')
@@ -623,8 +622,8 @@ function TaskContent({ block, t }: { block: ToolUseBlock; t: (key: string, param
           <span className="text-sm flex-shrink-0">{st.icon}</span>
           <div className="min-w-0 flex-1">
             <div className="text-xs text-[var(--text)] font-medium">{String(input.subject || '')}</div>
-            {input.description && <div className="text-[10px] text-gray-500 mt-0.5">{String(input.description)}</div>}
-            {input.activeForm && <div className="text-[10px] text-gray-600 mt-0.5 italic">{String(input.activeForm)}</div>}
+            {input.description ? <div className="text-[10px] text-gray-500 mt-0.5">{String(input.description)}</div> : null}
+            {input.activeForm ? <div className="text-[10px] text-gray-600 mt-0.5 italic">{String(input.activeForm)}</div> : null}
           </div>
         </div>
         {block.result && <ToolResultDisplay result={block.result} />}
@@ -664,7 +663,7 @@ function TaskContent({ block, t }: { block: ToolUseBlock; t: (key: string, param
   return (
     <div className="px-3 py-2 space-y-1">
       {tasks && tasks.length > 0 ? (
-        tasks.map((t) => <TaskRow key={t.id} task={t} />)
+        tasks.map((task) => <TaskRow key={task.id} task={task} />)
       ) : tasks && tasks.length === 0 ? (
         <div className="text-xs text-gray-500">{t('toolCall.noTasks')}</div>
       ) : (
@@ -714,6 +713,7 @@ function ToolErrorBanner({ block }: { block: ToolUseBlock }) {
 
 /** A single task line: status icon, id, subject, owner, blocked indicator */
 function TaskRow({ task }: { task: TaskItem }) {
+  const { t } = useLocale()
   const st = STATUS_STYLES[task.status || 'pending'] || STATUS_STYLES.pending
   const blocked = (task.blockedBy || []).length > 0
   return (
@@ -1002,7 +1002,8 @@ function GenericToolContent({ block, t }: { block: ToolUseBlock; t: (key: string
 }
 
 /** Shared result display component */
-function ToolResultDisplay({ result, t }: { result: NonNullable<ToolUseBlock['result']>; t: (key: string, params?: Record<string, string | number>) => string }) {
+function ToolResultDisplay({ result }: { result: NonNullable<ToolUseBlock['result']> }) {
+  const { t } = useLocale()
   const rawContent = result.stdout || result.content || ''
   const hasError = result.is_error
   const { displayContent: content, TruncateBar } = useTruncated(rawContent)

@@ -60,6 +60,10 @@ Claude Code's `/export` only produces plain text — you can't see thinking bloc
 - **Custom fonts** — 6 fonts and adjustable font size
 - **Model pricing config** — built-in Claude Opus / Sonnet / Haiku pricing; add your own (GPT-4o, DeepSeek, etc.)
 
+### Internationalization (i18n)
+- **English / 中文** — full UI localization with in-app language switch
+- **Locale-aware formatting** — relative timestamps (e.g. "3 hours ago") follow the selected language
+
 ## Quick start
 
 ### Requirements
