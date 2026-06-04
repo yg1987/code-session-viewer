@@ -3,6 +3,7 @@ import type { ParsedMessage, ToolUseBlock } from '../../types/message'
 import { MarkdownRenderer } from './MarkdownRenderer'
 import { ThinkingBlock } from './ThinkingBlock'
 import { ToolCallBlock } from './ToolCallBlock'
+import { useLocale } from '../../hooks/useLocale'
 
 interface Props {
   message: ParsedMessage
@@ -10,13 +11,14 @@ interface Props {
 }
 
 export const AssistantMessage = memo(function AssistantMessage({ message, onViewSubagent }: Props) {
+  const { t } = useLocale()
   const time = message.timestamp ? new Date(message.timestamp).toLocaleTimeString() : ''
 
   return (
     <div className="flex justify-start mb-4 csv-msg-in">
       <div className="csv-msg-assistant max-w-[90%] rounded-2xl rounded-tl-sm pl-4 pr-4 py-3">
         <div className="flex items-center gap-2 mb-2">
-          <span className="text-[10px] font-semibold tracking-wider uppercase" style={{ color: 'var(--assistant-rail)' }}>Assistant</span>
+          <span className="text-[10px] font-semibold tracking-wider uppercase" style={{ color: 'var(--assistant-rail)' }}>{t('assistant.assistant')}</span>
           {message.model && (
             <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-[var(--surface2)] text-[var(--text2)] font-mono">{message.model}</span>
           )}
@@ -53,17 +55,17 @@ export const AssistantMessage = memo(function AssistantMessage({ message, onView
           <div className="flex gap-3 mt-2 pt-2 border-t border-[var(--border-soft)]">
             {message.tokenUsage.inputTokens ? (
               <span className="text-[10px] text-[var(--text3)] tabular-nums">
-                in {message.tokenUsage.inputTokens.toLocaleString()}
+                {t('assistant.tokenIn')} {message.tokenUsage.inputTokens.toLocaleString()}
               </span>
             ) : null}
             {message.tokenUsage.outputTokens ? (
               <span className="text-[10px] text-[var(--text3)] tabular-nums">
-                out {message.tokenUsage.outputTokens.toLocaleString()}
+                {t('assistant.tokenOut')} {message.tokenUsage.outputTokens.toLocaleString()}
               </span>
             ) : null}
             {message.tokenUsage.cacheRead ? (
               <span className="text-[10px] text-[var(--text3)] tabular-nums">
-                cache {message.tokenUsage.cacheRead.toLocaleString()}
+                {t('assistant.tokenCache')} {message.tokenUsage.cacheRead.toLocaleString()}
               </span>
             ) : null}
           </div>

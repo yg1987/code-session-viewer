@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useLocale } from '../../hooks/useLocale'
 
 interface Props {
   text: string
@@ -7,6 +8,7 @@ interface Props {
 
 export function CopyButton({ text, className = '' }: Props) {
   const [copied, setCopied] = useState(false)
+  const { t } = useLocale()
 
   const handleCopy = async (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -24,7 +26,7 @@ export function CopyButton({ text, className = '' }: Props) {
           : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
       } ${className}`}
     >
-      {copied ? 'Copied!' : 'Copy'}
+      {copied ? t('common.copied') : t('common.copy')}
     </button>
   )
 }

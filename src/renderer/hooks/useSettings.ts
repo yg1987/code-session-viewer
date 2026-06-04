@@ -25,6 +25,7 @@ export interface AppSettings {
   theme: 'dark' | 'light' | 'sepia'
   fontSize: number
   fontFamily: string
+  locale: 'en' | 'zh'
   customModelPricing: ModelPricing[]  // user-added models
   builtinPricingOverrides: Record<string, Partial<ModelPricing>>  // overrides for builtin models, keyed by id
 }
@@ -33,6 +34,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   theme: 'dark',
   fontSize: 14,
   fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
+  locale: 'en',
   customModelPricing: [],
   builtinPricingOverrides: {}
 }

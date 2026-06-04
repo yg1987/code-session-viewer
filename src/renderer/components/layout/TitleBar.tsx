@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useLocale } from '../../hooks/useLocale'
 
 interface Props {
   title?: string
@@ -10,8 +11,9 @@ interface Props {
  * Custom titlebar for frameless window. The whole bar acts as the OS drag
  * region except for interactive controls (which carry .no-drag via global css).
  */
-export function TitleBar({ title = 'Claude Session Viewer', right }: Props) {
+export function TitleBar({ title, right }: Props) {
   const [maximized, setMaximized] = useState(false)
+  const { t } = useLocale()
 
   useEffect(() => {
     let cancelled = false
@@ -24,12 +26,14 @@ export function TitleBar({ title = 'Claude Session Viewer', right }: Props) {
     return () => { cancelled = true; off?.() }
   }, [])
 
+  const displayTitle = title || t('titlebar.defaultTitle')
+
   return (
     <div className="csv-titlebar app-drag-region select-none flex items-center h-8 flex-shrink-0 border-b border-[var(--border)] bg-[var(--bg)]">
       {/* Left: logo + app name */}
       <div className="flex items-center gap-2 px-3 min-w-0">
         <span className="csv-titlebar-dot" aria-hidden />
-        <span className="text-[12px] font-medium text-[var(--text2)] truncate">{title}</span>
+        <span className="text-[12px] font-medium text-[var(--text2)] truncate">{displayTitle}</span>
       </div>
 
       {/* Center: optional contextual title (truncates) */}
@@ -44,8 +48,8 @@ export function TitleBar({ title = 'Claude Session Viewer', right }: Props) {
       <div className="flex items-center h-full">
         <button
           type="button"
-          aria-label="Minimize"
-          title="Minimize"
+          aria-label={t('titlebar.minimize')}
+          title={t('titlebar.minimize')}
           onClick={() => window.api?.windowMinimize?.()}
           className="csv-titlebar-btn"
         >
@@ -55,8 +59,8 @@ export function TitleBar({ title = 'Claude Session Viewer', right }: Props) {
         </button>
         <button
           type="button"
-          aria-label={maximized ? 'Restore' : 'Maximize'}
-          title={maximized ? 'Restore' : 'Maximize'}
+          aria-label={maximized ? t('titlebar.restore') : t('titlebar.maximize')}
+          title={maximized ? t('titlebar.restore') : t('titlebar.maximize')}
           onClick={() => window.api?.windowMaximizeToggle?.()}
           className="csv-titlebar-btn"
         >
@@ -73,8 +77,8 @@ export function TitleBar({ title = 'Claude Session Viewer', right }: Props) {
         </button>
         <button
           type="button"
-          aria-label="Close"
-          title="Close"
+          aria-label={t('titlebar.close')}
+          title={t('titlebar.close')}
           onClick={() => window.api?.windowClose?.()}
           className="csv-titlebar-btn csv-titlebar-close"
         >

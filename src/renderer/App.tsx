@@ -13,6 +13,16 @@ import { SettingsContext, useSettingsProvider } from './hooks/useSettings'
 import type { SessionEntry } from './types/session'
 import type { SessionSource } from '../shared/constants'
 import type { ParsedMessage } from './types/message'
+import { useLocale } from './hooks/useLocale'
+
+/** Applies `html.lang` to document root whenever locale changes */
+function LocaleEffect() {
+  const { locale } = useLocale()
+  useEffect(() => {
+    document.documentElement.setAttribute('lang', locale)
+  }, [locale])
+  return null
+}
 
 export function App() {
   const settingsCtx = useSettingsProvider()
@@ -206,6 +216,7 @@ export function App() {
 
   return (
     <SettingsContext.Provider value={settingsCtx}>
+      <LocaleEffect />
       <div className="h-screen flex flex-col" style={{ background: 'var(--bg)', color: 'var(--text)' }}>
         <TitleBar />
         <div className="flex flex-1 min-h-0">

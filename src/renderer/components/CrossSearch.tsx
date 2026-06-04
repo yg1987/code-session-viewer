@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import type { SessionEntry } from '../types/session'
 import type { SessionSource } from '../../shared/constants'
+import { useLocale } from '../hooks/useLocale'
 
 interface SearchResult {
   sessionId: string
@@ -38,6 +39,7 @@ export function CrossSearch({ onClose, onOpenSession, source, openCodeDbPath }: 
   const [searched, setSearched] = useState(false)
   const [expandedSessions, setExpandedSessions] = useState<Set<string>>(new Set())
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const { t } = useLocale()
 
   const doSearch = async (q: string) => {
     if (!q.trim()) {
@@ -119,7 +121,7 @@ export function CrossSearch({ onClose, onOpenSession, source, openCodeDbPath }: 
       {/* Header */}
       <div className="flex-shrink-0 border-b border-[#30363d] px-6 py-3 flex items-center gap-4">
         <h1 className="text-sm font-semibold text-[#e6edf3] flex-shrink-0">
-          Cross-Session Search{source === 'opencode' ? ' (OpenCode)' : ''}
+          {t('crossSearch.title')}{source === 'opencode' ? t('crossSearch.opencodeSuffix') : ''}
         </h1>
         <div className="relative flex-1 max-w-xl">
           <input
@@ -127,7 +129,7 @@ export function CrossSearch({ onClose, onOpenSession, source, openCodeDbPath }: 
             type="text"
             value={query}
             onChange={(e) => handleInput(e.target.value)}
-            placeholder={`Search across all ${source === 'opencode' ? 'OpenCode' : 'Claude'} sessions...`}
+            placeholder={t('crossSearch.searchPlaceholder', { source: source === 'opencode' ? 'OpenCode' : 'Claude' })}
             className="w-full bg-[#161b22] border border-[#30363d] rounded-lg pl-9 pr-3 py-2 text-sm text-[#e6edf3] placeholder-gray-500 focus:outline-none focus:border-[#58a6ff]"
           />
           <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -136,7 +138,7 @@ export function CrossSearch({ onClose, onOpenSession, source, openCodeDbPath }: 
         </div>
         {searched && !loading && (
           <span className="text-xs text-gray-500 flex-shrink-0">
-            {results.length} matches in {grouped.size} sessions
+            {t('crossSearch.matchesIn', { results: results.length, sessions: grouped.size })}
           </span>
         )}
         <button type="button" onClick={onClose}
@@ -156,13 +158,11 @@ export function CrossSearch({ onClose, onOpenSession, source, openCodeDbPath }: 
         )}
 
         {!loading && searched && results.length === 0 && (
-          <div className="text-center py-20 text-gray-500">No results for "{query}"</div>
+          <div className="text-center py-20 text-gray-500">{t('crossSearch.noResults', { query })}</div>
         )}
 
         {!loading && !searched && (
-          <div className="text-center py-20 text-gray-500 text-sm">
-            Type to search across all session conversations
-          </div>
+          <div className="text-center py-20 text-gray-500 text-sm">{t('crossSearch.typeToSearch')}</div>
         )}
 
         <div className="max-w-4xl mx-auto px-6 py-4 space-y-3">
@@ -177,7 +177,7 @@ export function CrossSearch({ onClose, onOpenSession, source, openCodeDbPath }: 
                 </div>
                 <div className="flex items-center gap-2 mt-0.5 text-xs text-gray-500">
                   <span>{session.projectPath}</span>
-                  <span>{matches.length} matches</span>
+                  <span>{matches.length}{t('crossSearch.matches')}</span>
                   {session.source === 'opencode' && (
                     <span className="text-[10px] px-1 py-0.5 rounded bg-purple-900/30 text-purple-300">OC</span>
                   )}
@@ -205,7 +205,7 @@ export function CrossSearch({ onClose, onOpenSession, source, openCodeDbPath }: 
                   <button type="button"
                     onClick={() => setExpandedSessions((prev) => new Set([...prev, sessionId]))}
                     className="w-full text-left px-4 py-1.5 text-[10px] text-[#58a6ff] hover:text-blue-300 hover:bg-[#1c2333] transition-colors">
-                    +{matches.length - 5} more matches
+                    +{t('crossSearch.moreMatches', { count: matches.length - 5 })}
                   </button>
                 )}
               </div>

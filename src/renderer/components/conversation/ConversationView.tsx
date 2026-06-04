@@ -15,6 +15,7 @@ import { useExport } from '../../hooks/useExport'
 import { CollapseContext, useCollapseProvider } from '../../hooks/useCollapseControl'
 import { TodoPanel } from './TodoPanel'
 import { AgentTimeline } from './AgentTimeline'
+import { useLocale } from '../../hooks/useLocale'
 
 function formatTokens(n: number): string {
   if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M'
@@ -43,6 +44,7 @@ interface Props {
 export function ConversationView({ messages, loading, error, session, jumpToTimestamp, onJumpDone }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const { exporting, exportSession } = useExport()
+  const { t } = useLocale()
   const [viewMode, setViewMode] = useState<ViewMode>('chat')
   const [showScrollTop, setShowScrollTop] = useState(false)
   const [replayMode, setReplayMode] = useState(false)
@@ -190,8 +192,8 @@ export function ConversationView({ messages, loading, error, session, jumpToTime
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
           </div>
-          <p className="text-[var(--text)] text-base font-medium mb-1">No session selected</p>
-          <p className="text-[var(--text2)] text-sm">Choose a session from the sidebar to start browsing the conversation.</p>
+          <p className="text-[var(--text)] text-base font-medium mb-1">{t('conversation.noSessionSelected')}</p>
+          <p className="text-[var(--text2)] text-sm">{t('conversation.chooseSession')}</p>
         </div>
       </div>
     )
@@ -218,7 +220,7 @@ export function ConversationView({ messages, loading, error, session, jumpToTime
                 {(['chat', 'stats', 'insights', ...(session?.source === 'opencode' ? ['todos', 'timeline'] : []), 'raw'] as ViewMode[]).map((mode) => (
                   <button key={mode} type="button" onClick={() => setViewMode(mode)}
                     className={`px-3 py-1.5 text-xs font-medium transition-colors ${viewMode === mode ? 'bg-[var(--accent-soft)] text-[var(--accent)]' : 'text-[var(--text2)] hover:text-[var(--text)] hover:bg-[var(--surface2)]'}`}>
-                    {mode === 'chat' ? 'Chat' : mode === 'stats' ? 'Stats' : mode === 'insights' ? 'Insights' : mode === 'todos' ? 'Todos' : mode === 'timeline' ? 'Timeline' : 'Raw JSON'}
+                    {mode === 'chat' ? t('conversation.chat') : mode === 'stats' ? t('conversation.stats') : mode === 'insights' ? t('conversation.insights') : mode === 'todos' ? t('conversation.todos') : mode === 'timeline' ? t('conversation.timeline') : t('conversation.rawJson')}
                   </button>
                 ))}
               </div>
@@ -226,11 +228,11 @@ export function ConversationView({ messages, loading, error, session, jumpToTime
               {/* Expand/Collapse All (only in chat view) */}
               {viewMode === 'chat' && (
                 <div className="flex rounded-lg border border-[var(--border)] overflow-hidden bg-[var(--surface)]">
-                  <button type="button" onClick={collapseControl.expandAll} title="Expand all blocks"
+                  <button type="button" onClick={collapseControl.expandAll} title={t('conversation.expandAll')}
                     className="px-2 py-1.5 text-[var(--text2)] hover:text-[var(--text)] hover:bg-[var(--surface2)] transition-colors">
                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg>
                   </button>
-                  <button type="button" onClick={collapseControl.collapseAll} title="Collapse all blocks"
+                  <button type="button" onClick={collapseControl.collapseAll} title={t('conversation.collapseAll')}
                     className="px-2 py-1.5 text-[var(--text2)] hover:text-[var(--text)] hover:bg-[var(--surface2)] transition-colors">
                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 9V4.5M9 9H4.5M9 9L3.5 3.5M9 15v4.5M9 15H4.5M9 15l-5.5 5.5M15 9h4.5M15 9V4.5M15 9l5.5-5.5M15 15h4.5M15 15v4.5m0-4.5l5.5 5.5" /></svg>
                   </button>
@@ -240,7 +242,7 @@ export function ConversationView({ messages, loading, error, session, jumpToTime
               {/* Search */}
               <button type="button" onClick={() => { setShowSearch(!showSearch); if (showSearch) setSearchText('') }}
                 className={`p-1.5 rounded-md transition-colors ${showSearch ? 'bg-[var(--accent-soft)] text-[var(--accent)]' : 'text-[var(--text2)] hover:text-[var(--text)] hover:bg-[var(--surface)]'}`}
-                title="Search (Ctrl+F)">
+                title={t('conversation.searchTooltip')}>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
               </button>
 
@@ -248,7 +250,7 @@ export function ConversationView({ messages, loading, error, session, jumpToTime
               {(!session.source || session.source === 'claude') && (
               <button type="button" onClick={() => window.api.showInFolder(session.fullPath)}
                 className="p-1.5 rounded-md text-[var(--text2)] hover:text-[var(--text)] hover:bg-[var(--surface)] transition-colors"
-                title="Show in file explorer">
+                title={t('conversation.showInExplorer')}>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" /></svg>
               </button>
               )}
@@ -256,7 +258,7 @@ export function ConversationView({ messages, loading, error, session, jumpToTime
               {/* Replay */}
               <button type="button" onClick={() => { setReplayMode(true); setReplayPos(0); setViewMode('chat'); setRenderCount(messages.length) }}
                 className="p-1.5 rounded-md text-[var(--text2)] hover:text-[var(--text)] hover:bg-[var(--surface)] transition-colors"
-                title="Replay mode">
+                title={t('conversation.replayMode')}>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
               </button>
 
@@ -265,9 +267,9 @@ export function ConversationView({ messages, loading, error, session, jumpToTime
               <button type="button"
                 onClick={() => window.api.openInClaude({ sessionId: session.sessionId, projectPath: session.projectPath })}
                 className="csv-btn-primary px-3 py-1.5 text-xs font-medium inline-flex items-center gap-1"
-                title="Open in Claude Code (Ctrl+O)">
+                title={t('conversation.openInClaudeTooltip')}>
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                Resume
+                {t('conversation.resume')}
               </button>
               )}
 
@@ -276,7 +278,7 @@ export function ConversationView({ messages, loading, error, session, jumpToTime
                 <button ref={exportBtnRef} type="button" onClick={() => setShowExportMenu(!showExportMenu)}
                   disabled={exporting || loading}
                   className="px-3 py-1.5 bg-[var(--green)] hover:opacity-90 disabled:opacity-50 text-white text-xs font-medium rounded-lg transition-all inline-flex items-center gap-1">
-                  {exporting ? 'Exporting...' : 'Export'}
+                  {exporting ? t('conversation.exporting') : t('conversation.export')}
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                 </button>
                 {showExportMenu && exportBtnRef.current && createPortal(
@@ -291,11 +293,11 @@ export function ConversationView({ messages, loading, error, session, jumpToTime
                     >
                       <button type="button" onClick={handleExportHtml}
                         className="w-full text-left px-3 py-1.5 text-xs text-[var(--text)] hover:bg-[var(--surface2)] transition-colors">
-                        Export as HTML
+                        {t('conversation.exportHtml')}
                       </button>
                       <button type="button" onClick={handleExportMd}
                         className="w-full text-left px-3 py-1.5 text-xs text-[var(--text)] hover:bg-[var(--surface2)] transition-colors">
-                        Export as Markdown
+                        {t('conversation.exportMd')}
                       </button>
                     </div>
                   </>,
@@ -313,7 +315,7 @@ export function ConversationView({ messages, loading, error, session, jumpToTime
             </span>
             <span className="inline-flex items-center gap-1 tabular-nums">
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
-              {messages.length} messages
+              {messages.length}{t('conversation.messagesSuffix')}
             </span>
             {session.gitBranch && (
               <span className="inline-flex items-center gap-1">
@@ -327,7 +329,7 @@ export function ConversationView({ messages, loading, error, session, jumpToTime
                 {createdTime}{modifiedTime && modifiedTime !== createdTime ? ` ~ ${modifiedTime}` : ''}
               </span>
             )}
-            <span className="font-mono text-[var(--text3)] opacity-60">ID: {session.sessionId}</span>
+            <span className="font-mono text-[var(--text3)] opacity-60">{t('conversation.sessionId', { id: session.sessionId })}</span>
             {session.source === 'opencode' && (
               <>
                 {session.agent && (
@@ -361,7 +363,7 @@ export function ConversationView({ messages, loading, error, session, jumpToTime
             <div className="mt-2 flex items-center gap-2">
               <div className="relative flex-1">
                 <input autoFocus type="text" value={searchText} onChange={(e) => setSearchText(e.target.value)}
-                  placeholder="Search messages... (Enter: next, Shift+Enter: prev)"
+                  placeholder={t('conversation.searchPlaceholder')}
                   className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-lg pl-8 pr-3 py-1.5 text-sm text-[var(--text)] placeholder-[var(--text3)] focus:outline-none focus:border-[var(--accent)]" />
                 <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--text3)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -370,7 +372,7 @@ export function ConversationView({ messages, loading, error, session, jumpToTime
               {searchText && (
                 <>
                   <span className="text-xs text-[var(--text3)] whitespace-nowrap tabular-nums">
-                    {matchedIds.length > 0 ? `${currentMatchIdx + 1} / ${matchedIds.length}` : '0 results'}
+                    {matchedIds.length > 0 ? t('conversation.searchResultCount', { current: currentMatchIdx + 1, total: matchedIds.length }) : t('conversation.searchNoResults')}
                   </span>
                   <button type="button" title="Previous match" onClick={() => jumpToMatch(currentMatchIdx - 1)} disabled={matchedIds.length === 0}
                     className="p-1 rounded hover:bg-[var(--surface2)] text-[var(--text2)] hover:text-[var(--text)] disabled:opacity-30">
@@ -421,7 +423,7 @@ export function ConversationView({ messages, loading, error, session, jumpToTime
                 <div className="flex items-center justify-center py-20">
                   <div className="text-center">
                     <div className="animate-spin w-8 h-8 border-2 border-[var(--accent)] border-t-transparent rounded-full mx-auto mb-3" />
-                    <p className="text-[var(--text2)] text-sm">Parsing session...</p>
+                    <p className="text-[var(--text2)] text-sm">{t('conversation.parsingSession')}</p>
                   </div>
                 </div>
               )}
@@ -429,10 +431,10 @@ export function ConversationView({ messages, loading, error, session, jumpToTime
                 <div className="bg-[var(--error-soft)] border border-[var(--error)]/30 rounded-lg p-4 text-[var(--error)] text-sm">{error}</div>
               )}
               {!loading && !error && messages.length === 0 && (
-                <div className="text-center py-20 text-[var(--text2)]">No messages in this session</div>
+                <div className="text-center py-20 text-[var(--text2)]">{t('conversation.noMessages')}</div>
               )}
               {!loading && searchText && matchedIds.length === 0 && messages.length > 0 && (
-                <div className="text-center py-4 text-[var(--text2)] text-sm">No messages match "{searchText}"</div>
+                <div className="text-center py-4 text-[var(--text2)] text-sm">{t('conversation.noMessagesMatch', { query: searchText })}</div>
               )}
 
               {(() => {
@@ -465,9 +467,9 @@ export function ConversationView({ messages, loading, error, session, jumpToTime
                   <button type="button"
                     onClick={() => setRenderCount((prev) => Math.min(prev + BATCH_SIZE * 2, messages.length))}
                     className="text-xs text-[var(--accent)] hover:text-[var(--accent-hover)] transition-colors">
-                    Load more ({messages.length - renderCount} remaining)
+                    {t('conversation.loadMore', { remaining: messages.length - renderCount })}
                   </button>
-                  <div className="text-[10px] text-[var(--text3)] mt-1">Scroll down to auto-load</div>
+                  <div className="text-[10px] text-[var(--text3)] mt-1">{t('conversation.scrollHint')}</div>
                 </div>
               )}
 
@@ -478,11 +480,11 @@ export function ConversationView({ messages, loading, error, session, jumpToTime
             {/* Scroll buttons */}
             {showScrollTop && (
               <div className="fixed bottom-6 right-6 flex flex-col gap-2 z-30">
-                <button type="button" title="Scroll to top" onClick={() => scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' })}
+                <button type="button" title={t('conversation.scrollTop')} onClick={() => scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' })}
                   className="w-9 h-9 rounded-full bg-[var(--surface)] border border-[var(--border)] hover:bg-[var(--surface2)] text-[var(--text)] flex items-center justify-center shadow-[var(--shadow-3)] transition-colors">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" /></svg>
                 </button>
-                <button type="button" title="Scroll to bottom" onClick={() => scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' })}
+                <button type="button" title={t('conversation.scrollBottom')} onClick={() => scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' })}
                   className="w-9 h-9 rounded-full bg-[var(--surface)] border border-[var(--border)] hover:bg-[var(--surface2)] text-[var(--text)] flex items-center justify-center shadow-[var(--shadow-3)] transition-colors">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                 </button>

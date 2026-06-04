@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useSettings, BUILTIN_PRICING, getAllPricing, type ModelPricing } from '../hooks/useSettings'
+import { useLocale } from '../hooks/useLocale'
 
 const FONT_OPTIONS = [
   { label: 'System Default', value: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif' },
@@ -60,9 +61,25 @@ export function SettingsPanel({ onClose, openCodeDbPath, openCodeDbNotFound }: P
 
 function AppearanceTab() {
   const { settings, updateSettings } = useSettings()
+  const { t } = useLocale()
 
   return (
     <div className="space-y-5">
+      {/* Language */}
+      <div>
+        <label className="text-xs font-semibold text-[var(--text2)] uppercase block mb-2">{t('settings.language')}</label>
+        <div className="flex gap-2">
+          {(['en', 'zh'] as const).map((l) => (
+            <button key={l} type="button" onClick={() => updateSettings({ locale: l })}
+              className={`flex-1 px-3 py-2.5 rounded-lg border text-sm font-medium transition-all ${settings.locale === l ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)] shadow-[var(--shadow-1)]' : 'border-[var(--border)] text-[var(--text2)] hover:bg-[var(--surface2)] hover:border-[var(--border-strong)]'}`}>
+              <span className="flex items-center justify-center gap-1.5">
+                {l === 'en' ? t('settings.language.en') : t('settings.language.zh')}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Theme */}
       <div>
         <label className="text-xs font-semibold text-[var(--text2)] uppercase block mb-2">Theme</label>

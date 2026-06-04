@@ -4,6 +4,8 @@ import type { SessionSource } from '../../../shared/constants'
 import { SearchBar } from './SearchBar'
 import { formatDistanceToNow } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
+import { useLocale } from '../../hooks/useLocale'
+import { useSettings } from '../../hooks/useSettings'
 
 interface Props {
   groups: ProjectGroup[]
@@ -51,6 +53,8 @@ export function Sidebar({
 }: Props) {
   const [search, setSearch] = useState('')
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set())
+  const { t } = useLocale()
+  const { settings } = useSettings()
 
   const filteredGroups = useMemo(() => {
     if (!search.trim()) return groups
@@ -97,32 +101,32 @@ export function Sidebar({
       <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid var(--border)' }}>
         <div>
           <h1 className="text-sm font-semibold" style={{ color: 'var(--text)' }}>
-            {source === 'opencode' ? 'OpenCode Sessions' : 'Claude Sessions'}
+            {source === 'opencode' ? t('sidebar.title.opencode') : t('sidebar.title.claude')}
           </h1>
-          <span className="text-xs" style={{ color: 'var(--text2)' }}>{totalSessions} sessions</span>
+          <span className="text-xs" style={{ color: 'var(--text2)' }}>{t('sidebar.sessionsCount', { count: totalSessions })}</span>
         </div>
         <div className="flex items-center gap-0.5">
           {onOpenDashboard && (
-            <button onClick={onOpenDashboard} className="p-1.5 rounded-md hover:bg-[var(--surface)] text-[var(--text2)] hover:text-[var(--text)] transition-colors" title="Global Dashboard (Ctrl+D)">
+            <button onClick={onOpenDashboard} className="p-1.5 rounded-md hover:bg-[var(--surface)] text-[var(--text2)] hover:text-[var(--text)] transition-colors" title={t('sidebar.dashboardTooltip')}>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
             </button>
           )}
           {onOpenCrossSearch && (
-            <button onClick={onOpenCrossSearch} className="p-1.5 rounded-md hover:bg-[var(--surface)] text-[var(--text2)] hover:text-[var(--text)] transition-colors" title="Cross-session Search (Ctrl+Shift+F)">
+            <button onClick={onOpenCrossSearch} className="p-1.5 rounded-md hover:bg-[var(--surface)] text-[var(--text2)] hover:text-[var(--text)] transition-colors" title={t('sidebar.crossSearchTooltip')}>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
             </button>
           )}
           {onOpenCompare && (
-            <button onClick={onOpenCompare} className="p-1.5 rounded-md hover:bg-[var(--surface)] text-[var(--text2)] hover:text-[var(--text)] transition-colors" title="Compare sessions">
+            <button onClick={onOpenCompare} className="p-1.5 rounded-md hover:bg-[var(--surface)] text-[var(--text2)] hover:text-[var(--text)] transition-colors" title={t('sidebar.compareTooltip')}>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7" /></svg>
             </button>
           )}
           {onOpenSettings && (
-            <button onClick={onOpenSettings} className="p-1.5 rounded-md hover:bg-[var(--surface)] text-[var(--text2)] hover:text-[var(--text)] transition-colors" title="Settings">
+            <button onClick={onOpenSettings} className="p-1.5 rounded-md hover:bg-[var(--surface)] text-[var(--text2)] hover:text-[var(--text)] transition-colors" title={t('sidebar.settingsTooltip')}>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
             </button>
           )}
-          <button onClick={onRefresh} className="p-1.5 rounded-md hover:bg-[var(--surface)] text-[var(--text2)] hover:text-[var(--text)] transition-colors" title="Refresh">
+          <button onClick={onRefresh} className="p-1.5 rounded-md hover:bg-[var(--surface)] text-[var(--text2)] hover:text-[var(--text)] transition-colors" title={t('sidebar.refreshTooltip')}>
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
           </button>
         </div>
@@ -140,7 +144,7 @@ export function Sidebar({
                 : 'text-[var(--text2)] hover:text-[var(--text)] hover:bg-[var(--surface)]'
             }`}
           >
-            Claude{claudeCount !== undefined ? ` (${claudeCount})` : ''}
+            Claude{` (${claudeCount})`}
           </button>
           <button
             type="button"
@@ -151,7 +155,7 @@ export function Sidebar({
                 : 'text-[var(--text2)] hover:text-[var(--text)] hover:bg-[var(--surface)]'
             }`}
           >
-            OpenCode{openCodeCount !== undefined ? ` (${openCodeCount})` : ''}
+            OpenCode{` (${openCodeCount})`}
           </button>
         </div>
       )}
@@ -159,15 +163,15 @@ export function Sidebar({
       {/* Batch mode toolbar */}
       {batchMode && (
         <div className="flex items-center gap-2 px-3 py-2" style={{ borderBottom: '1px solid var(--border)', background: 'var(--surface)' }}>
-          <span className="text-xs" style={{ color: 'var(--text2)' }}>{batchSelected?.size || 0} selected</span>
+          <span className="text-xs" style={{ color: 'var(--text2)' }}>{t('sidebar.batchSelected', { count: batchSelected?.size ?? 0 })}</span>
           <div className="ml-auto flex gap-1">
             <button type="button" onClick={onBatchDelete} disabled={!batchSelected?.size}
               className="px-2 py-1 text-xs bg-red-600 hover:bg-red-700 text-white rounded disabled:opacity-30 transition-colors">
-              Delete
+              {t('sidebar.batchDelete')}
             </button>
             <button type="button" onClick={onToggleBatchMode}
               className="px-2 py-1 text-xs rounded transition-colors" style={{ color: 'var(--text2)' }}>
-              Cancel
+              {t('sidebar.batchCancel')}
             </button>
           </div>
         </div>
@@ -178,7 +182,7 @@ export function Sidebar({
         {onToggleBatchMode && !batchMode && (
           <button type="button" onClick={onToggleBatchMode}
             className="p-1.5 rounded-md text-[var(--text2)] hover:text-[var(--text)] hover:bg-[var(--surface)] transition-colors flex-shrink-0"
-            title="Batch select">
+            title={t('sidebar.batchSelectTooltip')}>
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
           </button>
         )}
@@ -187,16 +191,16 @@ export function Sidebar({
       {/* Session List */}
       <div className="flex-1 overflow-y-auto">
         {loading && (
-          <div className="px-4 py-8 text-center text-[var(--text3)] text-sm">Loading...</div>
+          <div className="px-4 py-8 text-center text-[var(--text3)] text-sm">{t('sidebar.loading')}</div>
         )}
 
         {!loading && filteredGroups.length === 0 && (
           <div className="px-4 py-8 text-center text-[var(--text3)] text-sm">
             {search
-              ? 'No matching sessions'
+              ? t('sidebar.noMatchingSessions')
               : source === 'opencode'
-                ? 'No OpenCode sessions found. Make sure opencode.db is accessible.'
-                : 'No sessions found'}
+                ? t('sidebar.noOpenCodeSessions')
+                : t('sidebar.noSessions')}
           </div>
         )}
 
@@ -270,15 +274,15 @@ function groupSessionsByDate(sessions: SessionEntry[]): { label: string; session
   const weekAgo = new Date(today.getTime() - 7 * 86400000)
 
   const groups: Record<string, SessionEntry[]> = {}
-  const order = ['Today', 'Yesterday', 'This Week', 'Earlier']
+  const order = [t('sidebar.dateGroups.today'), t('sidebar.dateGroups.yesterday'), t('sidebar.dateGroups.thisWeek'), t('sidebar.dateGroups.earlier')]
 
   for (const s of sessions) {
     const d = new Date(s.modified)
     let label: string
-    if (d >= today) label = 'Today'
-    else if (d >= yesterday) label = 'Yesterday'
-    else if (d >= weekAgo) label = 'This Week'
-    else label = 'Earlier'
+    if (d >= today) label = t('sidebar.dateGroups.today')
+    else if (d >= yesterday) label = t('sidebar.dateGroups.yesterday')
+    else if (d >= weekAgo) label = t('sidebar.dateGroups.thisWeek')
+    else label = t('sidebar.dateGroups.earlier')
 
     if (!groups[label]) groups[label] = []
     groups[label].push(s)
@@ -328,7 +332,7 @@ function SessionItem({
   try {
     timeAgo = formatDistanceToNow(new Date(session.modified), {
       addSuffix: true,
-      locale: zhCN
+      locale: settings.locale === 'zh' ? zhCN : undefined
     })
   } catch {
     timeAgo = ''
@@ -359,8 +363,8 @@ function SessionItem({
           <input
             autoFocus
             type="text"
-            placeholder="Rename session"
-            aria-label="Rename session"
+            placeholder={t('sidebar.renamePlaceholder')}
+            aria-label={t('sidebar.renamePlaceholder')}
             value={renameValue}
             onChange={(e) => setRenameValue(e.target.value)}
             onKeyDown={async (e) => {
@@ -403,12 +407,12 @@ function SessionItem({
             <button type="button"
               onClick={() => { setShowMenu(false); setRenameValue(rawTitle); setRenaming(true) }}
               className="w-full text-left px-3 py-1.5 text-xs text-[var(--text)] hover:bg-[var(--surface2)] transition-colors">
-              Rename
+              {t('sidebar.rename')}
             </button>
             <button type="button"
               onClick={() => { setShowMenu(false); window.api.openInClaude({ sessionId: session.sessionId, projectPath: session.projectPath }) }}
               className="w-full text-left px-3 py-1.5 text-xs text-[var(--accent)] hover:bg-[var(--surface2)] transition-colors">
-              Open in Claude
+              {t('sidebar.openInClaude')}
             </button>
             {session.source === 'opencode' ? (
               <>
@@ -416,7 +420,7 @@ function SessionItem({
                 <button type="button"
                   onClick={() => { setShowMenu(false); onDelete() }}
                   className="w-full text-left px-3 py-1.5 text-xs text-[var(--error)] hover:bg-[var(--error-soft)] transition-colors">
-                  Delete session
+                  {t('sidebar.deleteSession')}
                 </button>
               </>
             ) : (
@@ -425,19 +429,19 @@ function SessionItem({
                 <button type="button"
                   onClick={() => { setShowMenu(false); window.api.showInFolder(session.fullPath) }}
                   className="w-full text-left px-3 py-1.5 text-xs text-[var(--text)] hover:bg-[var(--surface2)] transition-colors">
-                  Open file location
+                  {t('sidebar.openFileLocation')}
                 </button>
                 <button type="button"
                   onClick={() => { setShowMenu(false); if (session.projectPath) window.api.openFolder(session.projectPath) }}
                   className={`w-full text-left px-3 py-1.5 text-xs hover:bg-[var(--surface2)] transition-colors ${session.projectPath ? 'text-[var(--text)]' : 'text-[var(--text3)] cursor-not-allowed'}`}
                   disabled={!session.projectPath}
-                  title={session.projectPath || 'Project path unknown'}>
-                  Open project location
+                  title={session.projectPath || t('sidebar.projectPathUnknown')}>
+                  {t('sidebar.openProjectLocation')}
                 </button>
                 <button type="button"
                   onClick={() => { setShowMenu(false); onDelete() }}
                   className="w-full text-left px-3 py-1.5 text-xs text-[var(--error)] hover:bg-[var(--error-soft)] transition-colors">
-                  Delete session
+                  {t('sidebar.deleteSession')}
                 </button>
               </>
             )}

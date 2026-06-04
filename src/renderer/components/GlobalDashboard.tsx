@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useSettings, getModelPricing, calculateCost } from '../hooks/useSettings'
+import { useLocale } from '../hooks/useLocale'
 import type { SessionSource } from '../../shared/constants'
 
 interface ModelTokens { input: number; output: number; cacheRead: number; cacheCreate: number }
@@ -49,6 +50,7 @@ interface Props {
 
 export function GlobalDashboard({ onClose, source, openCodeDbPath }: Props) {
   const { settings } = useSettings()
+  const { t } = useLocale()
   const [stats, setStats] = useState<GlobalStats | null>(null)
   const [ocStats, setOcStats] = useState<OpenCodeStats | null>(null)
   const [loading, setLoading] = useState(true)
@@ -74,8 +76,8 @@ export function GlobalDashboard({ onClose, source, openCodeDbPath }: Props) {
       <div className="fixed inset-0 z-50 bg-[var(--bg)] flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin w-8 h-8 border-2 border-[var(--accent)] border-t-transparent rounded-full mx-auto mb-3" />
-          <p className="text-[var(--text2)] text-sm">Computing global statistics...</p>
-          <p className="text-gray-600 text-xs mt-1">This may take a moment for large histories</p>
+          <p className="text-[var(--text2)] text-sm">{t('dashboard.computingStats')}</p>
+          <p className="text-gray-600 text-xs mt-1">{t('dashboard.computingSubtext')}</p>
         </div>
       </div>
     )
@@ -109,7 +111,7 @@ export function GlobalDashboard({ onClose, source, openCodeDbPath }: Props) {
       {/* Header */}
       <div className="sticky top-0 bg-[#0d1117] border-b border-[#30363d] px-6 py-3 flex items-center justify-between z-10">
         <h1 className="text-lg font-semibold text-[#e6edf3]">
-          Global Dashboard{isOpenCode ? ' (OpenCode)' : ''}
+          {t('dashboard.globalDashboard')}{isOpenCode ? ` (${t('dashboard.opencode')})` : ''}
         </h1>
         <button type="button" onClick={onClose}
           className="p-1.5 rounded-md text-gray-400 hover:text-gray-200 hover:bg-[#161b22] transition-colors">
@@ -124,15 +126,15 @@ export function GlobalDashboard({ onClose, source, openCodeDbPath }: Props) {
           <>
             {/* OpenCode summary cards */}
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
-              <Card label="Sessions" value={ocStats!.totalSessions.toLocaleString()} />
-              <Card label="Messages" value={ocStats!.totalMessages.toLocaleString()} />
-              <Card label="Input Tokens" value={formatTokens(ocStats!.totalTokensInput)} />
-              <Card label="Output Tokens" value={formatTokens(ocStats!.totalTokensOutput)} />
-              <Card label="Total Cost" value={`$${(ocStats!.totalCost || 0).toFixed(2)}`} color="text-green-400" />
+              <Card label={t('dashboard.sessions')} value={ocStats!.totalSessions.toLocaleString()} />
+              <Card label={t('dashboard.messages')} value={ocStats!.totalMessages.toLocaleString()} />
+              <Card label={t('dashboard.inputTokens')} value={formatTokens(ocStats!.totalTokensInput)} />
+              <Card label={t('dashboard.outputTokens')} value={formatTokens(ocStats!.totalTokensOutput)} />
+              <Card label={t('dashboard.totalCost')} value={`$${(ocStats!.totalCost || 0).toFixed(2)}`} color="text-green-400" />
             </div>
             {ocStats!.totalTokensReasoning > 0 && (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-                <Card label="Reasoning Tokens" value={formatTokens(ocStats!.totalTokensReasoning)} />
+                <Card label={t('dashboard.reasoningTokens')} value={formatTokens(ocStats!.totalTokensReasoning)} />
               </div>
             )}
 
@@ -141,7 +143,7 @@ export function GlobalDashboard({ onClose, source, openCodeDbPath }: Props) {
               {/* Daily sessions chart */}
               {ocStats!.sessionsByDay.length > 1 && (
                 <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-4">
-                  <h2 className="text-xs font-semibold text-gray-400 uppercase mb-4">Sessions by Day (Last 30 Days)</h2>
+                  <h2 className="text-xs font-semibold text-gray-400 uppercase mb-4">{t('dashboard.sessionsByDay')}</h2>
                   <div className="flex items-end gap-1" style={{ height: 120 }}>
                     {ocStats!.sessionsByDay.slice(-30).map((day) => {
                       const maxSessions = Math.max(...ocStats!.sessionsByDay.map(d => d.count), 1)
@@ -151,7 +153,7 @@ export function GlobalDashboard({ onClose, source, openCodeDbPath }: Props) {
                           <div className="w-full bg-blue-500/60 rounded-t" style={{ height: barH }} />
                           <div className="hidden group-hover:block absolute bottom-full mb-2 bg-[#0d1117] border border-[#30363d] rounded p-2 text-[10px] whitespace-nowrap z-10 shadow-lg">
                             <div className="text-[#e6edf3] font-medium">{day.date}</div>
-                            <div className="text-blue-400">Sessions: {day.count}</div>
+                            <div className="text-blue-400">{t('dashboard.sessionsColon')} {day.count}</div>
                           </div>
                         </div>
                       )
@@ -162,13 +164,13 @@ export function GlobalDashboard({ onClose, source, openCodeDbPath }: Props) {
 
               {/* Top models */}
               <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-4">
-                <h2 className="text-xs font-semibold text-gray-400 uppercase mb-3">Top Models</h2>
+                <h2 className="text-xs font-semibold text-gray-400 uppercase mb-3">{t('dashboard.topModels')}</h2>
                 <div className="space-y-2">
                   {ocStats!.topModels.map((m) => (
                     <div key={m.model} className="flex items-center justify-between bg-[#0d1117] rounded-lg p-3 border border-[#30363d]">
                       <span className="text-xs text-[#58a6ff] font-mono">{m.model || 'unknown'}</span>
                       <div className="flex items-center gap-4">
-                        <span className="text-xs text-gray-500">{m.sessions} sessions</span>
+                        <span className="text-xs text-gray-500">{m.sessions}{t('dashboard.sessionsSuffix')}</span>
                         <span className="text-sm font-semibold text-green-400">${(m.totalCost || 0).toFixed(2)}</span>
                       </div>
                     </div>
@@ -179,7 +181,7 @@ export function GlobalDashboard({ onClose, source, openCodeDbPath }: Props) {
               {/* Top agents */}
               {ocStats!.topAgents.length > 0 && (
                 <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-4">
-                  <h2 className="text-xs font-semibold text-gray-400 uppercase mb-3">Top Agents</h2>
+                  <h2 className="text-xs font-semibold text-gray-400 uppercase mb-3">{t('dashboard.topAgents')}</h2>
                   <div className="space-y-2">
                     {ocStats!.topAgents.map((a) => (
                       <div key={a.agent} className="flex items-center justify-between bg-[#0d1117] rounded-lg p-3 border border-[#30363d]">
@@ -196,18 +198,18 @@ export function GlobalDashboard({ onClose, source, openCodeDbPath }: Props) {
           <>
             {/* Claude Code summary cards */}
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
-              <Card label="Sessions" value={stats!.totalSessions.toLocaleString()} />
-              <Card label="Input Tokens" value={formatTokens(stats!.totalInputTokens)} sub={stats!.totalInputTokens.toLocaleString()} />
-              <Card label="Output Tokens" value={formatTokens(stats!.totalOutputTokens)} sub={stats!.totalOutputTokens.toLocaleString()} />
-              <Card label="Cache (R+W)" value={formatTokens(stats!.totalCacheReadTokens + stats!.totalCacheCreateTokens)}
-                sub={`R: ${formatTokens(stats!.totalCacheReadTokens)} / W: ${formatTokens(stats!.totalCacheCreateTokens)}`} />
-              <Card label="Est. Cost" value={`$${totalEstCost.toFixed(2)}`} color="text-green-400" />
+              <Card label={t('dashboard.sessions')} value={stats!.totalSessions.toLocaleString()} />
+              <Card label={t('dashboard.inputTokens')} value={formatTokens(stats!.totalInputTokens)} sub={stats!.totalInputTokens.toLocaleString()} />
+              <Card label={t('dashboard.outputTokens')} value={formatTokens(stats!.totalOutputTokens)} sub={stats!.totalOutputTokens.toLocaleString()} />
+              <Card label={t('dashboard.cacheReadWrite')} value={formatTokens(stats!.totalCacheReadTokens + stats!.totalCacheCreateTokens)}
+                sub={`${t('dashboard.cacheR')}${formatTokens(stats!.totalCacheReadTokens)} / ${t('dashboard.cacheW')}${formatTokens(stats!.totalCacheCreateTokens)}`} />
+              <Card label={t('dashboard.estCost')} value={`$${totalEstCost.toFixed(2)}`} color="text-green-400" />
             </div>
 
             {/* Daily usage chart */}
             {last30.length > 1 && (
               <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-4 mb-6">
-                <h2 className="text-xs font-semibold text-gray-400 uppercase mb-4">Daily Output Tokens (Last 30 Days)</h2>
+                <h2 className="text-xs font-semibold text-gray-400 uppercase mb-4">{t('dashboard.dailyOutput')}</h2>
                 <div className="flex items-end gap-1" style={{ height: 160 }}>
                   {last30.map((day) => {
                     const barH = Math.max(Math.round((day.outputTokens / maxDailyOutput) * 150), 3)
@@ -216,10 +218,10 @@ export function GlobalDashboard({ onClose, source, openCodeDbPath }: Props) {
                         <div className="w-full bg-green-500/60 rounded-t" style={{ height: barH }} />
                         <div className="hidden group-hover:block absolute bottom-full mb-2 bg-[#0d1117] border border-[#30363d] rounded p-2 text-[10px] whitespace-nowrap z-10 shadow-lg">
                           <div className="text-[#e6edf3] font-medium">{day.date}</div>
-                          <div className="text-green-400">Output: {formatTokens(day.outputTokens)}</div>
-                          <div className="text-blue-400">Input: {formatTokens(day.inputTokens)}</div>
-                          <div className="text-yellow-400">Cache R: {formatTokens(day.cacheReadTokens || 0)}</div>
-                          <div className="text-gray-400">Sessions: {day.sessions} | Tools: {day.toolCalls}</div>
+                          <div className="text-green-400">{t('dashboard.output')}{formatTokens(day.outputTokens)}</div>
+                          <div className="text-blue-400">{t('dashboard.input')}{formatTokens(day.inputTokens)}</div>
+                          <div className="text-yellow-400">{t('dashboard.cacheReadLabel')}{formatTokens(day.cacheReadTokens || 0)}</div>
+                          <div className="text-gray-400">{t('dashboard.sessionsColon')}{day.sessions} | {t('dashboard.tools')}{day.toolCalls}</div>
                         </div>
                       </div>
                     )
@@ -227,7 +229,7 @@ export function GlobalDashboard({ onClose, source, openCodeDbPath }: Props) {
                 </div>
                 <div className="flex justify-between mt-1 text-[10px] text-gray-600">
                   <span>{last30[0]?.date}</span>
-                  <span className="text-green-400">Output Tokens</span>
+                  <span className="text-green-400">{t('dashboard.outputTokens')}</span>
                   <span>{last30[last30.length - 1]?.date}</span>
                 </div>
               </div>
@@ -236,7 +238,7 @@ export function GlobalDashboard({ onClose, source, openCodeDbPath }: Props) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Tool ranking */}
               <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-4">
-                <h2 className="text-xs font-semibold text-gray-400 uppercase mb-3">Tool Usage Ranking</h2>
+                <h2 className="text-xs font-semibold text-gray-400 uppercase mb-3">{t('dashboard.toolUsageRanking')}</h2>
                 <div className="space-y-1.5">
                   {sortedTools.map(([name, count], i) => (
                     <div key={name} className="flex items-center gap-2">
@@ -254,19 +256,19 @@ export function GlobalDashboard({ onClose, source, openCodeDbPath }: Props) {
 
               {/* Model usage */}
               <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-4">
-                <h2 className="text-xs font-semibold text-gray-400 uppercase mb-3">Model Usage</h2>
+                <h2 className="text-xs font-semibold text-gray-400 uppercase mb-3">{t('dashboard.modelUsage')}</h2>
                 <div className="space-y-2">
                   {sortedModels.map(([model, count]) => (
                     <div key={model} className="flex items-center justify-between bg-[#0d1117] rounded-lg p-3 border border-[#30363d]">
                       <span className="text-xs text-[#58a6ff] font-mono">{model}</span>
-                      <span className="text-sm font-semibold text-[#e6edf3]">{count.toLocaleString()} calls</span>
+                      <span className="text-sm font-semibold text-[#e6edf3]">{count.toLocaleString()}{t('dashboard.calls')}</span>
                     </div>
                   ))}
                 </div>
 
                 {/* Cost breakdown */}
                 <div className="mt-4 pt-4 border-t border-[#30363d]">
-                  <h3 className="text-xs font-semibold text-gray-400 uppercase mb-2">Cost Breakdown by Model</h3>
+                  <h3 className="text-xs font-semibold text-gray-400 uppercase mb-2">{t('dashboard.costBreakdown')}</h3>
                   <div className="space-y-1 text-xs">
                     {modelCosts.sort((a, b) => b.cost.total - a.cost.total).map((mc) => (
                       <div key={mc.model} className="flex justify-between">
@@ -275,7 +277,7 @@ export function GlobalDashboard({ onClose, source, openCodeDbPath }: Props) {
                       </div>
                     ))}
                     <div className="flex justify-between pt-1 border-t border-[#30363d] font-semibold">
-                      <span className="text-gray-400">Total</span>
+                      <span className="text-gray-400">{t('dashboard.total')}</span>
                       <span className="text-green-400">${totalEstCost.toFixed(2)}</span>
                     </div>
                   </div>
