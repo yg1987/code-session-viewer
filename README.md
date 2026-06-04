@@ -8,9 +8,9 @@
 
 > **Forked from** [Lition13/claude-session-viewer](https://github.com/Lition13/claude-session-viewer) — with extended support for **OpenCode** sessions alongside the original Claude Code pipeline.
 
-本项目使用 Claude + DeepSeek + MiMo（为了看截图）实现，目的是熟悉 AI 编程工具的使用，同时也根据自己需要，在原作者的基础上做些修改和扩展。
+This project was built using Claude + DeepSeek + MiMo (for viewing screenshots), with the goal of learning AI coding tools while making modifications and extensions based on personal needs on top of the original author's work.
 
-在 thought process 文件夹里有 1、2、3、4 四个 md 文件，是用本工具导出的对话过程。不知道是连接问题还是什么，每个会话到一定程度就会自动停掉，所以最后开了 4 个会话。第四个会话检查问题耗时很久，起码 40 分钟，比做功能都更耗时。
+In the [thought process](./thought process/) directory, there are 4 exported conversation logs (md files). Due to what appears to be connection issues, each session would automatically stop after a certain point, so 4 separate sessions were needed. The fourth session's debugging alone took at least 40 minutes — longer than building the actual features.
 
 An Electron desktop app for browsing, analyzing, and sharing AI coding sessions — supporting **both Claude Code (JSONL)** and **OpenCode (SQLite)** data sources.
 
