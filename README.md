@@ -52,11 +52,9 @@ npm run package
 
 ## Documentation
 
-- [PLAN.md](./PLAN.md) — architecture design and implementation notes
-- [Architecture](./docs/architecture.md) — process model, JSONL parsing, IPC channels
-- [Development](./docs/development.md) — local setup, conventions, debugging
-- [Features](./docs/features.md) — detailed feature guide
-- [thought process](./thought process/) — exported conversation logs of building this project
+- [PLAN.md](./PLAN.md) — architecture design and implementation notes (Chinese)
+- [thought process](./thought process/) — exported conversation logs of building this project (4 sessions)
+- [docs/](./docs/) — original project docs (architecture, development, features) — not yet updated for OpenCode/i18n changes
 
 ## Contributing
 

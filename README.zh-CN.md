@@ -10,7 +10,7 @@
 
 本项目使用 Claude + DeepSeek + MiMo（为了看截图）实现，目的是熟悉 AI 编程工具的使用，同时也根据自己需要，在原作者的基础上做些修改和扩展。
 
-在 thought process 文件夹里有 1、2、3、4 四个 md 文件，是用本工具导出的对话过程。不知道是连接问题还是什么，每个会话到一定程度就会自动停掉，所以最后开了 4 个会话。第四个会话检查问题耗时很久，起码 40 分钟，比做功能都更耗时。
+在 [thought process](./thought process/) 目录里有 1、2、3、4 四个 md 文件，是用本工具导出的对话过程。不知道是连接问题还是什么，每个会话到一定程度就会自动停掉，所以最后开了 4 个会话。第四个会话检查问题耗时很久，起码 40 分钟，比做功能都更耗时。
 
 一个用于浏览、分析和分享 AI 编程会话的 Electron 桌面应用，**同时支持 Claude Code（JSONL）和 OpenCode（SQLite）两种数据源**。
 
@@ -53,10 +53,8 @@ npm run package
 ## 文档
 
 - [PLAN.md](./PLAN.md) — 架构设计与实现笔记
-- [Architecture](./docs/architecture.md) — 进程模型、JSONL 解析、IPC 通道
-- [Development](./docs/development.md) — 本地开发环境配置
-- [Features](./docs/features.md) — 详细功能说明
-- [thought process](./thought process/) — 用本工具导出的构建过程对话记录
+- [thought process](./thought process/) — 用本工具导出的构建过程对话记录（4 个会话）
+- [docs/](./docs/) — 原版项目文档（架构、开发指南、功能说明）— 尚未更新 OpenCode/i18n 相关内容
 
 ## 贡献
 
