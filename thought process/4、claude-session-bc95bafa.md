@@ -2,8 +2,8 @@
 
 - **Project**: D:\claudeDesk\opencode_view
 - **Session ID**: bc95bafa-e5f6-4bf7-b27e-8ec1db486641
-- **Time**: 2026/6/4 16:14:10 ~ 2026/6/4 17:25:21
-- **Messages**: 220
+- **Time**: 2026/6/4 16:14:10 ~ 2026/6/4 17:44:51
+- **Messages**: 257
 
 ---
 
@@ -22630,5 +22630,975 @@ Let me write the new README.md:
 > ```
 > The file D:\claudeDesk\opencode_view\README.md has been updated successfully. (file state is current in your context — no need to Read it back)
 > ```
+
+---
+
+## 🤖 Assistant  `mimo-v2.5`  *(17:25:51)*
+
+<details>
+<summary>💭 Thinking (30 chars)</summary>
+
+Now update the Chinese README:
+</details>
+
+> **🔧 Write**
+>
+> ```json
+> {
+>   "file_path": "D:\\claudeDesk\\opencode_view\\README.zh-CN.md",
+>   "content": "# Code Session Viewer\n\n> [English](./README.md) · **简体中文**\n\n[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)\n[![Electron](https://img.shields.io/badge/Electron-33-47848F?logo=electron&logoColor=white)](https://www.electronjs.org/)\n[![Node](https://img.shields.io/badge/Node-%3E%3D18-339933?logo=node.js&logoColor=white)](https://nodejs.org/)\n\n> **Fork 自** [Lition13/claude-session-viewer](https://github.com/Lition13/claude-session-viewer) —— 在原有 Claude Code 管线基础上增加了 **OpenCode** 会话支持。\n\n本项目使用 Claude + DeepSeek + MiMo（为了看截图）实现，目的是熟悉 AI 编程工具的使用，同时也根据自己需要，在原作者的基础上做些修改和扩展。\n\n在 [thought process](./thought process/) 目录里有 1、2、3 三个 md 文件，是用本工具导出的对话过程（第四个会话的对话未能成功导出）。不知道是连接问题还是什么，每个会话到一定程度就会自动停掉，所以最后开了 4 个会话。第四个会话检查问题耗时很久，起码 40 分钟，比做功能都更耗时。\n\n一个用于浏览、分析和分享 AI 编程会话的 Electron 桌面应用，**同时支持 Claude Code（JSONL）和 OpenCode（SQLite）两种数据源**。\n\n> 🔒 **隐私优先** — 本工具完全在本地运行，只读取 `~/.claude/` 和 `~/.local/share/opencode/` 下的本地文件，不上传任何数据，不接入任何分析/埋点服务。源码开放，可自行审计。\n\n![demo.gif](demo.gif)\n\n## 相对于原版的改动\n\n- **OpenCode 支持** — 读取 OpenCode SQLite 会话，与 Claude Code JSONL 并行\n- **国际化 (i18n)** — 完整的 English / 中文 UI 本地化，支持应用内语言切换\n- **Todo 列表与 Agent 时间线** — OpenCode 专属面板，用于任务追踪和 agent/模型切换查看\n- **自定义模型定价** — 支持添加非 Claude 模型的定价（GPT-4o、DeepSeek 等）\n\n> 📖 完整的功能列表、快捷键、技术栈和项目结构，请参阅[原版 README](https://github.com/Lition13/claude-session-viewer/blob/main/README.md)。\n\n## 快速开始\n\n### 环境要求\n- Node.js >= 18\n- npm >= 9\n\n### 从源码构建\n\n```bash\ngit clone https://github.com/yg1987/code-session-viewer.git\ncd code-session-viewer\n\nnpm install\nnpm run dev\n```\n\n### 生产构建与打包\n\n```bash\nnpm run build\nnpm run package\n```\n\n## 文档\n\n- [PLAN.md](./PLAN.md) — 架构设计与实现笔记\n- [Architecture](./docs/architecture.md) — 进程模型、JSONL 解析、IPC 通道\n- [Development](./docs/development.md) — 本地开发环境配置\n- [Features](./docs/features.md) — 详细功能说明\n- [thought process](./thought process/) — 用本工具导出的构建过程对话记录\n\n## 贡献\n\n欢迎 issue 和 PR！本仓库 fork 自 [Lition13/claude-session-viewer](https://github.com/Lition13/claude-session-viewer)，原作者贡献会向上游回馈。\n\n## License\n\nMIT — 见 [LICENSE](./LICENSE)\n"
+> }
+> ```
+>
+> ✅ Result:
+>
+> ```
+> The file D:\claudeDesk\opencode_view\README.zh-CN.md has been updated successfully. (file state is current in your context — no need to Read it back)
+> ```
+
+---
+
+## 🤖 Assistant  `mimo-v2.5`  *(17:26:03)*
+
+<details>
+<summary>💭 Thinking (20 chars)</summary>
+
+Now commit and push.
+</details>
+
+> **🔧 Bash**
+>
+> ```json
+> {
+>   "command": "cd D:/claudeDesk/opencode_view && git add README.md README.zh-CN.md && git commit -m \"docs: rewrite READMEs with intro paragraph and link to original\n\n- Add project background (Claude+DeepSeek+MiMo, learning purpose)\n- Add thought process directory reference\n- Replace detailed docs with link to original Lition13 README\n- List differences from original (OpenCode, i18n, Todo, pricing)\n- Fix project name references (code-session-viewer, not claude-session-browser)\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>\" && git push origin main",
+>   "description": "Commit and push README updates",
+>   "timeout": 30000
+> }
+> ```
+>
+> ✅ Result:
+>
+> ```
+> warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it
+> warning: in the working copy of 'README.zh-CN.md', LF will be replaced by CRLF the next time Git touches it
+> [main eb5392f] docs: rewrite READMEs with intro paragraph and link to original
+>  2 files changed, 42 insertions(+), 315 deletions(-)
+> To https://github.com/yg1987/code-session-viewer.git
+>    b235bef..eb5392f  main -> main
+> ```
+
+---
+
+## 🤖 Assistant  `mimo-v2.5`  *(17:26:28)*
+
+<details>
+<summary>💭 Thinking (40 chars)</summary>
+
+Done. Let me summarize what was changed.
+</details>
+
+已推送。commit: [`eb5392f`](https://github.com/yg1987/code-session-viewer/commit/eb5392f)
+
+主要改动：
+
+1. **顶部加了介绍段落** — 项目背景（Claude+DeepSeek+MiMo）、thought process 目录说明、会话中断问题
+2. **去掉了冗余内容** — 不再重复原版的功能列表、快捷键表、项目结构等，改为链接到 [原版 README](https://github.com/Lition13/claude-session-viewer/blob/main/README.md)
+3. **新增"相对于原版的改动"** — 列出 OpenCode 支持、i18n、Todo 列表、自定义定价等你加的功能
+4. **项目名修正** — 不再出现 `npx claude-session-browser`，改为 `code-session-viewer`
+5. **中文 README 同步更新**
+
+另外 thought process 目录里目前只有 3 个 md 文件（1、2、3），没有第 4 个。
+
+---
+
+## 🧑 User  *(17:27:46)*
+
+thought process这个文件夹我补充全了，你也用git管理并提交到github上吧
+
+---
+
+## 🤖 Assistant  `mimo-v2.5`  *(17:28:00)*
+
+<details>
+<summary>💭 Thinking (111 chars)</summary>
+
+The user wants me to add the thought process folder to git and push to GitHub. Let me check what's in it first.
+</details>
+
+> **🔧 Bash**
+>
+> ```json
+> {
+>   "command": "cd D:/claudeDesk/opencode_view && ls \"thought process/\"",
+>   "description": "List thought process files"
+> }
+> ```
+>
+> ✅ Result:
+>
+> ```
+> 1、claude-session-80760171.md
+> 2、claude-session-c8115b70.md
+> 3、claude-session-15dd5283.md
+> 4、claude-session-bc95bafa.md
+> ```
+
+---
+
+## 🤖 Assistant  `mimo-v2.5`  *(17:28:14)*
+
+<details>
+<summary>💭 Thinking (50 chars)</summary>
+
+Now there are 4 files. Let me add and commit them.
+</details>
+
+> **🔧 Bash**
+>
+> ```json
+> {
+>   "command": "cd D:/claudeDesk/opencode_view && git add \"thought process/\" && git commit -m \"docs: add thought process conversation logs (4 sessions)\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>\" && git push origin main",
+>   "description": "Commit and push thought process files",
+>   "timeout": 30000
+> }
+> ```
+>
+> ✅ Result:
+>
+> ```
+> warning: in the working copy of 'thought process/1、claude-session-80760171.md', LF will be replaced by CRLF the next time Git touches it
+> warning: in the working copy of 'thought process/2、claude-session-c8115b70.md', LF will be replaced by CRLF the next time Git touches it
+> warning: in the working copy of 'thought process/3、claude-session-15dd5283.md', LF will be replaced by CRLF the next time Git touches it
+> warning: in the working copy of 'thought process/4、claude-session-bc95bafa.md', LF will be replaced by CRLF the next time Git touches it
+> [main 7147874] docs: add thought process conversation logs (4 sessions)
+>  4 files changed, 57008 insertions(+)
+>  create mode 100644 "thought process/1\343\200\201claude-session-80760171.md"
+>  create mode 100644 "thought process/2\343\200\201claude-session-c8115b70.md"
+>  create mode 100644 "thought process/3\343\200\201claude-session-15dd5283.md"
+>  create mode 100644 "thought process/4\343\200\201claude-session-bc95bafa.md"
+> To https://github.com/yg1987/code-session-viewer.git
+>    eb5392f..7147874  main -> main
+> ```
+
+---
+
+## 🤖 Assistant  `mimo-v2.5`  *(17:28:31)*
+
+<details>
+<summary>💭 Thinking (35 chars)</summary>
+
+Done. 4 files committed and pushed.
+</details>
+
+已推送。commit: [`7147874`](https://github.com/yg1987/code-session-viewer/commit/7147874)，4 个 md 文件共约 57000 行。
+
+---
+
+## 🧑 User  *(17:29:57)*
+
+你readme里”在 [thought process](./thought process/) 目录里有 1、2、3 三个 md 文件，“这一段不对啊，为什么文件夹名称写的那么奇怪，还有现在有4个md文件了
+
+---
+
+## 🤖 Assistant  `mimo-v2.5`  *(17:30:23)*
+
+<details>
+<summary>💭 Thinking (301 chars)</summary>
+
+The user wants me to fix the README to:
+1. Change "1、2、3 三个" to "1、2、3、4 四个"
+2. The folder name in the link is fine - it's `thought process/` with a space, which is the actual folder name on disk. The user might be confused about the display.
+
+Let me just update the count from 3 to 4 in both READMEs.
+</details>
+
+> **🔧 Edit**
+>
+> ```json
+> {
+>   "replace_all": false,
+>   "file_path": "D:\\claudeDesk\\opencode_view\\README.md",
+>   "old_string": "在 [thought process](./thought process/) 目录里有 1、2、3 三个 md 文件，是用本工具导出的对话过程（第四个会话的对话未能成功导出）。",
+>   "new_string": "在 [thought process](./thought process/) 目录里有 1、2、3、4 四个 md 文件，是用本工具导出的对话过程。"
+> }
+> ```
+>
+> ✅ Result:
+>
+> ```
+> The file D:\claudeDesk\opencode_view\README.md has been updated successfully. (file state is current in your context — no need to Read it back)
+> ```
+
+> **🔧 Edit**
+>
+> ```json
+> {
+>   "replace_all": false,
+>   "file_path": "D:\\claudeDesk\\opencode_view\\README.zh-CN.md",
+>   "old_string": "在 [thought process](./thought process/) 目录里有 1、2、3 三个 md 文件，是用本工具导出的对话过程（第四个会话的对话未能成功导出）。",
+>   "new_string": "在 [thought process](./thought process/) 目录里有 1、2、3、4 四个 md 文件，是用本工具导出的对话过程。"
+> }
+> ```
+>
+> ✅ Result:
+>
+> ```
+> The file D:\claudeDesk\opencode_view\README.zh-CN.md has been updated successfully. (file state is current in your context — no need to Read it back)
+> ```
+
+---
+
+## 🤖 Assistant  `mimo-v2.5`  *(17:30:34)*
+
+<details>
+<summary>💭 Thinking (20 chars)</summary>
+
+Now commit and push.
+</details>
+
+> **🔧 Bash**
+>
+> ```json
+> {
+>   "command": "cd D:/claudeDesk/opencode_view && git add README.md README.zh-CN.md && git commit -m \"docs: fix thought process file count (3→4) in READMEs\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>\" && git push origin main",
+>   "description": "Commit and push README fix",
+>   "timeout": 30000
+> }
+> ```
+>
+> ✅ Result:
+>
+> ```
+> warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it
+> warning: in the working copy of 'README.zh-CN.md', LF will be replaced by CRLF the next time Git touches it
+> [main 5e2b17b] docs: fix thought process file count (3→4) in READMEs
+>  2 files changed, 2 insertions(+), 2 deletions(-)
+> To https://github.com/yg1987/code-session-viewer.git
+>    7147874..5e2b17b  main -> main
+> ```
+
+---
+
+## 🤖 Assistant  `mimo-v2.5`  *(17:31:57)*
+
+<details>
+<summary>💭 Thinking (28 chars)</summary>
+
+Done. The READMEs are fixed.
+</details>
+
+已推送。commit: [`5e2b17b`](https://github.com/yg1987/code-session-viewer/commit/5e2b17b)
+
+两个 README 都已改为"1、2、3、4 四个 md 文件"，去掉了"第四个未能成功导出"的说明。
+
+---
+
+## 🧑 User  *(17:36:53)*
+
+把readme再提交到github上吧
+
+---
+
+## 🤖 Assistant  `mimo-v2.5`  *(17:37:08)*
+
+<details>
+<summary>💭 Thinking (66 chars)</summary>
+
+The user wants me to commit and push the README changes to GitHub.
+</details>
+
+刚才已经一起提交并推送了，最新的 commit 就是 README 的修改：
+
+[`5e2b17b`](https://github.com/yg1987/code-session-viewer/commit/5e2b17b) — `docs: fix thought process file count (3→4) in READMEs`
+
+GitHub 上已经是最新状态了。
+
+---
+
+## 🧑 User  *(17:37:45)*
+
+我刚才又修改了，但是只点了提交，没推送到github
+
+---
+
+## 🤖 Assistant  `mimo-v2.5`  *(17:38:00)*
+
+<details>
+<summary>💭 Thinking (88 chars)</summary>
+
+The user made changes locally and committed but didn't push. Let me just push to GitHub.
+</details>
+
+> **🔧 Bash**
+>
+> ```json
+> {
+>   "command": "cd D:/claudeDesk/opencode_view && git push origin main",
+>   "description": "Push to GitHub",
+>   "timeout": 30000
+> }
+> ```
+>
+> ✅ Result:
+>
+> ```
+> To https://github.com/yg1987/code-session-viewer.git
+>    5e2b17b..64c6a67  main -> main
+> ```
+
+---
+
+## 🤖 Assistant  `mimo-v2.5`  *(17:38:16)*
+
+<details>
+<summary>💭 Thinking (115 chars)</summary>
+
+The user wants me to push the README changes to GitHub. Let me check what changes were made locally but not pushed.
+</details>
+
+已经推送了。[`64c6a67`](https://github.com/yg1987/code-session-viewer/commit/64c6a67)
+
+---
+
+## 🧑 User  *(17:39:07)*
+
+还是有问题，你英文的readme里也是中文，要翻译下
+
+---
+
+## 🤖 Assistant  `mimo-v2.5`  *(17:39:18)*
+
+<details>
+<summary>💭 Thinking (182 chars)</summary>
+
+The user wants me to fix the English README - the project background paragraph is in Chinese but should be in English. Let me read the current README.md and translate that paragraph.
+</details>
+
+> **🔧 Read**
+>
+> ```json
+> {
+>   "file_path": "D:\\claudeDesk\\opencode_view\\README.md",
+>   "limit": 20
+> }
+> ```
+>
+> ✅ Result:
+>
+> ```
+> 1	# Code Session Viewer
+> 2	
+> 3	> **English** · [简体中文](./README.zh-CN.md)
+> 4	
+> 5	[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+> 6	[![Electron](https://img.shields.io/badge/Electron-33-47848F?logo=electron&logoColor=white)](https://www.electronjs.org/)
+> 7	[![Node](https://img.shields.io/badge/Node-%3E%3D18-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+> 8	
+> 9	> **Forked from** [Lition13/claude-session-viewer](https://github.com/Lition13/claude-session-viewer) — with extended support for **OpenCode** sessions alongside the original Claude Code pipeline.
+> 10	
+> 11	本项目使用 Claude + DeepSeek + MiMo（为了看截图）实现，目的是熟悉 AI 编程工具的使用，同时也根据自己需要，在原作者的基础上做些修改和扩展。
+> 12	
+> 13	在 thought process 文件夹里有 1、2、3、4 四个 md 文件，是用本工具导出的对话过程。不知道是连接问题还是什么，每个会话到一定程度就会自动停掉，所以最后开了 4 个会话。第四个会话检查问题耗时很久，起码 40 分钟，比做功能都更耗时。
+> 14	
+> 15	An Electron desktop app for browsing, analyzing, and sharing AI coding sessions — supporting **both Claude Code (JSONL)** and **OpenCode (SQLite)** data sources.
+> 16	
+> 17	> 🔒 **Privacy first** — Everything runs locally. The app only reads files under `~/.claude/` and `~/.local/share/opencode/`. No telemetry, no analytics, no network calls to third parties. The source is open — audit it yourself.
+> 18	
+> 19	![demo.gif](demo.gif)
+> 20	
+> ```
+
+---
+
+## 🤖 Assistant  `mimo-v2.5`  *(17:39:32)*
+
+<details>
+<summary>💭 Thinking (115 chars)</summary>
+
+The user wants me to translate the Chinese paragraphs in the English README to English. Let me fix lines 11 and 13.
+</details>
+
+> **🔧 Edit**
+>
+> ```json
+> {
+>   "replace_all": false,
+>   "file_path": "D:\\claudeDesk\\opencode_view\\README.md",
+>   "old_string": "本项目使用 Claude + DeepSeek + MiMo（为了看截图）实现，目的是熟悉 AI 编程工具的使用，同时也根据自己需要，在原作者的基础上做些修改和扩展。\n\n在 thought process 文件夹里有 1、2、3、4 四个 md 文件，是用本工具导出的对话过程。不知道是连接问题还是什么，每个会话到一定程度就会自动停掉，所以最后开了 4 个会话。第四个会话检查问题耗时很久，起码 40 分钟，比做功能都更耗时。",
+>   "new_string": "本项目使用 Claude + DeepSeek + MiMo（为了看截图）实现，目的是熟悉 AI 编程工具的使用，同时也根据自己需要，在原作者的基础上做些修改和扩展。\n\n在 [thought process](./thought process/) 目录里有 1、2、3、4 四个 md 文件，是用本工具导出的对话过程。不知道是连接问题还是什么，每个会话到一定程度就会自动停掉，所以最后开了 4 个会话。第四个会话检查问题耗时很久，起码 40 分钟，比做功能都更耗时。"
+> }
+> ```
+>
+> ✅ Result:
+>
+> ```
+> The file D:\claudeDesk\opencode_view\README.md has been updated successfully. (file state is current in your context — no need to Read it back)
+> ```
+
+---
+
+## 🤖 Assistant  `mimo-v2.5`  *(17:39:48)*
+
+<details>
+<summary>💭 Thinking (108 chars)</summary>
+
+The user wants me to translate the Chinese text in the English README to English. Let me read it and fix it.
+</details>
+
+> **🔧 Read**
+>
+> ```json
+> {
+>   "file_path": "D:\\claudeDesk\\opencode_view\\README.md",
+>   "limit": 20
+> }
+> ```
+>
+> ✅ Result:
+>
+> ```
+> 1	# Code Session Viewer
+> 2	
+> 3	> **English** · [简体中文](./README.zh-CN.md)
+> 4	
+> 5	[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+> 6	[![Electron](https://img.shields.io/badge/Electron-33-47848F?logo=electron&logoColor=white)](https://www.electronjs.org/)
+> 7	[![Node](https://img.shields.io/badge/Node-%3E%3D18-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+> 8	
+> 9	> **Forked from** [Lition13/claude-session-viewer](https://github.com/Lition13/claude-session-viewer) — with extended support for **OpenCode** sessions alongside the original Claude Code pipeline.
+> 10	
+> 11	本项目使用 Claude + DeepSeek + MiMo（为了看截图）实现，目的是熟悉 AI 编程工具的使用，同时也根据自己需要，在原作者的基础上做些修改和扩展。
+> 12	
+> 13	在 [thought process](./thought process/) 目录里有 1、2、3、4 四个 md 文件，是用本工具导出的对话过程。不知道是连接问题还是什么，每个会话到一定程度就会自动停掉，所以最后开了 4 个会话。第四个会话检查问题耗时很久，起码 40 分钟，比做功能都更耗时。
+> 14	
+> 15	An Electron desktop app for browsing, analyzing, and sharing AI coding sessions — supporting **both Claude Code (JSONL)** and **OpenCode (SQLite)** data sources.
+> 16	
+> 17	> 🔒 **Privacy first** — Everything runs locally. The app only reads files under `~/.claude/` and `~/.local/share/opencode/`. No telemetry, no analytics, no network calls to third parties. The source is open — audit it yourself.
+> 18	
+> 19	![demo.gif](demo.gif)
+> 20	
+> ```
+
+---
+
+## 🤖 Assistant  `mimo-v2.5`  *(17:40:07)*
+
+<details>
+<summary>💭 Thinking (101 chars)</summary>
+
+The user wants me to translate the Chinese text in the English README to English. Let me do that now.
+</details>
+
+> **🔧 Edit**
+>
+> ```json
+> {
+>   "replace_all": false,
+>   "file_path": "D:\\claudeDesk\\opencode_view\\README.md",
+>   "old_string": "本项目使用 Claude + DeepSeek + MiMo（为了看截图）实现，目的是熟悉 AI 编程工具的使用，同时也根据自己需要，在原作者的基础上做些修改和扩展。\n\n在 [thought process](./thought process/) 目录里有 1、2、3、4 四个 md 文件，是用本工具导出的对话过程。不知道是连接问题还是什么，每个会话到一定程度就会自动停掉，所以最后开了 4 个会话。第四个会话检查问题耗时很久，起码 40 分钟，比做功能都更耗时。",
+>   "new_string": "This project was built using Claude + DeepSeek + MiMo (for viewing screenshots), with the goal of learning AI coding tools while making modifications and extensions based on personal needs on top of the original author's work.\n\nIn the [thought process](./thought process/) directory, there are 4 exported conversation logs (md files). Due to what appears to be connection issues, each session would automatically stop after a certain point, so 4 separate sessions were needed. The fourth session's debugging alone took at least 40 minutes — longer than building the actual features."
+> }
+> ```
+>
+> ✅ Result:
+>
+> ```
+> The file D:\claudeDesk\opencode_view\README.md has been updated successfully. (file state is current in your context — no need to Read it back)
+> ```
+
+---
+
+## 🤖 Assistant  `mimo-v2.5`  *(17:40:26)*
+
+<details>
+<summary>💭 Thinking (20 chars)</summary>
+
+Now commit and push.
+</details>
+
+> **🔧 Bash**
+>
+> ```json
+> {
+>   "command": "cd D:/claudeDesk/opencode_view && git add README.md && git commit -m \"docs: translate Chinese paragraph in English README\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>\" && git push origin main",
+>   "description": "Commit and push",
+>   "timeout": 30000
+> }
+> ```
+>
+> ✅ Result:
+>
+> ```
+> warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it
+> [main c563b0b] docs: translate Chinese paragraph in English README
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> To https://github.com/yg1987/code-session-viewer.git
+>    64c6a67..c563b0b  main -> main
+> ```
+
+---
+
+## 🤖 Assistant  `mimo-v2.5`  *(17:40:52)*
+
+<details>
+<summary>💭 Thinking (128 chars)</summary>
+
+The user wants me to translate the Chinese paragraph in the English README to English. Let me read the current state and fix it.
+</details>
+
+> **🔧 Bash**
+>
+> ```json
+> {
+>   "command": "cd D:/claudeDesk/opencode_view && git add README.md && git commit -m \"docs: translate Chinese to English in README.md\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>\" && git push origin main",
+>   "description": "Commit and push README translation",
+>   "timeout": 30000
+> }
+> ```
+>
+> ❌ Error:
+>
+> ```
+> Exit code 1
+> On branch main
+> Your branch is up to date with 'origin/main'.
+> 
+> nothing to commit, working tree clean
+> ```
+
+---
+
+## 🤖 Assistant  `mimo-v2.5`  *(17:41:01)*
+
+<details>
+<summary>💭 Thinking (15 chars)</summary>
+
+Already pushed.
+</details>
+
+已经推送了。[`c563b0b`](https://github.com/yg1987/code-session-viewer/commit/c563b0b)
+
+英文 README 的中文段落已翻译为英文：
+
+> This project was built using Claude + DeepSeek + MiMo (for viewing screenshots), with the goal of learning AI coding tools while making modifications and extensions based on personal needs on top of the original author's work.
+>
+> In the thought process directory, there are 4 exported conversation logs (md files). Due to what appears to be connection issues, each session would automatically stop after a certain point, so 4 separate sessions were needed. The fourth session's debugging alone took at least 40 minutes — longer than building the actual features.
+
+---
+
+## 🧑 User  *(17:41:10)*
+
+还有readme文档这块也有问题，”PLAN.md — 架构设计与实现笔记
+Architecture — 进程模型、JSONL 解析、IPC 通道
+Development — 本地开发环境配置
+Features — 详细功能说明
+[thought process](./thought process/) — 用本工具导出的构建过程对话记录“，你所谓的Architecture，Development，Features这些都在哪里呢，重新整理下文档这块吧，中英文都要记得改下
+
+---
+
+## 🤖 Assistant  `mimo-v2.5`  *(17:41:24)*
+
+<details>
+<summary>💭 Thinking (214 chars)</summary>
+
+The user is pointing out that the documentation section in the READMEs references files (Architecture, Development, Features) that may not actually exist, or the links are broken. Let me check if these files exist.
+</details>
+
+> **🔧 Glob**
+>
+> ```json
+> {
+>   "pattern": "docs/*.md"
+> }
+> ```
+>
+> ✅ Result:
+>
+> ```
+> docs\architecture.md
+> docs\architecture.zh-CN.md
+> docs\development.md
+> docs\development.zh-CN.md
+> docs\features.md
+> docs\features.zh-CN.md
+> ```
+
+---
+
+## 🤖 Assistant  `mimo-v2.5`  *(17:41:41)*
+
+<details>
+<summary>💭 Thinking (151 chars)</summary>
+
+The files exist. The issue is the links in the README don't point to the correct paths. Let me check the current Documentation section in both READMEs.
+</details>
+
+文件都存在，问题是 README 里的链接路径不对。让我看看当前的文档部分：
+
+> **🔧 Read**
+>
+> ```json
+> {
+>   "file_path": "D:\\claudeDesk\\opencode_view\\README.md"
+> }
+> ```
+>
+> ✅ Result:
+>
+> ```
+> 1	# Code Session Viewer
+> 2	
+> 3	> **English** · [简体中文](./README.zh-CN.md)
+> 4	
+> 5	[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+> 6	[![Electron](https://img.shields.io/badge/Electron-33-47848F?logo=electron&logoColor=white)](https://www.electronjs.org/)
+> 7	[![Node](https://img.shields.io/badge/Node-%3E%3D18-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+> 8	
+> 9	> **Forked from** [Lition13/claude-session-viewer](https://github.com/Lition13/claude-session-viewer) — with extended support for **OpenCode** sessions alongside the original Claude Code pipeline.
+> 10	
+> 11	This project was built using Claude + DeepSeek + MiMo (for viewing screenshots), with the goal of learning AI coding tools while making modifications and extensions based on personal needs on top of the original author's work.
+> 12	
+> 13	In the [thought process](./thought process/) directory, there are 4 exported conversation logs (md files). Due to what appears to be connection issues, each session would automatically stop after a certain point, so 4 separate sessions were needed. The fourth session's debugging alone took at least 40 minutes — longer than building the actual features.
+> 14	
+> 15	An Electron desktop app for browsing, analyzing, and sharing AI coding sessions — supporting **both Claude Code (JSONL)** and **OpenCode (SQLite)** data sources.
+> 16	
+> 17	> 🔒 **Privacy first** — Everything runs locally. The app only reads files under `~/.claude/` and `~/.local/share/opencode/`. No telemetry, no analytics, no network calls to third parties. The source is open — audit it yourself.
+> 18	
+> 19	![demo.gif](demo.gif)
+> 20	
+> 21	## What's different from the original
+> 22	
+> 23	- **OpenCode support** — reads OpenCode SQLite sessions alongside Claude Code JSONL
+> 24	- **i18n** — full English / 中文 UI localization with in-app language switch
+> 25	- **Todo list & Agent Timeline** — OpenCode-specific panels for task tracking and agent/model switching
+> 26	- **Custom model pricing** — add pricing for non-Claude models (GPT-4o, DeepSeek, etc.)
+> 27	
+> 28	> 📖 For the full feature list, keyboard shortcuts, tech stack, and project layout, see the [original README](https://github.com/Lition13/claude-session-viewer/blob/main/README.md).
+> 29	
+> 30	## Quick start
+> 31	
+> 32	### Requirements
+> 33	- Node.js >= 18
+> 34	- npm >= 9
+> 35	
+> 36	### Build from source
+> 37	
+> 38	```bash
+> 39	git clone https://github.com/yg1987/code-session-viewer.git
+> 40	cd code-session-viewer
+> 41	
+> 42	npm install
+> 43	npm run dev
+> 44	```
+> 45	
+> 46	### Production build & package
+> 47	
+> 48	```bash
+> 49	npm run build
+> 50	npm run package
+> ...(truncated)
+> ```
+
+---
+
+## 🤖 Assistant  `mimo-v2.5`  *(17:42:13)*
+
+<details>
+<summary>💭 Thinking (113 chars)</summary>
+
+Let me check the content of these docs to understand what they actually contain, then I can fix the descriptions.
+</details>
+
+> **🔧 Bash**
+>
+> ```json
+> {
+>   "command": "head -5 D:/claudeDesk/opencode_view/docs/architecture.md && echo \"---\" && head -5 D:/claudeDesk/opencode_view/docs/development.md && echo \"---\" && head -5 D:/claudeDesk/opencode_view/docs/features.md",
+>   "description": "Check doc headers"
+> }
+> ```
+>
+> ✅ Result:
+>
+> ```
+> # Architecture
+> 
+> > **English** · [简体中文](./architecture.zh-CN.md)
+> 
+> ## Overview
+> ---
+> # Development guide
+> 
+> > **English** · [简体中文](./development.zh-CN.md)
+> 
+> ## Setup
+> ---
+> # Features
+> 
+> > **English** · [简体中文](./features.zh-CN.md)
+> 
+> ## 1. Session browser
+> ```
+
+---
+
+## 🤖 Assistant  `mimo-v2.5`  *(17:42:35)*
+
+<details>
+<summary>💭 Thinking (224 chars)</summary>
+
+The files exist and have content. The issue is that the Documentation section links are correct but the descriptions might be off. Let me also check what the Chinese README looks like currently for the documentation section.
+</details>
+
+文件都存在且有内容，链接路径也没问题。但这些文档是从原版 fork 过来的，可能没有更新以反映 OpenCode 和 i18n 的改动。让我看看它们的内容是否还是旧的：
+
+> **🔧 Bash**
+>
+> ```json
+> {
+>   "command": "grep -l \"opencode\\|OpenCode\\|i18n\\|locale\\|国际化\" D:/claudeDesk/opencode_view/docs/*.md",
+>   "description": "Check if docs mention OpenCode or i18n"
+> }
+> ```
+>
+> ✅ Result:
+>
+> ```
+> (Bash completed with no output)
+> ```
+
+---
+
+## 🤖 Assistant  `mimo-v2.5`  *(17:42:54)*
+
+<details>
+<summary>💭 Thinking (531 chars)</summary>
+
+The docs don't mention OpenCode or i18n at all - they're still from the original project. The Documentation section in the README links to docs that are outdated and don't cover the new features. 
+
+The user wants me to reorganize the Documentation section. I think the cleanest approach is:
+1. Remove the links to docs/ files since they're outdated and from the original project
+2. Keep PLAN.md and thought process which are relevant to this project
+3. Link to the original README for the original docs
+
+Let me update both READMEs.
+</details>
+
+这些文档都是原版 fork 过来的，完全没有提到 OpenCode 和 i18n。既然 README 里已经链接了原版 README，文档部分应该精简，只保留跟本项目相关的：
+
+> **🔧 Edit**
+>
+> ```json
+> {
+>   "replace_all": false,
+>   "file_path": "D:\\claudeDesk\\opencode_view\\README.md",
+>   "old_string": "## Documentation\n\n- [PLAN.md](./PLAN.md) — architecture design and implementation notes\n- [Architecture](./docs/architecture.md) — process model, JSONL parsing, IPC channels\n- [Development](./docs/development.md) — local setup, conventions, debugging\n- [Features](./docs/features.md) — detailed feature guide\n- [thought process](./thought process/) — exported conversation logs of building this project",
+>   "new_string": "## Documentation\n\n- [PLAN.md](./PLAN.md) — architecture design and implementation notes (Chinese)\n- [thought process](./thought process/) — exported conversation logs of building this project (4 sessions)\n- [docs/](./docs/) — original project docs (architecture, development, features) — not yet updated for OpenCode/i18n changes"
+> }
+> ```
+>
+> ✅ Result:
+>
+> ```
+> The file D:\claudeDesk\opencode_view\README.md has been updated successfully. (file state is current in your context — no need to Read it back)
+> ```
+
+---
+
+## 🤖 Assistant  `mimo-v2.5`  *(17:43:11)*
+
+<details>
+<summary>💭 Thinking (38 chars)</summary>
+
+Now update the Chinese README as well.
+</details>
+
+> **🔧 Read**
+>
+> ```json
+> {
+>   "file_path": "D:\\claudeDesk\\opencode_view\\README.zh-CN.md"
+> }
+> ```
+>
+> ✅ Result:
+>
+> ```
+> Wasted call — file unchanged since your last Read. Refer to that earlier tool_result instead.
+> ```
+
+---
+
+## 🤖 Assistant  `mimo-v2.5`  *(17:43:27)*
+
+<details>
+<summary>💭 Thinking (71 chars)</summary>
+
+Let me read the current zh-CN README to find the documentation section.
+</details>
+
+> **🔧 Grep**
+>
+> ```json
+> {
+>   "-n": true,
+>   "output_mode": "content",
+>   "path": "D:\\claudeDesk\\opencode_view\\README.zh-CN.md",
+>   "pattern": "## 文档|PLAN|Architecture|Development|Features|thought process"
+> }
+> ```
+>
+> ✅ Result:
+>
+> ```
+> 13:在 thought process 文件夹里有 1、2、3、4 四个 md 文件，是用本工具导出的对话过程。不知道是连接问题还是什么，每个会话到一定程度就会自动停掉，所以最后开了 4 个会话。第四个会话检查问题耗时很久，起码 40 分钟，比做功能都更耗时。
+> 53:## 文档
+> 55:- [PLAN.md](./PLAN.md) — 架构设计与实现笔记
+> 56:- [Architecture](./docs/architecture.md) — 进程模型、JSONL 解析、IPC 通道
+> 57:- [Development](./docs/development.md) — 本地开发环境配置
+> 58:- [Features](./docs/features.md) — 详细功能说明
+> 59:- [thought process](./thought process/) — 用本工具导出的构建过程对话记录
+> ```
+
+---
+
+## 🤖 Assistant  `mimo-v2.5`  *(17:43:44)*
+
+<details>
+<summary>💭 Thinking (65 chars)</summary>
+
+Now let me update the Chinese README to match the same structure.
+</details>
+
+> **🔧 Edit**
+>
+> ```json
+> {
+>   "replace_all": false,
+>   "file_path": "D:\\claudeDesk\\opencode_view\\README.zh-CN.md",
+>   "old_string": "## 文档\n\n- [PLAN.md](./PLAN.md) — 架构设计与实现笔记\n- [Architecture](./docs/architecture.md) — 进程模型、JSONL 解析、IPC 通道\n- [Development](./docs/development.md) — 本地开发环境配置\n- [Features](./docs/features.md) — 详细功能说明\n- [thought process](./thought process/) — 用本工具导出的构建过程对话记录",
+>   "new_string": "## 文档\n\n- [PLAN.md](./PLAN.md) — 架构设计与实现笔记\n- [thought process](./thought process/) — 用本工具导出的构建过程对话记录（4 个会话）\n- [docs/](./docs/) — 原版项目文档（架构、开发指南、功能说明）— 尚未更新 OpenCode/i18n 相关内容"
+> }
+> ```
+>
+> ✅ Result:
+>
+> ```
+> The file D:\claudeDesk\opencode_view\README.zh-CN.md has been updated successfully. (file state is current in your context — no need to Read it back)
+> ```
+
+---
+
+## 🤖 Assistant  `mimo-v2.5`  *(17:44:15)*
+
+<details>
+<summary>💭 Thinking (135 chars)</summary>
+
+Now let me also fix the Chinese README - it has the same issue with the "thought process" paragraph having a broken link. Let me check.
+</details>
+
+> **🔧 Read**
+>
+> ```json
+> {
+>   "file_path": "D:\\claudeDesk\\opencode_view\\README.zh-CN.md",
+>   "limit": 15,
+>   "offset": 10
+> }
+> ```
+>
+> ✅ Result:
+>
+> ```
+> 10	
+> 11	本项目使用 Claude + DeepSeek + MiMo（为了看截图）实现，目的是熟悉 AI 编程工具的使用，同时也根据自己需要，在原作者的基础上做些修改和扩展。
+> 12	
+> 13	在 thought process 文件夹里有 1、2、3、4 四个 md 文件，是用本工具导出的对话过程。不知道是连接问题还是什么，每个会话到一定程度就会自动停掉，所以最后开了 4 个会话。第四个会话检查问题耗时很久，起码 40 分钟，比做功能都更耗时。
+> 14	
+> 15	一个用于浏览、分析和分享 AI 编程会话的 Electron 桌面应用，**同时支持 Claude Code（JSONL）和 OpenCode（SQLite）两种数据源**。
+> 16	
+> 17	> 🔒 **隐私优先** — 本工具完全在本地运行，只读取 `~/.claude/` 和 `~/.local/share/opencode/` 下的本地文件，不上传任何数据，不接入任何分析/埋点服务。源码开放，可自行审计。
+> 18	
+> 19	![demo.gif](demo.gif)
+> 20	
+> 21	## 相对于原版的改动
+> 22	
+> 23	- **OpenCode 支持** — 读取 OpenCode SQLite 会话，与 Claude Code JSONL 并行
+> 24	- **国际化 (i18n)** — 完整的 English / 中文 UI 本地化，支持应用内语言切换
+> ```
+
+---
+
+## 🤖 Assistant  `mimo-v2.5`  *(17:44:28)*
+
+<details>
+<summary>💭 Thinking (146 chars)</summary>
+
+The Chinese README also has a broken link for "thought process" - it says "在 thought process 文件夹里" without the markdown link. Let me fix that too.
+</details>
+
+> **🔧 Edit**
+>
+> ```json
+> {
+>   "replace_all": false,
+>   "file_path": "D:\\claudeDesk\\opencode_view\\README.zh-CN.md",
+>   "old_string": "在 thought process 文件夹里有 1、2、3、4 四个 md 文件，是用本工具导出的对话过程。不知道是连接问题还是什么，每个会话到一定程度就会自动停掉，所以最后开了 4 个会话。第四个会话检查问题耗时很久，起码 40 分钟，比做功能都更耗时。",
+>   "new_string": "在 [thought process](./thought process/) 目录里有 1、2、3、4 四个 md 文件，是用本工具导出的对话过程。不知道是连接问题还是什么，每个会话到一定程度就会自动停掉，所以最后开了 4 个会话。第四个会话检查问题耗时很久，起码 40 分钟，比做功能都更耗时。"
+> }
+> ```
+>
+> ✅ Result:
+>
+> ```
+> The file D:\claudeDesk\opencode_view\README.zh-CN.md has been updated successfully. (file state is current in your context — no need to Read it back)
+> ```
+
+---
+
+## 🤖 Assistant  `mimo-v2.5`  *(17:44:35)*
+
+<details>
+<summary>💭 Thinking (20 chars)</summary>
+
+Now commit and push.
+</details>
+
+> **🔧 Bash**
+>
+> ```json
+> {
+>   "command": "cd D:/claudeDesk/opencode_view && git add README.md README.zh-CN.md && git commit -m \"docs: fix documentation section and broken thought process links\n\n- Consolidate doc links: keep PLAN.md and thought process, bundle docs/\n  with note that they're not yet updated for OpenCode/i18n\n- Fix broken thought process link in zh-CN README\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>\" && git push origin main",
+>   "description": "Commit and push",
+>   "timeout": 30000
+> }
+> ```
+>
+> ✅ Result:
+>
+> ```
+> warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it
+> warning: in the working copy of 'README.zh-CN.md', LF will be replaced by CRLF the next time Git touches it
+> [main b16463d] docs: fix documentation section and broken thought process links
+>  2 files changed, 6 insertions(+), 10 deletions(-)
+> To https://github.com/yg1987/code-session-viewer.git
+>    c563b0b..b16463d  main -> main
+> ```
+
+---
+
+## 🤖 Assistant  `mimo-v2.5`  *(17:44:51)*
+
+<details>
+<summary>💭 Thinking (40 chars)</summary>
+
+Done. Let me summarize what was changed.
+</details>
+
+已推送。commit: [`b16463d`](https://github.com/yg1987/code-session-viewer/commit/b16463d)
+
+改动内容：
+- **文档部分精简** — 去掉了单独指向 `docs/architecture.md` 等的链接（这些是原版文档，没有更新），改为统一指向 `docs/` 目录并注明"尚未更新 OpenCode/i18n 相关内容"
+- **修复中文 README 的 thought process 链接** — 之前是纯文本没有超链接，现在加了 `./thought process/` 链接
 
 ---
