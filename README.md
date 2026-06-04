@@ -1,39 +1,39 @@
 # Code Session Viewer
 
-> **English** · [简体中文](./README.zh-CN.md)
+> **简体中文** · [English](./README.en.md)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![Electron](https://img.shields.io/badge/Electron-33-47848F?logo=electron&logoColor=white)](https://www.electronjs.org/)
 [![Node](https://img.shields.io/badge/Node-%3E%3D18-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 
-> **Forked from** [Lition13/claude-session-viewer](https://github.com/Lition13/claude-session-viewer) — with extended support for **OpenCode** sessions alongside the original Claude Code pipeline.
+> **Fork 自** [Lition13/claude-session-viewer](https://github.com/Lition13/claude-session-viewer) —— 在原有 Claude Code 管线基础上增加了 **OpenCode** 会话支持。
 
-This project was built using Claude + DeepSeek + MiMo (for viewing screenshots), with the goal of learning AI coding tools while making modifications and extensions based on personal needs on top of the original author's work.
+本项目使用 Claude + DeepSeek + MiMo（为了看截图）实现，目的是熟悉 AI 编程工具的使用，同时也根据自己需要，在原作者的基础上做些修改和扩展。
 
-In the [thought process](./thought process/) directory, there are 4 exported conversation logs (md files). Due to what appears to be connection issues, each session would automatically stop after a certain point, so 4 separate sessions were needed. The fourth session's debugging alone took at least 40 minutes — longer than building the actual features.
+在 [thought process](./thought process/) 目录里有 1、2、3、4 四个 md 文件，是用本工具导出的对话过程。不知道是连接问题还是什么，每个会话到一定程度就会自动停掉，所以最后开了 4 个会话。第四个会话检查问题耗时很久，起码 40 分钟，比做功能都更耗时。
 
-An Electron desktop app for browsing, analyzing, and sharing AI coding sessions — supporting **both Claude Code (JSONL)** and **OpenCode (SQLite)** data sources.
+一个用于浏览、分析和分享 AI 编程会话的 Electron 桌面应用，**同时支持 Claude Code（JSONL）和 OpenCode（SQLite）两种数据源**。
 
-> 🔒 **Privacy first** — Everything runs locally. The app only reads files under `~/.claude/` and `~/.local/share/opencode/`. No telemetry, no analytics, no network calls to third parties. The source is open — audit it yourself.
+> 🔒 **隐私优先** — 本工具完全在本地运行，只读取 `~/.claude/` 和 `~/.local/share/opencode/` 下的本地文件，不上传任何数据，不接入任何分析/埋点服务。源码开放，可自行审计。
 
 ![demo.gif](demo.gif)
 
-## What's different from the original
+## 相对于原版的改动
 
-- **OpenCode support** — reads OpenCode SQLite sessions alongside Claude Code JSONL
-- **i18n** — full English / 中文 UI localization with in-app language switch
-- **Todo list & Agent Timeline** — OpenCode-specific panels for task tracking and agent/model switching
-- **Custom model pricing** — add pricing for non-Claude models (GPT-4o, DeepSeek, etc.)
+- **OpenCode 支持** — 读取 OpenCode SQLite 会话，与 Claude Code JSONL 并行
+- **国际化 (i18n)** — 完整的 English / 中文 UI 本地化，支持应用内语言切换
+- **Todo 列表与 Agent 时间线** — OpenCode 专属面板，用于任务追踪和 agent/模型切换查看
+- **自定义模型定价** — 支持添加非 Claude 模型的定价（GPT-4o、DeepSeek 等）
 
-> 📖 For the full feature list, keyboard shortcuts, tech stack, and project layout, see the [original README](https://github.com/Lition13/claude-session-viewer/blob/main/README.md).
+> 📖 完整的功能列表、快捷键、技术栈和项目结构，请参阅[原版 README](https://github.com/Lition13/claude-session-viewer/blob/main/README.md)。
 
-## Quick start
+## 快速开始
 
-### Requirements
+### 环境要求
 - Node.js >= 18
 - npm >= 9
 
-### Build from source
+### 从源码构建
 
 ```bash
 git clone https://github.com/yg1987/code-session-viewer.git
@@ -43,23 +43,23 @@ npm install
 npm run dev
 ```
 
-### Production build & package
+### 生产构建与打包
 
 ```bash
 npm run build
 npm run package
 ```
 
-## Documentation
+## 文档
 
-- [PLAN.md](./PLAN.md) — architecture design and implementation notes (Chinese)
-- [thought process](./thought process/) — exported conversation logs of building this project (4 sessions)
-- [docs/](./docs/) — original project docs (architecture, development, features) — not yet updated for OpenCode/i18n changes
+- [PLAN.md](./PLAN.md) — 架构设计与实现笔记
+- [thought process](./thought process/) — 用本工具导出的构建过程对话记录（4 个会话）
+- [docs/](./docs/) — 原版项目文档（架构、开发指南、功能说明）— 尚未更新 OpenCode/i18n 相关内容
 
-## Contributing
+## 贡献
 
-Issues and PRs are welcome. This project is a fork of [Lition13/claude-session-viewer](https://github.com/Lition13/claude-session-viewer); original contributions go back upstream.
+欢迎 issue 和 PR！本仓库 fork 自 [Lition13/claude-session-viewer](https://github.com/Lition13/claude-session-viewer)，原作者贡献会向上游回馈。
 
 ## License
 
-MIT — see [LICENSE](./LICENSE)
+MIT — 见 [LICENSE](./LICENSE)
