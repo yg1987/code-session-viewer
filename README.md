@@ -18,6 +18,14 @@
 
 ![demo.gif](demo.gif)
 
+## 截图
+
+| | |
+|---|---|
+| ![1](screenshot/1.png) | ![2](screenshot/2.png) |
+| ![3](screenshot/3.png) | ![4](screenshot/4.png) |
+| ![5](screenshot/5.png) | ![6](screenshot/6.png) |
+
 ## 相对于原版的改动
 
 - **OpenCode 支持** — 读取 OpenCode SQLite 会话，与 Claude Code JSONL 并行

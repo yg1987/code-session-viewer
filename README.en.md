@@ -18,6 +18,14 @@ An Electron desktop app for browsing, analyzing, and sharing AI coding sessions 
 
 ![demo.gif](demo.gif)
 
+## Screenshots
+
+| | |
+|---|---|
+| ![1](screenshot/1.png) | ![2](screenshot/2.png) |
+| ![3](screenshot/3.png) | ![4](screenshot/4.png) |
+| ![5](screenshot/5.png) | ![6](screenshot/6.png) |
+
 ## What's different from the original
 
 - **OpenCode support** — reads OpenCode SQLite sessions alongside Claude Code JSONL
