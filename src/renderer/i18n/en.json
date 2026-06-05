@@ -1,6 +1,7 @@
 {
   "sidebar.title.claude": "Claude Sessions",
   "sidebar.title.opencode": "OpenCode Sessions",
+  "sidebar.title.codex": "Codex Sessions",
   "sidebar.sessionsCount": "{{count}} sessions",
   "sidebar.refreshTooltip": "Refresh",
   "sidebar.settingsTooltip": "Settings",
@@ -15,6 +16,7 @@
   "sidebar.noSessions": "No sessions found",
   "sidebar.noMatchingSessions": "No matching sessions",
   "sidebar.noOpenCodeSessions": "No OpenCode sessions found. Make sure opencode.db is accessible.",
+  "sidebar.noCodexSessions": "No Codex sessions found. Make sure ~/.codex/ is accessible.",
   "sidebar.rename": "Rename",
   "sidebar.deleteSession": "Delete session",
   "sidebar.openFileLocation": "Open file location",
@@ -28,6 +30,7 @@
   "sidebar.dateGroups.earlier": "Earlier",
   "sidebar.tab.claude": "Claude",
   "sidebar.tab.opencode": "OpenCode",
+  "sidebar.tab.codex": "Codex",
 
   "titlebar.defaultTitle": "Code Session Viewer",
   "titlebar.minimize": "Minimize",
@@ -41,6 +44,7 @@
   "settings.tab.appearance": "Appearance",
   "settings.tab.pricing": "Model Pricing",
   "settings.tab.opencode": "OpenCode",
+  "settings.tab.codex": "Codex",
   "settings.theme": "Theme",
   "settings.theme.dark": "Dark",
   "settings.theme.light": "Light",
@@ -389,6 +393,7 @@
   "app.delete": "Delete",
   "app.deleting": "Deleting...",
   "app.failedLoadOpenCode": "Failed to load OpenCode session",
+  "app.failedLoadCodex": "Failed to load Codex session",
 
   "session.unknownProject": "Unknown project"
 }

@@ -75,6 +75,22 @@ const api = {
   getOpenCodeTodos: (dbPath: string, sessionId: string) =>
     ipcRenderer.invoke(IPC_CHANNELS.OPENCODE_SESSION_TODOS, dbPath, sessionId),
 
+  // ─── Codex API (NEW) ──────────────────────────────────────────
+
+  /** Detect the Codex home directory on disk */
+  detectCodexHome: (): Promise<string> => ipcRenderer.invoke(IPC_CHANNELS.CODEX_DETECT_HOME),
+
+  /** List all Codex sessions, grouped by project (cwd) */
+  getCodexSessions: (codexHome: string) => ipcRenderer.invoke(IPC_CHANNELS.CODEX_SESSIONS_LIST, codexHome),
+
+  /** Load messages for a Codex session from its rollout file */
+  loadCodexSession: (filePath: string) =>
+    ipcRenderer.invoke(IPC_CHANNELS.CODEX_SESSION_LOAD, filePath),
+
+  /** Delete a Codex session file */
+  deleteCodexSession: (filePath: string) =>
+    ipcRenderer.invoke(IPC_CHANNELS.CODEX_SESSION_DELETE, filePath),
+
   /** Load viewer settings */
   getSettings: () => ipcRenderer.invoke(IPC_CHANNELS.SETTINGS_LOAD),
 

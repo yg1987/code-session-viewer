@@ -238,6 +238,14 @@ OPENCODE_GLOBAL_STATS   → openCodeGlobalStats(dbPath)
 
 ---
 
+## 后续：Codex CLI 支持
+
+详见独立文档：[Codex CLI 支持方案](./docs/codex-support-2026-06-05.md)
+
+计划于 2026-06-05 开始实施，在双管线基础上增加 Codex CLI 作为第三条数据源管线。
+
+---
+
 ## 后续：国际化 (i18n) 支持
 
 ### 概述

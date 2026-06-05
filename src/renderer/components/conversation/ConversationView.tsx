@@ -330,7 +330,7 @@ export function ConversationView({ messages, loading, error, session, jumpToTime
               </span>
             )}
             <span className="font-mono text-[var(--text3)] opacity-60">{t('conversation.sessionId', { id: session.sessionId })}</span>
-            {session.source === 'opencode' && (
+            {(session.source === 'opencode' || session.source === 'codex') && (
               <>
                 {session.agent && (
                   <span className="inline-flex items-center gap-1">

@@ -28,6 +28,7 @@ interface Props {
   onSourceChange?: (source: SessionSource) => void
   openCodeCount?: number
   claudeCount?: number
+  codexCount?: number
 }
 
 export function Sidebar({
@@ -49,7 +50,8 @@ export function Sidebar({
   source,
   onSourceChange,
   openCodeCount,
-  claudeCount
+  claudeCount,
+  codexCount
 }: Props) {
   const [search, setSearch] = useState('')
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set())
@@ -101,7 +103,7 @@ export function Sidebar({
       <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid var(--border)' }}>
         <div>
           <h1 className="text-sm font-semibold" style={{ color: 'var(--text)' }}>
-            {source === 'opencode' ? t('sidebar.title.opencode') : t('sidebar.title.claude')}
+            {source === 'opencode' ? t('sidebar.title.opencode') : source === 'codex' ? t('sidebar.title.codex') : t('sidebar.title.claude')}
           </h1>
           <span className="text-xs" style={{ color: 'var(--text2)' }}>{t('sidebar.sessionsCount', { count: totalSessions })}</span>
         </div>
@@ -157,6 +159,17 @@ export function Sidebar({
           >
             OpenCode{` (${openCodeCount})`}
           </button>
+          <button
+            type="button"
+            onClick={() => onSourceChange('codex')}
+            className={`flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+              source === 'codex'
+                ? 'bg-[var(--accent-soft)] text-[var(--accent)] shadow-[var(--shadow-1)]'
+                : 'text-[var(--text2)] hover:text-[var(--text)] hover:bg-[var(--surface)]'
+            }`}
+          >
+            Codex{` (${codexCount})`}
+          </button>
         </div>
       )}
 
@@ -200,7 +213,9 @@ export function Sidebar({
               ? t('sidebar.noMatchingSessions')
               : source === 'opencode'
                 ? t('sidebar.noOpenCodeSessions')
-                : t('sidebar.noSessions')}
+                : source === 'codex'
+                  ? t('sidebar.noCodexSessions')
+                  : t('sidebar.noSessions')}
           </div>
         )}
 
@@ -390,12 +405,12 @@ function SessionItem({
         )}
       </div>
         <div className="flex items-center gap-2 mt-0.5">
-          {session.source === 'opencode' && session.model ? (
+          {(session.source === 'opencode' || session.source === 'codex') && session.model ? (
             <span className="text-[10px] text-[var(--accent)] truncate max-w-[80px] font-mono">{session.model}</span>
           ) : (
             <span className="text-[10px] text-[var(--text3)] tabular-nums">{fmtSize(session.fileSize)}</span>
           )}
-          {session.source === 'opencode' && session.cost != null && session.cost > 0 && (
+          {(session.source === 'opencode' || session.source === 'codex') && session.cost != null && session.cost > 0 && (
             <span className="text-[10px] text-[var(--text3)] tabular-nums">${session.cost.toFixed(2)}</span>
           )}
           {session.gitBranch && (
@@ -420,7 +435,7 @@ function SessionItem({
               className="w-full text-left px-3 py-1.5 text-xs text-[var(--accent)] hover:bg-[var(--surface2)] transition-colors">
               {t('sidebar.openInClaude')}
             </button>
-            {session.source === 'opencode' ? (
+            {(session.source === 'opencode' || session.source === 'codex') ? (
               <>
                 <div className="border-t border-[var(--border)] my-1" />
                 <button type="button"

@@ -10,6 +10,8 @@ import * as os from 'os'
 export interface ViewerSettings {
   /** Manually specified OpenCode DB path (overrides auto-detect) */
   openCodeDbPath?: string
+  /** Manually specified Codex home directory (overrides auto-detect) */
+  codexHomeDir?: string
 }
 
 const DEFAULT_SETTINGS: ViewerSettings = {}

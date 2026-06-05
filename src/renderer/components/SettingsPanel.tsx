@@ -16,12 +16,15 @@ interface Props {
   /** OpenCode DB path for display in settings */
   openCodeDbPath?: string | null
   openCodeDbNotFound?: boolean
+  /** Codex home directory for display in settings */
+  codexHomePath?: string | null
+  codexHomeNotFound?: boolean
 }
 
-export function SettingsPanel({ onClose, openCodeDbPath, openCodeDbNotFound }: Props) {
+export function SettingsPanel({ onClose, openCodeDbPath, openCodeDbNotFound, codexHomePath, codexHomeNotFound }: Props) {
   const { settings, updateSettings } = useSettings()
   const { t } = useLocale()
-  const [tab, setTab] = useState<'appearance' | 'pricing' | 'opencode'>('appearance')
+  const [tab, setTab] = useState<'appearance' | 'pricing' | 'opencode' | 'codex'>('appearance')
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -37,10 +40,10 @@ export function SettingsPanel({ onClose, openCodeDbPath, openCodeDbNotFound }: P
 
         {/* Tabs */}
         <div className="flex gap-1 px-6 mb-4">
-          {(['appearance', 'pricing', 'opencode'] as const).map((tabKey) => (
+          {(['appearance', 'pricing', 'opencode', 'codex'] as const).map((tabKey) => (
             <button key={tabKey} type="button" onClick={() => setTab(tabKey)}
               className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${tab === tabKey ? 'bg-[var(--accent)]/10 text-[var(--accent)]' : 'text-[var(--text2)] hover:bg-[var(--surface2)]'}`}>
-              {tabKey === 'appearance' ? t('settings.tab.appearance') : tabKey === 'pricing' ? t('settings.tab.pricing') : t('settings.tab.opencode')}
+              {tabKey === 'appearance' ? t('settings.tab.appearance') : tabKey === 'pricing' ? t('settings.tab.pricing') : tabKey === 'opencode' ? t('settings.tab.opencode') : t('settings.tab.codex')}
             </button>
           ))}
         </div>
@@ -51,8 +54,10 @@ export function SettingsPanel({ onClose, openCodeDbPath, openCodeDbNotFound }: P
             <AppearanceTab />
           ) : tab === 'pricing' ? (
             <PricingTab />
-          ) : (
+          ) : tab === 'opencode' ? (
             <OpenCodeTab dbPath={openCodeDbPath} dbNotFound={openCodeDbNotFound} />
+          ) : (
+            <CodexTab codexHome={codexHomePath} homeNotFound={codexHomeNotFound} />
           )}
         </div>
       </div>
@@ -133,6 +138,114 @@ function AppearanceTab() {
         <div className="text-[var(--text)]" style={{ fontSize: settings.fontSize, fontFamily: settings.fontFamily }}>
           {t('settings.preview.text')}
         </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── Codex Tab (NEW) ──────────────────────────────────────────────
+
+function CodexTab({ codexHome, homeNotFound }: { codexHome?: string | null; homeNotFound?: boolean }) {
+  const [customPath, setCustomPath] = useState('')
+  const [detectedPath, setDetectedPath] = useState<string | null>(null)
+  const [checking, setChecking] = useState(false)
+  const [saved, setSaved] = useState(false)
+
+  useEffect(() => {
+    if (codexHome) setDetectedPath(codexHome)
+  }, [codexHome])
+
+  const handleRedetect = async () => {
+    setChecking(true)
+    try {
+      const path = await window.api.detectCodexHome()
+      setDetectedPath(path)
+    } catch {
+      setDetectedPath(null)
+    } finally {
+      setChecking(false)
+    }
+  }
+
+  const handleSaveCustomPath = async () => {
+    if (!customPath.trim()) return
+    try {
+      await window.api.setSettings({ codexHomeDir: customPath.trim() })
+      setDetectedPath(customPath.trim())
+      setSaved(true)
+      setTimeout(() => setSaved(false), 2000)
+    } catch { /* ignore */ }
+  }
+
+  return (
+    <div className="space-y-5">
+      {/* Detected path */}
+      <div>
+        <label className="text-xs font-semibold text-[var(--text2)] uppercase block mb-2">
+          Codex Home Directory
+        </label>
+
+        <div className="bg-[var(--bg)] border border-[var(--border)] rounded-lg p-3">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] text-[var(--text2)] uppercase tracking-wider">
+              Auto-detected Path
+            </span>
+            <button type="button" onClick={handleRedetect} disabled={checking}
+              className="text-xs text-[var(--accent)] hover:underline disabled:opacity-50">
+              {checking ? 'Detecting...' : 'Re-detect'}
+            </button>
+          </div>
+          <div className="flex items-center gap-2">
+            {detectedPath ? (
+              <>
+                <span className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0" />
+                <span className="text-xs text-[var(--text)] font-mono break-all">{detectedPath}</span>
+              </>
+            ) : homeNotFound ? (
+              <>
+                <span className="w-2 h-2 rounded-full bg-yellow-500 flex-shrink-0" />
+                <span className="text-xs text-[var(--text2)]">
+                  No Codex sessions directory found.
+                </span>
+              </>
+            ) : (
+              <span className="text-xs text-[var(--text2)]">Loading...</span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Custom path */}
+      <div>
+        <label className="text-xs font-semibold text-[var(--text2)] uppercase block mb-2">
+          Custom Codex Home Path
+        </label>
+        <p className="text-[10px] text-[var(--text2)] mb-2">
+          If Codex uses a non-default home directory (e.g., set via $CODEX_HOME), enter the path here.
+        </p>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={customPath}
+            onChange={(e) => setCustomPath(e.target.value)}
+            placeholder="e.g. D:\.codex"
+            className="flex-1 bg-[var(--surface)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-xs text-[var(--text)] placeholder-[var(--text3)] focus:outline-none focus:border-[var(--accent)]"
+          />
+          <button type="button" onClick={handleSaveCustomPath} disabled={!customPath.trim()}
+            className="px-3 py-1.5 text-xs bg-[var(--accent)] text-white rounded-lg disabled:opacity-30 hover:opacity-90 transition-colors">
+            {saved ? 'Saved!' : 'Save'}
+          </button>
+        </div>
+      </div>
+
+      {/* Help text */}
+      <div className="bg-[var(--bg)] border border-[var(--border)] rounded-lg p-3">
+        <h4 className="text-xs font-medium text-[var(--text)] mb-1">Where to find Codex sessions</h4>
+        <ul className="text-[10px] text-[var(--text2)] space-y-0.5">
+          <li>• Default: <code className="text-[var(--text3)]">~/.codex/</code></li>
+          <li>• Override: <code className="text-[var(--text3)]">$CODEX_HOME</code> environment variable</li>
+          <li>• Sessions: <code className="text-[var(--text3)]">&lt;codexHome&gt;/sessions/YYYY/MM/DD/rollout-*.jsonl</code></li>
+        </ul>
       </div>
     </div>
   )

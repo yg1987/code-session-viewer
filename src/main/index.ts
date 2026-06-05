@@ -18,6 +18,10 @@ import { openCodeCrossSearch } from './opencode-cross-search'
 import { openCodeGlobalStats } from './opencode-global-stats'
 import { detectOpenCodeDbPath, closeOpenCodeDb } from './opencode-db'
 import { loadSettings, saveSettings } from './settings-store'
+import { detectCodexHome } from './codex-db'
+import { discoverCodexSessions } from './codex-discovery'
+import { parseCodexSession } from './codex-parser'
+import { deleteCodexSession } from './codex-delete'
 
 function getIconPath(): string {
   // Packaged: icons are copied to resources/ via extraResources.
@@ -245,6 +249,30 @@ app.whenReady().then(() => {
     return getOpenCodeTodos(dbPath, sessionId)
   })
 
+  // ─── Codex IPC Handlers (NEW) ──────────────────────────────────
+
+  // Detect Codex home directory
+  ipcMain.handle(IPC_CHANNELS.CODEX_DETECT_HOME, async () => {
+    return detectCodexHome()
+  })
+
+  // List Codex sessions
+  ipcMain.handle(IPC_CHANNELS.CODEX_SESSIONS_LIST, async (_event, codexHome: string) => {
+    return discoverCodexSessions(codexHome)
+  })
+
+  // Load Codex session
+  ipcMain.handle(IPC_CHANNELS.CODEX_SESSION_LOAD, async (_event, filePath: string) => {
+    return parseCodexSession(filePath)
+  })
+
+  // Delete Codex session
+  ipcMain.handle(IPC_CHANNELS.CODEX_SESSION_DELETE, async (_event, filePath: string) => {
+    return deleteCodexSession(filePath)
+  })
+
+  // ─── End Codex Handlers ──────────────────────────────────────────
+
   // Settings load/save
   ipcMain.handle(IPC_CHANNELS.SETTINGS_LOAD, async () => {
     return loadSettings()
@@ -326,6 +354,18 @@ app.whenReady().then(() => {
   try {
     fs.watch(projectsDir, { recursive: true }, (_event, filename) => {
       if (filename && (filename.endsWith('.jsonl') || filename.endsWith('sessions-index.json'))) {
+        mainWindow.webContents.send('sessions:changed')
+      }
+    })
+  } catch {
+    // Watching not supported or dir doesn't exist
+  }
+
+  // Watch ~/.codex/sessions/ for new rollout files and notify renderer
+  const codexSessionsDir = require('path').join(require('os').homedir(), '.codex', 'sessions')
+  try {
+    fs.watch(codexSessionsDir, { recursive: true }, (_event, filename) => {
+      if (filename && filename.startsWith('rollout-') && filename.endsWith('.jsonl')) {
         mainWindow.webContents.send('sessions:changed')
       }
     })

@@ -28,9 +28,14 @@ export const IPC_CHANNELS = {
   OPENCODE_CROSS_SEARCH: 'opencode:cross-search',
   OPENCODE_GLOBAL_STATS: 'opencode:global-stats',
   OPENCODE_SESSION_TODOS: 'opencode:session-todos',
+  // Codex channels (NEW)
+  CODEX_DETECT_HOME: 'codex:detect-home',
+  CODEX_SESSIONS_LIST: 'codex:sessions-list',
+  CODEX_SESSION_LOAD: 'codex:session-load',
+  CODEX_SESSION_DELETE: 'codex:session-delete',
   SETTINGS_LOAD: 'settings:load',
   SETTINGS_SAVE: 'settings:save'
 } as const
 
 /** Union of session data sources */
-export type SessionSource = 'claude' | 'opencode'
+export type SessionSource = 'claude' | 'opencode' | 'codex'

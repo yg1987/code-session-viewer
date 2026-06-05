@@ -1,6 +1,7 @@
 {
   "sidebar.title.claude": "Claude 会话",
   "sidebar.title.opencode": "OpenCode 会话",
+  "sidebar.title.codex": "Codex 会话",
   "sidebar.sessionsCount": "{{count}} 个会话",
   "sidebar.refreshTooltip": "刷新",
   "sidebar.settingsTooltip": "设置",
@@ -15,6 +16,7 @@
   "sidebar.noSessions": "未找到会话",
   "sidebar.noMatchingSessions": "无匹配会话",
   "sidebar.noOpenCodeSessions": "未找到 OpenCode 会话。请确认 opencode.db 可访问。",
+  "sidebar.noCodexSessions": "未找到 Codex 会话。请确认 ~/.codex/ 可访问。",
   "sidebar.rename": "重命名",
   "sidebar.deleteSession": "删除会话",
   "sidebar.openFileLocation": "打开文件位置",
@@ -28,6 +30,7 @@
   "sidebar.dateGroups.earlier": "更早",
   "sidebar.tab.claude": "Claude",
   "sidebar.tab.opencode": "OpenCode",
+  "sidebar.tab.codex": "Codex",
 
   "titlebar.defaultTitle": "Code Session Viewer",
   "titlebar.minimize": "最小化",
@@ -41,6 +44,7 @@
   "settings.tab.appearance": "外观",
   "settings.tab.pricing": "模型定价",
   "settings.tab.opencode": "OpenCode",
+  "settings.tab.codex": "Codex",
   "settings.theme": "主题",
   "settings.theme.dark": "深色",
   "settings.theme.light": "浅色",
@@ -389,6 +393,7 @@
   "app.delete": "删除",
   "app.deleting": "删除中...",
   "app.failedLoadOpenCode": "无法加载 OpenCode 会话",
+  "app.failedLoadCodex": "无法加载 Codex 会话",
 
   "session.unknownProject": "未知项目"
 }

@@ -8,6 +8,7 @@ import { SettingsPanel } from './components/SettingsPanel'
 import { SessionCompare } from './components/SessionCompare'
 import { useSessionList } from './hooks/useSessionList'
 import { useOpenCodeSessionList } from './hooks/useOpenCodeSessionList'
+import { useCodexSessionList } from './hooks/useCodexSessionList'
 import { useSessionMessages } from './hooks/useSessionMessages'
 import { SettingsContext, useSettingsProvider } from './hooks/useSettings'
 import type { SessionEntry } from './types/session'
@@ -47,14 +48,24 @@ export function App() {
     refresh: openCodeRefresh
   } = useOpenCodeSessionList()
 
+  // ── Codex pipeline (NEW) ──
+  const {
+    groups: codexGroups,
+    loading: codexLoading,
+    codexHome,
+    homeNotFound: codexHomeNotFound,
+    refresh: codexRefresh
+  } = useCodexSessionList()
+
   // Select active pipeline based on source
-  const groups = source === 'claude' ? claudeGroups : openCodeGroups
-  const listLoading = source === 'claude' ? claudeLoading : openCodeLoading
+  const groups = source === 'claude' ? claudeGroups : source === 'opencode' ? openCodeGroups : codexGroups
+  const listLoading = source === 'claude' ? claudeLoading : source === 'opencode' ? openCodeLoading : codexLoading
 
   const refresh = useCallback(() => {
     if (source === 'claude') claudeRefresh()
-    else openCodeRefresh()
-  }, [source, claudeRefresh, openCodeRefresh])
+    else if (source === 'opencode') openCodeRefresh()
+    else codexRefresh()
+  }, [source, claudeRefresh, openCodeRefresh, codexRefresh])
 
   const { messages, loading: msgLoading, error, loadSession } = useSessionMessages()
   const [selectedSession, setSelectedSession] = useState<SessionEntry | null>(null)
@@ -84,6 +95,10 @@ export function App() {
     () => openCodeGroups.reduce((sum, g) => sum + g.sessions.length, 0),
     [openCodeGroups]
   )
+  const codexTotalSessions = useMemo(
+    () => codexGroups.reduce((sum, g) => sum + g.sessions.length, 0),
+    [codexGroups]
+  )
 
   const [jumpToTimestamp, setJumpToTimestamp] = useState<string | null>(null)
 
@@ -91,6 +106,11 @@ export function App() {
   const [openCodeMessages, setOpenCodeMessages] = useState<ParsedMessage[]>([])
   const [openCodeMsgLoading, setOpenCodeMsgLoading] = useState(false)
   const [openCodeMsgError, setOpenCodeMsgError] = useState<string | null>(null)
+
+  // ── Codex message state (separate from Claude/OpenCode pipeline) ──
+  const [codexMessages, setCodexMessages] = useState<ParsedMessage[]>([])
+  const [codexMsgLoading, setCodexMsgLoading] = useState(false)
+  const [codexMsgError, setCodexMsgError] = useState<string | null>(null)
 
   const handleSelectSession2 = useCallback(
     async (
@@ -115,6 +135,18 @@ export function App() {
         } finally {
           setOpenCodeMsgLoading(false)
         }
+      } else if (s.source === 'codex') {
+        setCodexMsgLoading(true)
+        setCodexMsgError(null)
+        try {
+          const result = await window.api.loadCodexSession(s.fullPath)
+          setCodexMessages(result)
+        } catch (e) {
+          setCodexMsgError(e instanceof Error ? e.message : t('app.failedLoadCodex'))
+          setCodexMessages([])
+        } finally {
+          setCodexMsgLoading(false)
+        }
       } else {
         loadSession(s.fullPath)
       }
@@ -123,14 +155,21 @@ export function App() {
   )
 
   // Use the correct messages based on source
-  const displayMessages = selectedSession?.source === 'opencode' ? openCodeMessages : messages
-  const displayLoading = selectedSession?.source === 'opencode' ? openCodeMsgLoading : msgLoading
-  const displayError = selectedSession?.source === 'opencode' ? openCodeMsgError : error
+  const displayMessages = selectedSession?.source === 'opencode' ? openCodeMessages
+    : selectedSession?.source === 'codex' ? codexMessages
+    : messages
+  const displayLoading = selectedSession?.source === 'opencode' ? openCodeMsgLoading
+    : selectedSession?.source === 'codex' ? codexMsgLoading
+    : msgLoading
+  const displayError = selectedSession?.source === 'opencode' ? openCodeMsgError
+    : selectedSession?.source === 'codex' ? codexMsgError
+    : error
 
   const handleSourceChange = useCallback((newSource: SessionSource) => {
     setSource(newSource)
     setSelectedSession(null)
     setOpenCodeMessages([])
+    setCodexMessages([])
     setBatchMode(false)
     setBatchSelected(new Set())
   }, [])
@@ -141,6 +180,8 @@ export function App() {
     try {
       if (deleteConfirm.source === 'opencode' && deleteConfirm.dbPath) {
         await window.api.deleteOpenCodeSession(deleteConfirm.dbPath, deleteConfirm.sessionId)
+      } else if (deleteConfirm.source === 'codex') {
+        await window.api.deleteCodexSession(deleteConfirm.fullPath)
       } else {
         await window.api.deleteSession({
           filePath: deleteConfirm.fullPath,
@@ -164,6 +205,8 @@ export function App() {
         if (session) {
           if (session.source === 'opencode' && session.dbPath) {
             await window.api.deleteOpenCodeSession(session.dbPath, session.sessionId)
+          } else if (session.source === 'codex') {
+            await window.api.deleteCodexSession(session.fullPath)
           } else {
             await window.api.deleteSession({ filePath: session.fullPath, sessionId: session.sessionId })
           }
@@ -249,6 +292,7 @@ export function App() {
             onSourceChange={handleSourceChange}
             claudeCount={claudeTotalSessions}
             openCodeCount={openCodeTotalSessions}
+            codexCount={codexTotalSessions}
           />
         </div>
 
@@ -284,7 +328,7 @@ export function App() {
         {/* Overlays */}
         {showDashboard && <GlobalDashboard onClose={() => setShowDashboard(false)} source={source} openCodeDbPath={openCodeDbPath} />}
         {showCrossSearch && <CrossSearch onClose={() => setShowCrossSearch(false)} onOpenSession={(session, timestamp) => handleSelectSession2(session, timestamp)} source={source} openCodeDbPath={openCodeDbPath} />}
-        {showSettings && <SettingsPanel onClose={() => setShowSettings(false)} openCodeDbPath={openCodeDbPath} openCodeDbNotFound={openCodeDbNotFound} />}
+        {showSettings && <SettingsPanel onClose={() => setShowSettings(false)} openCodeDbPath={openCodeDbPath} openCodeDbNotFound={openCodeDbNotFound} codexHomePath={codexHome} codexHomeNotFound={codexHomeNotFound} />}
         {showCompare && <SessionCompare groups={groups} initialSession={selectedSession} onClose={() => setShowCompare(false)} />}
 
         {/* Delete confirmation */}
