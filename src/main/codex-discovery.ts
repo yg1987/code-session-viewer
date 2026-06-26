@@ -16,6 +16,7 @@ import * as path from 'path'
 import { createReadStream } from 'fs'
 import { createInterface } from 'readline'
 
+import { encodeProjectPath } from './path-utils'
 import type { ProjectGroup, SessionEntry } from '../renderer/types/session'
 
 /**
@@ -99,8 +100,8 @@ async function walkDateDirs(dir: string, entries: SessionEntry[]): Promise<void>
         }
       }
     }
-  } catch {
-    // Directory doesn't exist or can't be read
+  } catch (e) {
+    console.debug('codex-discovery: walkDateDirs failed for', dir, e)
   }
 }
 
@@ -116,10 +117,11 @@ async function parseSessionMeta(filePath: string): Promise<SessionEntry | null> 
     const metaLine = await readFirstLine(filePath)
     if (!metaLine) return null
 
-    let parsed: any
+    let parsed: { type?: string; payload?: Record<string, string> }
     try {
       parsed = JSON.parse(metaLine)
-    } catch {
+    } catch (e) {
+      console.debug('codex-discovery: failed to parse session meta JSON for', filePath, e)
       return null
     }
 
@@ -159,7 +161,8 @@ async function parseSessionMeta(filePath: string): Promise<SessionEntry | null> 
     entry.messageCount = await countEventLines(filePath)
 
     return entry
-  } catch {
+  } catch (e) {
+    console.debug('codex-discovery: parseSessionMeta failed for', filePath, e)
     return null
   }
 }
@@ -182,8 +185,8 @@ async function extractFirstPrompt(filePath: string): Promise<string> {
         // skip unparseable lines
       }
     }
-  } catch {
-    // fallback
+  } catch (e) {
+    console.debug('codex-discovery: extractFirstPrompt failed for', filePath, e)
   }
   return ''
 }
@@ -200,8 +203,8 @@ async function countEventLines(filePath: string): Promise<number> {
       count++
       if (count > 10000) break // cap for very large files
     }
-  } catch {
-    // fallback
+  } catch (e) {
+    console.debug('codex-discovery: countEventLines failed for', filePath, e)
   }
   return Math.max(0, count - 1) // minus session_meta line
 }
@@ -239,11 +242,4 @@ function readFirstNLines(filePath: string, n: number): Promise<string[]> {
     rl.on('error', () => resolve(lines))
     rl.on('close', () => resolve(lines))
   })
-}
-
-function encodeProjectPath(projectPath: string): string {
-  return projectPath
-    .replace(/[^a-zA-Z0-9]/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '')
 }

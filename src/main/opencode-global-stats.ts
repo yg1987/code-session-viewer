@@ -20,6 +20,31 @@ export interface OpenCodeGlobalStats {
 export async function openCodeGlobalStats(dbPath: string): Promise<OpenCodeGlobalStats> {
   const db = await getOpenCodeDb(dbPath)
 
+  // Detect actual column names since OpenCode schema varies across versions
+  let colInput = 'total_tokens_input'
+  let colOutput = 'total_tokens_output'
+  let colReasoning = 'total_tokens_reasoning'
+  let colCost = 'total_cost'
+  let colModel = 'model'
+  let colAgent = 'agent'
+  let colCreated = 'created_at'
+
+  try {
+    const pragma = db.exec('PRAGMA table_info(session)')
+    if (pragma.length > 0 && pragma[0].values) {
+      const cols = pragma[0].columns
+      const ci = (name: string) => cols.indexOf(name)
+      const names = new Set(pragma[0].values.map((r) => r[ci('name')] as string))
+      if (!names.has('total_tokens_input') && names.has('tokens_input')) colInput = 'tokens_input'
+      if (!names.has('total_tokens_output') && names.has('tokens_output')) colOutput = 'tokens_output'
+      if (!names.has('total_tokens_reasoning') && names.has('tokens_reasoning')) colReasoning = 'tokens_reasoning'
+      if (!names.has('total_cost') && names.has('cost')) colCost = 'cost'
+      if (!names.has('created_at') && names.has('time_created')) colCreated = 'time_created'
+      if (!names.has('model')) colModel = 'NULL as model'
+      if (!names.has('agent')) colAgent = 'NULL as agent'
+    }
+  } catch { /* use defaults */ }
+
   // Base counts
   const sessionCnt = db.exec('SELECT COUNT(*) as cnt FROM session')
   const messageCnt = db.exec('SELECT COUNT(*) as cnt FROM message')
@@ -29,10 +54,10 @@ export async function openCodeGlobalStats(dbPath: string): Promise<OpenCodeGloba
   // Token aggregates
   const tokenRow = db.exec(
     `SELECT
-      COALESCE(SUM(total_tokens_input), 0) as total_in,
-      COALESCE(SUM(total_tokens_output), 0) as total_out,
-      COALESCE(SUM(total_tokens_reasoning), 0) as total_reasoning,
-      COALESCE(SUM(total_cost), 0) as total_cost
+      COALESCE(SUM(${colInput}), 0) as total_in,
+      COALESCE(SUM(${colOutput}), 0) as total_out,
+      COALESCE(SUM(${colReasoning}), 0) as total_reasoning,
+      COALESCE(SUM(${colCost}), 0) as total_cost
      FROM session`
   )
   const tv = tokenRow[0]?.values?.[0] || [0, 0, 0, 0]
@@ -43,9 +68,9 @@ export async function openCodeGlobalStats(dbPath: string): Promise<OpenCodeGloba
 
   // Top models
   const modelRows = db.exec(
-    `SELECT model, COUNT(*) as sessions, COALESCE(SUM(total_cost), 0) as total_cost
-     FROM session WHERE model IS NOT NULL
-     GROUP BY model ORDER BY sessions DESC LIMIT 10`
+    `SELECT ${colModel}, COUNT(*) as sessions, COALESCE(SUM(${colCost}), 0) as total_cost
+     FROM session WHERE ${colModel} IS NOT NULL AND ${colModel} != 'NULL'
+     GROUP BY ${colModel} ORDER BY sessions DESC LIMIT 10`
   )
   const topModels: { model: string; sessions: number; totalCost: number }[] = []
   if (modelRows[0]?.values) {
@@ -60,9 +85,9 @@ export async function openCodeGlobalStats(dbPath: string): Promise<OpenCodeGloba
 
   // Top agents
   const agentRows = db.exec(
-    `SELECT agent, COUNT(*) as sessions
-     FROM session WHERE agent IS NOT NULL
-     GROUP BY agent ORDER BY sessions DESC LIMIT 10`
+    `SELECT ${colAgent}, COUNT(*) as sessions
+     FROM session WHERE ${colAgent} IS NOT NULL AND ${colAgent} != 'NULL'
+     GROUP BY ${colAgent} ORDER BY sessions DESC LIMIT 10`
   )
   const topAgents: { agent: string; sessions: number }[] = []
   if (agentRows[0]?.values) {
@@ -76,11 +101,11 @@ export async function openCodeGlobalStats(dbPath: string): Promise<OpenCodeGloba
 
   // Sessions by day (last 30)
   const dayRows = db.exec(
-    `SELECT DATE(created_at) as date, COUNT(*) as count
+    `SELECT DATE(${colCreated}) as date, COUNT(*) as count
      FROM session
-     WHERE created_at IS NOT NULL
-       AND created_at >= DATE('now', '-30 days')
-     GROUP BY DATE(created_at)
+     WHERE ${colCreated} IS NOT NULL
+       AND ${colCreated} >= DATE('now', '-30 days')
+     GROUP BY DATE(${colCreated})
      ORDER BY date ASC`
   )
   const sessionsByDay: { date: string; count: number }[] = []

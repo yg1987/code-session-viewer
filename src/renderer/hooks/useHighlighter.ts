@@ -89,13 +89,14 @@ export async function highlightCodeAsync(
   const normalized = normalizeLang(lang)
   const loaded = highlighter.getLoadedLanguages()
 
-  if (!loaded.includes(normalized as any)) {
+  if (!loaded.includes(normalized)) {
     const loader = LANG_IMPORTS[normalized]
     if (loader) {
       try {
         const grammar = await loader()
         await highlighter.loadLanguage(grammar)
-      } catch {
+      } catch (e) {
+        console.debug('useHighlighter: failed to load language grammar for', normalized, e)
         return escapeHtml(code)
       }
     } else {
@@ -108,7 +109,8 @@ export async function highlightCodeAsync(
       lang: normalized,
       theme: 'github-dark',
     })
-  } catch {
+  } catch (e) {
+    console.debug('useHighlighter: codeToHtml failed for', normalized, e)
     return escapeHtml(code)
   }
 }

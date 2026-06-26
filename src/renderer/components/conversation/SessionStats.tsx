@@ -348,22 +348,22 @@ export function SessionStats({ messages, sessionFilePath, onJumpToMessage }: Pro
             </h3>
             <div className="overflow-x-auto pb-2">
               <div className="flex items-end" style={{ height: 160, minWidth: Math.max(turns.length * 6, 300) }}>
-                {turns.map((t) => {
-                  const barH = Math.max(Math.round((t.output / maxOutput) * 150), 2)
+                {turns.map((turn) => {
+                  const barH = Math.max(Math.round((turn.output / maxOutput) * 150), 2)
                   return (
-                    <Tooltip key={t.turn} className="flex-1" content={
+                    <Tooltip key={turn.turn} className="flex-1" content={
                       <>
-                        <div className="text-[#e6edf3] font-medium">{t('stats.turn', { n: t.turn })} {t.time}</div>
-                        <div className="text-green-400">{t('stats.outputColon')} {fmt(t.output)}</div>
-                        <div className="text-blue-400">{t('stats.inputColon')} {fmt(t.input)}</div>
-                        <div className="text-yellow-400">{t('stats.cacheReadColon')} {fmt(t.cacheRead)}</div>
-                        {t.cacheCreate > 0 && <div className="text-orange-400">{t('stats.cacheWriteColon')} {fmt(t.cacheCreate)}</div>}
+                        <div className="text-[#e6edf3] font-medium">{t('stats.turn', { n: turn.turn })} {turn.time}</div>
+                        <div className="text-green-400">{t('stats.outputColon')} {fmt(turn.output)}</div>
+                        <div className="text-blue-400">{t('stats.inputColon')} {fmt(turn.input)}</div>
+                        <div className="text-yellow-400">{t('stats.cacheReadColon')} {fmt(turn.cacheRead)}</div>
+                        {turn.cacheCreate > 0 && <div className="text-orange-400">{t('stats.cacheWriteColon')} {fmt(turn.cacheCreate)}</div>}
                         {onJumpToMessage && <div className="text-gray-500 border-t border-gray-700 mt-1 pt-1">{t('stats.clickToJump')}</div>}
                       </>
                     }>
                       <div className={`w-full flex items-end ${onJumpToMessage ? 'cursor-pointer' : ''}`}
                         style={{ height: 150 }}
-                        onClick={() => onJumpToMessage?.(t.msgId)}>
+                        onClick={() => onJumpToMessage?.(turn.msgId)}>
                         <div className="w-full bg-green-500/60 rounded-t hover:bg-green-400/70 transition-colors" style={{ height: barH }} />
                       </div>
                     </Tooltip>

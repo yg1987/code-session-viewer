@@ -167,7 +167,8 @@ export function ConversationView({ messages, loading, error, session, jumpToTime
     filePath: session!.fullPath,
     title: session!.customTitle || session!.summary || session!.firstPrompt || session!.sessionId,
     projectPath: session!.projectPath,
-    sessionId: session!.sessionId
+    sessionId: session!.sessionId,
+    ...(session!.source !== 'claude' ? { messages } : {})
   })
 
   const handleExportHtml = async () => {
@@ -390,9 +391,11 @@ export function ConversationView({ messages, loading, error, session, jumpToTime
 
         {/* Content area */}
         {viewMode === 'raw' ? (
-          <div className="flex-1 min-h-0"><RawJsonView filePath={session.fullPath} searchActive={showSearch} /></div>
+          <div className="flex-1 min-h-0"><RawJsonView filePath={session.fullPath} searchActive={showSearch} messages={session.source !== 'claude' ? messages : undefined} /></div>
         ) : viewMode === 'stats' ? (
-          <div className="flex-1 overflow-y-auto"><SessionStats messages={messages} sessionFilePath={session.fullPath} onJumpToMessage={(msgId) => {
+          <div className="flex-1 overflow-y-auto">
+            <ErrorBoundary context="SessionStats">
+              <SessionStats messages={messages} sessionFilePath={session.source === 'claude' ? session.fullPath : undefined} onJumpToMessage={(msgId) => {
             // Ensure message is rendered, switch to chat, scroll to it
             const idx = messages.findIndex((m) => m.id === msgId)
             if (idx >= 0) setRenderCount((prev) => Math.max(prev, idx + 5))
@@ -401,11 +404,15 @@ export function ConversationView({ messages, loading, error, session, jumpToTime
               const el = document.querySelector(`[data-msg-id="${msgId}"]`)
               if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
             })
-          }} /></div>
+          }} />
+              </ErrorBoundary>
+            </div>
         ) : viewMode === 'insights' ? (
           <div className="flex-1 overflow-y-auto">
             <div className="max-w-4xl mx-auto px-6 py-6">
-              <InsightsPanel filePath={session.fullPath} />
+              <ErrorBoundary context="InsightsPanel">
+                <InsightsPanel filePath={session.fullPath} messages={session.source !== 'claude' ? messages : undefined} />
+              </ErrorBoundary>
             </div>
           </div>
         ) : viewMode === 'todos' && session.source === 'opencode' && session.dbPath ? (

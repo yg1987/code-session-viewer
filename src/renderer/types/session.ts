@@ -13,7 +13,7 @@ export interface SessionEntry {
   gitBranch: string
   projectPath: string
   isSidechain: boolean
-  /** Data source — 'claude' (JSONL) or 'opencode' (SQLite) */
+  /** Data source — 'claude' (JSONL), 'opencode' (SQLite), or 'codex' (JSONL) */
   source?: SessionSource
   /** For OpenCode sessions: path to the opencode.db */
   dbPath?: string

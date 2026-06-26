@@ -104,7 +104,7 @@ export async function openCodeCrossSearch(
           projIds
         )
         if (projRes.length > 0 && projRes[0].values) {
-          const pc = projRes[0].columns
+          const pc = (name: string) => projRes[0].columns.indexOf(name)
           for (const prow of projRes[0].values) {
             projMap.set(prow[pc('id')] as string, (prow[pc('worktree')] as string) || '')
           }

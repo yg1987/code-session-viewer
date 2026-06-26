@@ -160,7 +160,8 @@ function CodexTab({ codexHome, homeNotFound }: { codexHome?: string | null; home
     try {
       const path = await window.api.detectCodexHome()
       setDetectedPath(path)
-    } catch {
+    } catch (e) {
+      console.debug('SettingsPanel: Codex re-detect failed', e)
       setDetectedPath(null)
     } finally {
       setChecking(false)
@@ -174,7 +175,7 @@ function CodexTab({ codexHome, homeNotFound }: { codexHome?: string | null; home
       setDetectedPath(customPath.trim())
       setSaved(true)
       setTimeout(() => setSaved(false), 2000)
-    } catch { /* ignore */ }
+    } catch (e) { console.debug('SettingsPanel: Codex save custom path failed', e) }
   }
 
   return (
@@ -261,14 +262,14 @@ function PricingTab() {
 
   const updateBuiltinPrice = (id: string, field: keyof ModelPricing, value: number) => {
     const overrides = { ...settings.builtinPricingOverrides }
-    if (!overrides[id]) overrides[id] = {}
-    ;(overrides[id] as any)[field] = value
+    const current = overrides[id] ?? {}
+    overrides[id] = { ...current, [field]: value }
     updateSettings({ builtinPricingOverrides: overrides })
   }
 
   const updateCustomPrice = (idx: number, field: keyof ModelPricing, value: number | string) => {
     const customs = [...settings.customModelPricing]
-    ;(customs[idx] as any)[field] = value
+    customs[idx] = { ...customs[idx], [field]: value }
     updateSettings({ customModelPricing: customs })
   }
 
@@ -333,8 +334,8 @@ function PricingTab() {
         <div className="space-y-2">
           {settings.customModelPricing.map((model, idx) => (
             <PricingRow key={model.id + idx} pricing={model}
-              onChange={(field, val) => updateCustomPrice(idx, field as any, val)}
-              onChangeName={(field, val) => updateCustomPrice(idx, field as any, val)}
+              onChange={(field, val) => updateCustomPrice(idx, field, val)}
+              onChangeName={(field, val) => updateCustomPrice(idx, field, val)}
               onDelete={() => removeCustom(idx)} />
           ))}
         </div>
@@ -452,7 +453,8 @@ function OpenCodeTab({ dbPath, dbNotFound }: { dbPath?: string | null; dbNotFoun
     try {
       const path = await window.api.detectOpenCodeDb()
       setDetectedPath(path)
-    } catch {
+    } catch (e) {
+      console.debug('SettingsPanel: OpenCode re-detect failed', e)
       setDetectedPath(null)
     } finally {
       setChecking(false)
@@ -466,7 +468,7 @@ function OpenCodeTab({ dbPath, dbNotFound }: { dbPath?: string | null; dbNotFoun
       setDetectedPath(customPath.trim())
       setSaved(true)
       setTimeout(() => setSaved(false), 2000)
-    } catch { /* ignore */ }
+    } catch (e) { console.debug('SettingsPanel: OpenCode save custom path failed', e) }
   }
 
   return (

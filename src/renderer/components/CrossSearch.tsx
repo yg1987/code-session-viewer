@@ -78,7 +78,8 @@ export function CrossSearch({ onClose, onOpenSession, source, openCodeDbPath }: 
         }))
         setResults(mapped)
       }
-    } catch {
+    } catch (e) {
+      console.debug('CrossSearch: search failed', e)
       setResults([])
     } finally {
       setLoading(false)

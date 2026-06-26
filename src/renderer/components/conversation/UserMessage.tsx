@@ -52,7 +52,8 @@ const ansiConverter = new Convert({
 function ansiToHtml(raw: string): string {
   try {
     return ansiConverter.toHtml(raw)
-  } catch {
+  } catch (e) {
+    console.debug('UserMessage: ansiToHtml failed', e)
     return stripAnsi(raw)
   }
 }

@@ -45,7 +45,7 @@ function loadSettings(): AppSettings {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (raw) return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) }
-  } catch { /* fallback */ }
+  } catch (e) { console.debug('useSettings: loadSettings failed', e) }
   return { ...DEFAULT_SETTINGS }
 }
 

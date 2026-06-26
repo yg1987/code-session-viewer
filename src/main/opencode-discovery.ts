@@ -10,6 +10,7 @@
  */
 
 import { getOpenCodeDb } from './opencode-db'
+import { encodeProjectPath } from './path-utils'
 import type { ProjectGroup, SessionEntry } from '../renderer/types/session'
 
 export async function discoverOpenCodeSessions(dbPath: string): Promise<ProjectGroup[]> {
@@ -113,11 +114,4 @@ function tsToISO(ts: number | undefined | null): string {
   if (!ts) return ''
   // OpenCode timestamps are JS milliseconds
   return new Date(ts).toISOString()
-}
-
-function encodeProjectPath(projectPath: string): string {
-  return projectPath
-    .replace(/[^a-zA-Z0-9]/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '')
 }

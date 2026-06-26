@@ -355,7 +355,8 @@ function SessionItem({
       addSuffix: true,
       locale: settings.locale === 'zh' ? zhCN : undefined
     })
-  } catch {
+  } catch (e) {
+    console.debug('Sidebar: formatDistanceToNow failed', e)
     timeAgo = ''
   }
 

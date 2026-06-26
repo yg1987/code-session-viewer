@@ -29,31 +29,41 @@ export function useCodexSessionList() {
     }
   }, [codexHome])
 
-  // Auto-detect Codex home on mount
+  // Resolve Codex home on mount: custom path > $CODEX_HOME env > ~/.codex
   useEffect(() => {
     let cancelled = false
     ;(async () => {
       try {
-        const detected = await window.api.detectCodexHome()
+        // 1. Check user-saved custom Codex home first
+        const settings = await window.api.getSettings()
+        const customHome: string | undefined = (settings as { codexHomeDir?: string } | null)?.codexHomeDir
+
+        // 2. Resolve path: custom > auto-detect
+        let resolvedHome: string | null = customHome || null
+        if (!resolvedHome) {
+          resolvedHome = await window.api.detectCodexHome()
+        }
+
         if (cancelled) return
 
-        // Verify the detected path actually exists by trying to load sessions
-        if (detected) {
+        // 3. Verify by trying to load sessions
+        if (resolvedHome) {
           try {
-            const result = await window.api.getCodexSessions(detected)
+            const result = await window.api.getCodexSessions(resolvedHome)
             if (cancelled) return
-            setCodexHome(detected)
+            setCodexHome(resolvedHome)
             setGroups(result)
             setHomeNotFound(false)
           } catch {
             if (cancelled) return
-            setCodexHome(detected)
+            setCodexHome(resolvedHome)
             setHomeNotFound(true)
           }
         } else {
           setHomeNotFound(true)
         }
-      } catch {
+      } catch (e) {
+        console.debug('useCodexSessionList: init failed', e)
         if (!cancelled) setHomeNotFound(true)
       } finally {
         if (!cancelled) setLoading(false)

@@ -45,9 +45,9 @@ export function analyzeSession(messages: ParsedMessage[]): SessionInsights {
         toolCalls.push({
           turn: turnIdx,
           name: block.name || '',
-          input: (block as any).input || {},
-          hasError: !!(block as any).result?.is_error,
-          resultPreview: ((block as any).result?.content || '').slice(0, 200)
+          input: block.input || {},
+          hasError: !!block.result?.is_error,
+          resultPreview: (block.result?.content || '').slice(0, 200)
         })
       }
     }

@@ -296,16 +296,46 @@ export interface OpenCodeTodo {
 
 /**
  * Fetch todos for a given OpenCode session.
- * Table schema inferred: todo(id, session_id, description, status, time_created, time_updated)
+ * Uses PRAGMA to detect actual column names since schema varies.
  */
 export async function getOpenCodeTodos(dbPath: string, sessionId: string): Promise<OpenCodeTodo[]> {
   const db = await getOpenCodeDb(dbPath)
 
+  // Detect actual column names via PRAGMA
+  let idCol = 'rowid'
+  let descCol = 'description'
+  let statusCol = 'status'
+  let createdCol = 'time_created'
+  let updatedCol = 'time_updated'
+  let sessionCol = 'session_id'
+
+  try {
+    const pragmaRes = db.exec('PRAGMA table_info(todo)')
+    if (pragmaRes.length > 0 && pragmaRes[0].values) {
+      const cols = pragmaRes[0].columns
+      const ci = (name: string) => cols.indexOf(name)
+      const colNames = new Set(pragmaRes[0].values.map((r) => r[ci('name')] as string))
+      // Map known column names
+      if (!colNames.has('id')) {
+        for (const c of colNames) {
+          if (c === 'todo_id') idCol = c
+          if (c === 'content') descCol = c
+          if (c === 'kind') statusCol = c
+          if (c === 'time_created' || c === 'created_at') createdCol = c
+          if (c === 'time_updated' || c === 'updated_at') updatedCol = c
+          if (c === 'session_id' || c === 'sessionId') sessionCol = c
+        }
+      }
+    }
+  } catch {
+    // fall through with defaults
+  }
+
   const res = db.exec(
-    `SELECT id, session_id, description, status, time_created, time_updated
+    `SELECT ${idCol}, ${sessionCol}, ${descCol}, ${statusCol}, ${createdCol}, ${updatedCol}
      FROM todo
-     WHERE session_id = ?
-     ORDER BY time_created ASC`,
+     WHERE ${sessionCol} = ?
+     ORDER BY ${createdCol} ASC`,
     [sessionId]
   )
 
@@ -316,15 +346,15 @@ export async function getOpenCodeTodos(dbPath: string, sessionId: string): Promi
 
   const todos: OpenCodeTodo[] = []
   for (const row of res[0].values) {
-    const rawStatus = (row[ci('status')] as string) || 'pending'
+    const rawStatus = (row[ci(statusCol)] as string) || 'pending'
     const status = rawStatus === 'in_progress' || rawStatus === 'completed' ? rawStatus : 'pending'
     todos.push({
-      id: row[ci('id')] as string,
-      sessionId: row[ci('session_id')] as string,
-      description: (row[ci('description')] as string) || '',
+      id: row[ci(idCol)] as string,
+      sessionId: row[ci(sessionCol)] as string,
+      description: (row[ci(descCol)] as string) || '',
       status,
-      created: msToISO(row[ci('time_created')] as number),
-      updated: msToISO(row[ci('time_updated')] as number)
+      created: msToISO(row[ci(createdCol)] as number),
+      updated: msToISO(row[ci(updatedCol)] as number)
     })
   }
 

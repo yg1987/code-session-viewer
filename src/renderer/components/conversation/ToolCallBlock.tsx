@@ -101,8 +101,8 @@ function getToolSummary(block: ToolUseBlock): string {
   if (block.name === 'LSP' && input.operation) return `${input.operation} @ ${input.filePath || ''}`
   if (block.name === 'TodoWrite' && input.todos) {
     const todos = input.todos as Array<{ status?: string }>
-    const counts = { completed: 0, in_progress: 0, pending: 0 }
-    for (const t of todos) { if (t.status && t.status in counts) (counts as any)[t.status]++ }
+    const counts: Record<string, number> = { completed: 0, in_progress: 0, pending: 0 }
+    for (const t of todos) { if (t.status && t.status in counts) counts[t.status]++ }
     return `${todos.length} items (${counts.completed} done, ${counts.in_progress} active, ${counts.pending} pending)`
   }
   if (block.name === 'TaskCreate' && input.subject) return String(input.subject)
@@ -154,7 +154,7 @@ export function ToolCallBlock({ block, onViewSubagent }: Props) {
           {block.name === 'Agent' && onViewSubagent && (
             <button
               type="button"
-              onClick={(e) => { e.stopPropagation(); onViewSubagent(String((block as any).input?.description || '')) }}
+              onClick={(e) => { e.stopPropagation(); onViewSubagent(String(block.input?.description || '')) }}
               className="text-[10px] px-2 py-0.5 rounded-md bg-[var(--accent-soft)] text-[var(--accent)] hover:bg-[var(--accent)]/20 transition-colors flex-shrink-0 ml-auto"
             >
               {t('toolCall.viewSubAgent')}

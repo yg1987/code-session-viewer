@@ -57,8 +57,8 @@ export function deleteSession(sessionFilePath: string, sessionId: string): Delet
           tryDelete(path.join(telemetryDir, file), false)
         }
       }
-    } catch {
-      // telemetry dir read error, non-critical
+    } catch (e) {
+      console.debug('session-delete: telemetry dir read error', telemetryDir, e)
     }
   }
 

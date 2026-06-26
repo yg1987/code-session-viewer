@@ -39,8 +39,8 @@ export async function crossSessionSearch(query: string, maxResults = 100): Promi
 
       try {
         searchInFile(filePath, sessionId, dir.name, q, results, maxResults)
-      } catch {
-        // skip corrupt files
+      } catch (e) {
+        console.debug('cross-search: searchInFile failed for', filePath, e)
       }
     }
   }

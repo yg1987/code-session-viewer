@@ -29,31 +29,41 @@ export function useOpenCodeSessionList() {
     }
   }, [dbPath])
 
-  // Auto-detect DB path on mount
+  // Resolve DB path on mount: custom path > auto-detect > not found
   useEffect(() => {
     let cancelled = false
     ;(async () => {
       try {
-        const detected = await window.api.detectOpenCodeDb()
+        // 1. Check user-saved custom path first
+        const settings = await window.api.getSettings()
+        const customPath: string | undefined = (settings as { openCodeDbPath?: string } | null)?.openCodeDbPath
+
+        // 2. Determine which path to try: custom > auto-detect
+        let resolvedPath: string | null = customPath || null
+        if (!resolvedPath) {
+          resolvedPath = await window.api.detectOpenCodeDb()
+        }
+
         if (cancelled) return
 
-        // Verify the detected path actually exists by trying to load sessions
-        if (detected) {
+        // 3. Verify the resolved path by trying to load sessions
+        if (resolvedPath) {
           try {
-            const result = await window.api.getOpenCodeSessions(detected)
+            const result = await window.api.getOpenCodeSessions(resolvedPath)
             if (cancelled) return
-            setDbPath(detected)
+            setDbPath(resolvedPath)
             setGroups(result)
             setDbNotFound(false)
           } catch {
             if (cancelled) return
-            setDbPath(detected)
+            setDbPath(resolvedPath)
             setDbNotFound(true)
           }
         } else {
           setDbNotFound(true)
         }
-      } catch {
+      } catch (e) {
+        console.debug('useOpenCodeSessionList: init failed', e)
         if (!cancelled) setDbNotFound(true)
       } finally {
         if (!cancelled) setLoading(false)

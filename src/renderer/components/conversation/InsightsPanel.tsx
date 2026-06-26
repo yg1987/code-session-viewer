@@ -39,20 +39,24 @@ const SEVERITY_STYLES = {
 
 interface Props {
   filePath: string
+  messages?: import('../../types/message').ParsedMessage[]
 }
 
-export function InsightsPanel({ filePath }: Props) {
+export function InsightsPanel({ filePath, messages }: Props) {
   const [insights, setInsights] = useState<SessionInsights | null>(null)
   const [loading, setLoading] = useState(true)
   const { t } = useLocale()
 
   useEffect(() => {
     setLoading(true)
-    window.api.getSessionInsights(filePath).then((data: SessionInsights) => {
+    const promise = messages
+      ? window.api.getSessionInsightsFromData(messages)
+      : window.api.getSessionInsights(filePath)
+    promise.then((data: SessionInsights) => {
       setInsights(data)
       setLoading(false)
-    })
-  }, [filePath])
+    }).catch(() => setLoading(false))
+  }, [filePath, messages])
 
   if (loading) {
     return (

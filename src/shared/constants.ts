@@ -7,6 +7,7 @@ export const IPC_CHANNELS = {
   SESSION_RENAME: 'session:rename',
   SESSION_DELETE: 'session:delete',
   SESSION_INSIGHTS: 'session:insights',
+  SESSION_INSIGHTS_DATA: 'session:insights-data',
   SESSION_MODEL_USAGE: 'session:model-usage',
   GLOBAL_STATS: 'stats:global',
   CROSS_SEARCH: 'search:cross-session',
@@ -33,6 +34,7 @@ export const IPC_CHANNELS = {
   CODEX_SESSIONS_LIST: 'codex:sessions-list',
   CODEX_SESSION_LOAD: 'codex:session-load',
   CODEX_SESSION_DELETE: 'codex:session-delete',
+  CODEX_GLOBAL_STATS: 'codex:global-stats',
   SETTINGS_LOAD: 'settings:load',
   SETTINGS_SAVE: 'settings:save'
 } as const

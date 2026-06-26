@@ -22,6 +22,7 @@ import { detectCodexHome } from './codex-db'
 import { discoverCodexSessions } from './codex-discovery'
 import { parseCodexSession } from './codex-parser'
 import { deleteCodexSession } from './codex-delete'
+import { codexGlobalStats } from './codex-global-stats'
 
 function getIconPath(): string {
   // Packaged: icons are copied to resources/ via extraResources.
@@ -93,10 +94,12 @@ app.whenReady().then(() => {
   })
 
   ipcMain.handle(IPC_CHANNELS.SESSION_LOAD, async (_event, filePath: string) => {
+    if (filePath.startsWith('opencode://') || filePath.startsWith('codex://')) return []
     return parseSessionFile(filePath)
   })
 
   ipcMain.handle(IPC_CHANNELS.SESSION_LOAD_RAW, async (_event, filePath: string) => {
+    if (filePath.startsWith('opencode://') || filePath.startsWith('codex://')) return []
     const content = fs.readFileSync(filePath, 'utf-8')
     const lines = content.split('\n').filter((l) => l.trim())
     return lines.map((line) => {
@@ -117,9 +120,10 @@ app.whenReady().then(() => {
         title: string
         projectPath: string
         sessionId: string
+        messages?: Parameters<typeof parseSessionFile>[0] extends string ? never : unknown
       }
     ) => {
-      const messages = await parseSessionFile(data.filePath)
+      const messages = (data as any).messages ?? await parseSessionFile(data.filePath)
       return exportSessionToHtml(messages, {
         title: data.title,
         projectPath: data.projectPath,
@@ -132,9 +136,9 @@ app.whenReady().then(() => {
     IPC_CHANNELS.SESSION_EXPORT_MD,
     async (
       _event,
-      data: { filePath: string; title: string; projectPath: string; sessionId: string }
+      data: { filePath: string; title: string; projectPath: string; sessionId: string; messages?: unknown }
     ) => {
-      const messages = await parseSessionFile(data.filePath)
+      const messages = (data as any).messages ?? await parseSessionFile(data.filePath)
       return exportSessionToMarkdown(messages, data)
     }
   )
@@ -158,12 +162,20 @@ app.whenReady().then(() => {
 
   // Session insights
   ipcMain.handle(IPC_CHANNELS.SESSION_INSIGHTS, async (_event, filePath: string) => {
+    if (filePath.startsWith('opencode://') || filePath.startsWith('codex://')) return null
     const messages = await parseSessionFile(filePath)
+    return analyzeSession(messages)
+  })
+
+  // Session insights from pre-loaded messages (for OpenCode/Codex)
+  ipcMain.handle(IPC_CHANNELS.SESSION_INSIGHTS_DATA, async (_event, rawMessages: unknown) => {
+    const messages = rawMessages as Parameters<typeof analyzeSession>[0]
     return analyzeSession(messages)
   })
 
   // Per-model token usage (main JSONL + subagent JSONLs), mirroring /cost
   ipcMain.handle(IPC_CHANNELS.SESSION_MODEL_USAGE, async (_event, filePath: string) => {
+    if (filePath.startsWith('opencode://') || filePath.startsWith('codex://')) return null
     return collectSessionUsage(filePath)
   })
 
@@ -196,7 +208,7 @@ app.whenReady().then(() => {
           const meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'))
           agentType = meta.agentType || 'Agent'
           description = meta.description || ''
-        } catch { /* skip */ }
+        } catch (e) { console.debug('index: failed reading subagent meta', metaPath, e) }
       }
       agents.push({
         agentId,
@@ -269,6 +281,11 @@ app.whenReady().then(() => {
   // Delete Codex session
   ipcMain.handle(IPC_CHANNELS.CODEX_SESSION_DELETE, async (_event, filePath: string) => {
     return deleteCodexSession(filePath)
+  })
+
+  // Codex global stats
+  ipcMain.handle(IPC_CHANNELS.CODEX_GLOBAL_STATS, async (_event, codexHome?: string) => {
+    return codexGlobalStats(codexHome)
   })
 
   // ─── End Codex Handlers ──────────────────────────────────────────
@@ -357,20 +374,22 @@ app.whenReady().then(() => {
         mainWindow.webContents.send('sessions:changed')
       }
     })
-  } catch {
-    // Watching not supported or dir doesn't exist
+  } catch (e) {
+    console.debug('index: Claude projects watcher failed', e)
   }
 
-  // Watch ~/.codex/sessions/ for new rollout files and notify renderer
-  const codexSessionsDir = require('path').join(require('os').homedir(), '.codex', 'sessions')
+  // Watch Codex sessions dir for new rollout files and notify renderer.
+  // Priority: user setting (codexHomeDir) > $CODEX_HOME env > ~/.codex
+  const codexHomeDir = loadSettings().codexHomeDir || detectCodexHome()
+  const codexSessionsDir = join(codexHomeDir, 'sessions')
   try {
     fs.watch(codexSessionsDir, { recursive: true }, (_event, filename) => {
       if (filename && filename.startsWith('rollout-') && filename.endsWith('.jsonl')) {
         mainWindow.webContents.send('sessions:changed')
       }
     })
-  } catch {
-    // Watching not supported or dir doesn't exist
+  } catch (e) {
+    console.debug('index: Codex sessions watcher failed for', codexSessionsDir, e)
   }
 
   app.on('activate', () => {

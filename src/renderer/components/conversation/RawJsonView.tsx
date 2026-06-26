@@ -2,9 +2,13 @@ import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { CopyButton } from '../common/CopyButton'
 import { useLocale } from '../../hooks/useLocale'
 
+import type { ParsedMessage } from '../../types/message'
+
 interface Props {
   filePath: string
   searchActive?: boolean
+  /** Pre-loaded messages for sessions without raw JSONL files (OpenCode/Codex) */
+  messages?: ParsedMessage[]
 }
 
 const TYPE_COLORS: Record<string, string> = {
@@ -19,7 +23,7 @@ const TYPE_COLORS: Record<string, string> = {
   'permission-mode': 'border-l-green-700'
 }
 
-export function RawJsonView({ filePath, searchActive }: Props) {
+export function RawJsonView({ filePath, searchActive, messages }: Props) {
   const [entries, setEntries] = useState<unknown[]>([])
   const [loading, setLoading] = useState(false)
   const [filter, setFilter] = useState<string>('all')
@@ -45,6 +49,32 @@ export function RawJsonView({ filePath, searchActive }: Props) {
   const searchInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
+    if (messages) {
+      const mapped = messages.map((m) => ({
+        type: m.role === 'user' ? 'user' : 'assistant',
+        uuid: m.id,
+        timestamp: m.timestamp,
+        message: {
+          id: m.id, role: m.role, model: m.model,
+          content: m.content.map((b) => {
+            if (b.type === 'text') return { type: 'text', text: b.text }
+            if (b.type === 'thinking') return { type: 'thinking', thinking: b.thinking }
+            if (b.type === 'tool_use') return { type: 'tool_use', id: b.id, name: b.name, input: b.input }
+            if (b.type === 'image') return { type: 'image', source: b.source }
+            return b
+          }),
+          usage: m.tokenUsage ? {
+            input_tokens: m.tokenUsage.inputTokens,
+            output_tokens: m.tokenUsage.outputTokens,
+            cache_read_input_tokens: m.tokenUsage.cacheRead,
+            cache_creation_input_tokens: m.tokenUsage.cacheCreation
+          } : undefined
+        }
+      }))
+      setEntries(mapped)
+      setLoading(false)
+      return
+    }
     let cancelled = false
     setLoading(true)
     setExpandedSet(new Set())
@@ -53,7 +83,7 @@ export function RawJsonView({ filePath, searchActive }: Props) {
       if (!cancelled) { setEntries(data); setLoading(false) }
     })
     return () => { cancelled = true }
-  }, [filePath])
+  }, [filePath, messages])
 
   useEffect(() => { scrollRef.current?.scrollTo(0, 0) }, [filePath])
 

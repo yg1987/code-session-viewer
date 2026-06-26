@@ -20,6 +20,7 @@ const api = {
   listSubagents: (sessionFilePath: string) => ipcRenderer.invoke(IPC_CHANNELS.SUBAGENTS_LIST, sessionFilePath),
   loadSubagent: (filePath: string) => ipcRenderer.invoke(IPC_CHANNELS.SUBAGENT_LOAD, filePath),
   getSessionInsights: (filePath: string) => ipcRenderer.invoke(IPC_CHANNELS.SESSION_INSIGHTS, filePath),
+  getSessionInsightsFromData: (messages: unknown) => ipcRenderer.invoke(IPC_CHANNELS.SESSION_INSIGHTS_DATA, messages),
   getSessionModelUsage: (filePath: string) => ipcRenderer.invoke(IPC_CHANNELS.SESSION_MODEL_USAGE, filePath),
   renameSession: (data: { filePath: string; sessionId: string; newTitle: string }) =>
     ipcRenderer.invoke(IPC_CHANNELS.SESSION_RENAME, data),
@@ -90,6 +91,10 @@ const api = {
   /** Delete a Codex session file */
   deleteCodexSession: (filePath: string) =>
     ipcRenderer.invoke(IPC_CHANNELS.CODEX_SESSION_DELETE, filePath),
+
+  /** Global stats for Codex sessions */
+  codexGlobalStats: (codexHome?: string) =>
+    ipcRenderer.invoke(IPC_CHANNELS.CODEX_GLOBAL_STATS, codexHome),
 
   /** Load viewer settings */
   getSettings: () => ipcRenderer.invoke(IPC_CHANNELS.SETTINGS_LOAD),

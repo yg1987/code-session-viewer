@@ -62,6 +62,9 @@ export function GlobalDashboard({ onClose, source, openCodeDbPath }: Props) {
         setOcStats(data)
         setLoading(false)
       }).catch(() => setLoading(false))
+    } else if (source === 'codex') {
+      // Codex global stats not yet implemented — skip fetch, show placeholder
+      setLoading(false)
     } else {
       // Claude Code pipeline
       window.api.getGlobalStats().then((data: GlobalStats) => {
@@ -83,9 +86,10 @@ export function GlobalDashboard({ onClose, source, openCodeDbPath }: Props) {
     )
   }
 
-  if (!stats && !ocStats) return null
+  if (!stats && !ocStats && source !== 'codex') return null
 
   const isOpenCode = source === 'opencode' && ocStats
+  const isCodex = source === 'codex'
 
   // Claude cost calculation
   let modelCosts: { model: string; pricing: any; tokens: ModelTokens; cost: any }[] = []
@@ -111,7 +115,7 @@ export function GlobalDashboard({ onClose, source, openCodeDbPath }: Props) {
       {/* Header */}
       <div className="sticky top-0 bg-[#0d1117] border-b border-[#30363d] px-6 py-3 flex items-center justify-between z-10">
         <h1 className="text-lg font-semibold text-[#e6edf3]">
-          {t('dashboard.globalDashboard')}{isOpenCode ? ` (${t('dashboard.opencode')})` : ''}
+          {t('dashboard.globalDashboard')}{isOpenCode ? ` (${t('dashboard.opencode')})` : isCodex ? ` (Codex)` : ''}
         </h1>
         <button type="button" onClick={onClose}
           className="p-1.5 rounded-md text-gray-400 hover:text-gray-200 hover:bg-[#161b22] transition-colors">
@@ -192,6 +196,18 @@ export function GlobalDashboard({ onClose, source, openCodeDbPath }: Props) {
                   </div>
                 </div>
               )}
+            </div>
+          </>
+        ) : isCodex ? (
+          <>
+            {/* Codex: global stats not yet implemented */}
+            <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-6 flex flex-col items-center justify-center" style={{ minHeight: 200 }}>
+              <svg className="w-10 h-10 text-gray-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <p className="text-[var(--text2)] text-sm font-medium mb-1">Codex Global Dashboard</p>
+              <p className="text-[var(--text3)] text-xs">Coming soon — global stats for Codex sessions are not yet implemented.</p>
+              <p className="text-[var(--text3)] text-xs mt-2">Per-session stats are available for individual Codex sessions.</p>
             </div>
           </>
         ) : (

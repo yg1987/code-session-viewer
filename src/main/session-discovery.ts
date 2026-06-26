@@ -1,6 +1,7 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import * as os from 'os'
+import { decodeProjectPath } from './path-utils'
 
 export interface SessionEntry {
   sessionId: string
@@ -93,6 +94,9 @@ export async function discoverSessions(): Promise<ProjectGroup[]> {
       projectPath = sessions[0].projectPath
     }
 
+    // Skip claude-mem observer-sessions and other non-user project directories
+    if (projectPath.includes('.claude-mem') || projectPath.includes('\\claude-mem\\')) continue
+
     // Sort sessions by modified date, newest first
     sessions.sort(
       (a, b) => new Date(b.modified).getTime() - new Date(a.modified).getTime()
@@ -120,8 +124,14 @@ function readSessionIndex(indexPath: string, projectDir: string): SessionEntry[]
     const raw = fs.readFileSync(indexPath, 'utf-8')
     const index = JSON.parse(raw)
     const entries: SessionEntry[] = []
+    const seenIds = new Set<string>()
 
     for (const entry of index.entries || []) {
+      // Deduplicate by sessionId
+      const sid = entry.sessionId || ''
+      if (seenIds.has(sid)) continue
+      seenIds.add(sid)
+
       // Verify the JSONL file exists
       let fullPath = entry.fullPath
       if (!fs.existsSync(fullPath)) {
@@ -131,13 +141,23 @@ function readSessionIndex(indexPath: string, projectDir: string): SessionEntry[]
       }
 
       let fileSize = 0
-      try { fileSize = fs.statSync(fullPath).size } catch { /* ok */ }
+      try { fileSize = fs.statSync(fullPath).size } catch (e) { console.debug('session-discovery: stat failed for', fullPath, e) }
+
+      // Skip sessions whose firstPrompt is an error message (no real user content)
+      let fp = entry.firstPrompt || ''
+      if (fp.startsWith('API Error:') || /^HTTP error|^Error:|^\d{3}\s(error|unknown|upstream)/i.test(fp)) continue
+
+      // If firstPrompt is a caveat, re-extract from the JSONL to find the real user message
+      if (isNonUserContent(fp)) {
+        const meta = extractMetadataFromJsonl(fullPath)
+        if (meta?.firstPrompt) fp = meta.firstPrompt
+      }
 
       entries.push({
         sessionId: entry.sessionId || '',
         fullPath,
         customTitle: extractCustomTitle(fullPath),
-        firstPrompt: entry.firstPrompt || 'No prompt',
+        firstPrompt: fp,
         summary: entry.summary || '',
         messageCount: entry.messageCount || 0,
         fileSize,
@@ -150,7 +170,8 @@ function readSessionIndex(indexPath: string, projectDir: string): SessionEntry[]
     }
 
     return entries.filter((e) => !e.isSidechain)
-  } catch {
+  } catch (e) {
+    console.debug('session-discovery: failed to read session index', indexPath, e)
     return []
   }
 }
@@ -189,8 +210,8 @@ function scanJsonlFiles(projectDir: string): SessionEntry[] {
         isSidechain: false
       })
     }
-  } catch {
-    // Directory read error
+  } catch (e) {
+    console.debug('session-discovery: directory read error for', projectDir, e)
   }
 
   return sessions
@@ -217,7 +238,8 @@ function isEmptySession(filePath: string): boolean {
       return !content.includes('"type":"user"') && !content.includes('"type":"assistant"')
     }
     return false
-  } catch {
+  } catch (e) {
+    console.debug('session-discovery: isEmptySession failed for', filePath, e)
     return false
   }
 }
@@ -241,10 +263,21 @@ function extractCustomTitle(filePath: string): string {
         // skip
       }
     }
-  } catch {
-    // file read error
+  } catch (e) {
+    console.debug('session-discovery: extractCustomTitle failed for', filePath, e)
   }
   return ''
+}
+
+/** Check if user content is a system prompt, teammate forward, caveat, or error message */
+function isNonUserContent(text: string): boolean {
+  return /<(observed_from_primary_session|environment_context|permissions|app-context|collaboration_mode|skills_instructions|plugins_instructions)/.test(text)
+    || /<teammate-/.test(text)
+    || /\b(CRITICAL:|WHAT TO RECORD|WHEN TO SKIP|SPATIAL AWARENESS)/.test(text)
+    || /^Caveat[:\s—–-]/i.test(text)
+    || /^The messages below were/.test(text)
+    || /^API Error:/.test(text)
+    || /^\d{3}\s/.test(text)
 }
 
 function extractMetadataFromJsonl(filePath: string): JsonlMetadata | null {
@@ -293,15 +326,18 @@ function extractMetadataFromJsonl(filePath: string): JsonlMetadata | null {
           obj.message?.role === 'user'
         ) {
           const content = obj.message.content
+          let text = ''
           if (typeof content === 'string') {
-            firstPrompt = content.slice(0, 200)
+            text = content
           } else if (Array.isArray(content)) {
             const textBlock = content.find(
               (c: { type: string }) => c.type === 'text'
             )
-            if (textBlock?.text) {
-              firstPrompt = textBlock.text.slice(0, 200)
-            }
+            if (textBlock?.text) text = textBlock.text
+          }
+          // Skip system prompts forwarded to teammate agents
+          if (text && !isNonUserContent(text)) {
+            firstPrompt = text.slice(0, 200)
           }
         }
       } catch {
@@ -314,8 +350,8 @@ function extractMetadataFromJsonl(filePath: string): JsonlMetadata | null {
     try {
       const obj = JSON.parse(lastLine)
       lastTimestamp = obj.timestamp
-    } catch {
-      // ok
+    } catch (e) {
+      console.debug('session-discovery: failed to parse last line JSON for', filePath, e)
     }
 
     return {
@@ -327,7 +363,8 @@ function extractMetadataFromJsonl(filePath: string): JsonlMetadata | null {
       cwd,
       lineCount: lines.length
     }
-  } catch {
+  } catch (e) {
+    console.debug('session-discovery: extractMetadataFromJsonl failed for', filePath, e)
     return null
   }
 }

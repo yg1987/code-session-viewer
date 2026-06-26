@@ -63,7 +63,7 @@ export async function computeGlobalStats(): Promise<GlobalStats> {
             processSessionFile(path.join(subDir, sf), stats, dailyMap, { isSubagent: true })
           } catch { /* skip */ }
         }
-      } catch { /* skip */ }
+      } catch (e) { console.debug('global-stats: failed reading subagent dir', subDir, e) }
     }
   }
 

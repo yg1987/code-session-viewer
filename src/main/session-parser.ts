@@ -123,7 +123,10 @@ function classifyEntries(entries: RawEntry[], includeSidechain?: boolean): Class
       if (isToolResultContent(content)) {
         toolResults.push(entry)
       } else if (isUserTextContent(content)) {
-        userMessages.push(entry)
+        // Skip system prompts forwarded to teammate agents
+        if (!isTeammatePrompt(content)) {
+          userMessages.push(entry)
+        }
       }
     }
   }
@@ -140,6 +143,19 @@ function isUserTextContent(content: unknown): boolean {
   if (typeof content === 'string') return true
   if (!Array.isArray(content)) return false
   return content.some((c: { type?: string }) => c.type === 'text')
+}
+
+/** Check if user text looks like a system prompt forwarded to a teammate agent */
+function isTeammatePrompt(content: unknown): boolean {
+  const extractText = (c: unknown): string => {
+    if (typeof c === 'string') return c
+    if (Array.isArray(c)) return c.filter((b: { type?: string }) => b.type === 'text').map((b: { text?: string }) => b.text || '').join(' ')
+    return ''
+  }
+  const text = extractText(content)
+  return /<(observed_from_primary_session|environment_context|permissions|app-context|collaboration_mode|skills_instructions|plugins_instructions)/.test(text)
+    || /<teammate-/.test(text)
+    || /\b(CRITICAL:|WHAT TO RECORD|WHEN TO SKIP|SPATIAL AWARENESS)/.test(text)
 }
 
 interface MergedAssistant {
@@ -577,7 +593,8 @@ function scanJsonlIntoLatest(
   let content: string
   try {
     content = fs.readFileSync(filePath, 'utf-8')
-  } catch {
+  } catch (e) {
+    console.debug('session-parser: scanJsonlIntoLatest failed to read', filePath, e)
     return
   }
   const lines = content.split('\n')
